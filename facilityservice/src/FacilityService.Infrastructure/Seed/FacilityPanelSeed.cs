@@ -49,7 +49,7 @@ public static class FacilityPanelSeed
 
         foreach (var (type, titles) in Reasons)
             for (var i = 0; i < titles.Length; i++)
-                db.Reasons.Add(new Reason(type, titles[i], i));
+                db.Reasons.Add(new Reason(scheme.Id, type, titles[i], i));
         await db.SaveChangesAsync(ct);
     }
 }

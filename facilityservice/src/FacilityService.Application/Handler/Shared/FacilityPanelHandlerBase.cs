@@ -87,7 +87,37 @@ public abstract class FacilityPanelHandlerBase(IFacilityPanelDbContext db, IFaci
         await Db.SchemeSettings.Include(s => s.Plans).FirstOrDefaultAsync(s => s.SchemeId == schemeId, ct)
         ?? throw FacilityDomainException.NotFound("اطلاعات پایهٔ این طرح تعریف نشده است.");
 
-    protected async Task<Reason> ReasonAsync(int? id, ReasonType type, string requiredMessage, CancellationToken ct)
+    /// <summary>
+    /// دلیل، در دامنهٔ طرح. هر دلیل به یک طرح تعلق دارد، پس دلیلی که به طرح این شرکت
+    /// تعلق ندارد همان‌قدر نامعتبر است که دلیل ناموجود.
+    /// </summary>
+    /// <summary>
+    /// طرح پیش‌فرض، برای فراخوان‌هایی که طرح نمی‌فرستند. تا وقتی یک طرح فعال هست کار می‌کند؛
+    /// با طرح دوم عمداً خطا می‌دهد تا کسی بی‌خبر فهرست طرح اشتباهی را نگیرد.
+    /// </summary>
+    protected async Task<int> DefaultSchemeIdAsync(CancellationToken ct)
+    {
+        var active = await Db.Schemes.Where(s => s.IsActive).Select(s => s.Id).Take(2).ToListAsync(ct);
+        return active.Count switch
+        {
+            1 => active[0],
+            0 => throw Invalid("هیچ طرح فعالی تعریف نشده است."),
+            _ => throw Invalid("بیش از یک طرح فعال وجود دارد؛ طرح را در درخواست مشخص کنید (schemeId)."),
+        };
+    }
+
+    protected async Task<Reason> ReasonAsync(int? id, ReasonType type, int schemeId, string requiredMessage, CancellationToken ct)
+    {
+        if (id is null or <= 0) throw Invalid(requiredMessage);
+        return await Db.Reasons.FirstOrDefaultAsync(r => r.Id == id && r.SchemeId == schemeId && r.Type == type && r.IsActive, ct)
+               ?? throw Invalid(requiredMessage);
+    }
+
+    /// <summary>
+    /// دلیل، بدون قید طرح — برای تصمیم گروهی که ردیف‌هایش می‌توانند از چند طرح باشند.
+    /// تطابق طرح همان‌جا و برای هر ردیف بررسی می‌شود، تا ردیف ناهمخوان رد شود نه کل دسته.
+    /// </summary>
+    protected async Task<Reason> ReasonAnySchemeAsync(int? id, ReasonType type, string requiredMessage, CancellationToken ct)
     {
         if (id is null or <= 0) throw Invalid(requiredMessage);
         return await Db.Reasons.FirstOrDefaultAsync(r => r.Id == id && r.Type == type && r.IsActive, ct) ?? throw Invalid(requiredMessage);

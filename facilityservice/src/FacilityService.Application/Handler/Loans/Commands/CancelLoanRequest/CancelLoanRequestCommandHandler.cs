@@ -16,7 +16,7 @@ public sealed class CancelLoanRequestCommandHandler(IFacilityPanelDbContext db, 
         var loan = await Db.LoanRequests.Include(l => l.History).FirstOrDefaultAsync(l => l.Id == request.Id, ct);
         if (loan == null || !CanOn(K.LoansCancel, loan)) throw FacilityDomainException.NotFound("درخواست یافت نشد.");
         var company = await CompanyInScopeAsync(loan.CompanyId, ct, K.LoansCancel);
-        var reason = await ReasonAsync(request.ReasonId, ReasonType.LoanCancel, "انتخاب دلیل لغو الزامی است.", ct);
+        var reason = await ReasonAsync(request.ReasonId, ReasonType.LoanCancel, company.SchemeId, "انتخاب دلیل لغو الزامی است.", ct);
         var before = loan.Status;
         loan.Cancel(reason, request.Description, Me, Now);
         Log(ChangeLogCategory.Loan, "لغو درخواست وام", $"درخواست {PersianText.Number(loan.Id)}: {reason.Title}", company,

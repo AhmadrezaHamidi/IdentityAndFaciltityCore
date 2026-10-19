@@ -12,6 +12,7 @@ namespace FacilityService.Application.Handler.BasicInfo.Commands.UpdateReason;
 
 public sealed record UpdateReasonCommand : FacilityBaseCommand<FacilityBaseMessageResponse<ReasonDto>>
 {
+    [JsonIgnore, BindNever] public int SchemeId { get; init; }
     [JsonIgnore, BindNever] public int Id { get; init; }
     [Required, StringLength(100, MinimumLength = 3)] public string Title { get; init; } = null!;
     public bool IsActive { get; init; } = true;

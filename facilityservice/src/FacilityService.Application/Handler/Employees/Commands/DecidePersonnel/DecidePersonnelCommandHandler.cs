@@ -15,10 +15,12 @@ public sealed class DecidePersonnelCommandHandler(IFacilityPanelDbContext db, IF
     public async Task<FacilityBaseMessageResponse<int>> Handle(DecidePersonnelCommand request, CancellationToken ct)
     {
         var approve = request.Decision == DecisionType.Approve;
-        string? reasonTitle = null;
+        Reason? reason = null;
         // سند (پرسنل شرکت ۲): «برای رد، توضیح اختیاری ثبت شود»؛ دلیل از فهرست هم اختیاری است، ولی اگر آمد باید معتبر باشد.
+        // دلیل‌ها به طرح تعلق دارند و دسته می‌تواند چند شرکت از چند طرح داشته باشد، پس
+        // تطابق طرح برای هر نفر جدا بررسی می‌شود.
         if (!approve && request.ReasonId is > 0)
-            reasonTitle = (await ReasonAsync(request.ReasonId, ReasonType.PersonnelReject, "دلیل رد انتخاب‌شده معتبر نیست.", ct)).Title;
+            reason = await ReasonAnySchemeAsync(request.ReasonId, ReasonType.PersonnelReject, "دلیل رد انتخاب‌شده معتبر نیست.", ct);
 
         var ids = request.PersonnelIds.Distinct().ToList();
         var people = await Db.Personnel.Include(p => p.History).Where(p => ids.Contains(p.Id)).ToListAsync(ct);
@@ -28,6 +30,8 @@ public sealed class DecidePersonnelCommandHandler(IFacilityPanelDbContext db, IF
         foreach (var person in people)
         {
             if (!companies.TryGetValue(person.CompanyId, out var company) || !CanOn(K.PersonnelApprove, company)) continue;
+            if (reason != null && reason.SchemeId != company.SchemeId) continue;
+            var reasonTitle = reason?.Title;
             if (!person.TryDecide(approve, reasonTitle, request.Description?.Trim(), Me, Now)) continue;
             processed++;
             Log(ChangeLogCategory.Personnel, approve ? "تأیید پرسنل" : "رد پرسنل", person.FullName + (reasonTitle != null ? $" — {reasonTitle}" : ""), company);

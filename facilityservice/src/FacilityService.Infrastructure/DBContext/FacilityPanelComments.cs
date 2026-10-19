@@ -170,6 +170,7 @@ public static class FacilityPanelComments
         ["LoanRequestDocuments.RequestId"] = "درخواست",
         ["LoanRequestDocuments.FileId"] = "فایل (یک فایل می‌تواند پیوست چند درخواست گروهی باشد)",
         ["Reasons.Id"] = "شناسه",
+        ["Reasons.SchemeId"] = "طرحی که این مورد به آن تعلق دارد",
         ["Reasons.Type"] = "۱ لغو قرارداد، ۲ رد وام، ۳ عدم اعطای غیرحضوری، ۴ لغو درخواست، ۵ رد پرسنل، ۶ نوع مستند",
         ["Reasons.Title"] = "عنوان",
         ["Reasons.IsActive"] = "فعال",

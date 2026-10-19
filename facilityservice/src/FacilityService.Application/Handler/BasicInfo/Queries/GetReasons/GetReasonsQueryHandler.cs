@@ -14,8 +14,9 @@ public sealed class GetReasonsQueryHandler(IFacilityPanelDbContext db, IFacility
     {
         // فهرست غیرفعال‌ها فقط برای کسی که اطلاعات پایه را ویرایش می‌کند
         var includeInactive = request.IncludeInactive && Permissions.HasAnywhere(FacilityPermissionKeys.BasicInfoEdit);
+        var schemeId = request.SchemeId > 0 ? request.SchemeId : await DefaultSchemeIdAsync(ct);
         return Ok<IReadOnlyList<ReasonDto>>(await Db.Reasons
-            .Where(r => r.Type == request.Type && (includeInactive || r.IsActive))
+            .Where(r => r.SchemeId == schemeId && r.Type == request.Type && (includeInactive || r.IsActive))
             .OrderBy(r => r.SortOrder).ThenBy(r => r.Id)
             .Select(r => new ReasonDto(r.Id, r.Type, r.Title, r.IsActive, r.SortOrder)).ToListAsync(ct));
     }

@@ -10,6 +10,10 @@ public sealed class ReasonConfiguration : IEntityTypeConfiguration<Reason>
     {
         e.ToTable("Reasons", Schema);
         e.Property(x => x.Title).HasMaxLength(100).IsRequired();
-        e.HasIndex(x => new { x.Type, x.IsActive, x.SortOrder });
+        // کشویی‌ها همیشه با (طرح، نوع) خوانده می‌شوند
+        e.HasIndex(x => new { x.SchemeId, x.Type, x.IsActive, x.SortOrder });
+        // عنوان تکراری در یک طرح و یک نوع پذیرفته نمی‌شود؛ غیرفعال‌ها بیرون‌اند تا
+        // بتوان عنوانی را که قبلاً حذف نرم شده دوباره ساخت.
+        e.HasIndex(x => new { x.SchemeId, x.Type, x.Title }).IsUnique().HasFilter("[IsActive] = 1");
     }
 }

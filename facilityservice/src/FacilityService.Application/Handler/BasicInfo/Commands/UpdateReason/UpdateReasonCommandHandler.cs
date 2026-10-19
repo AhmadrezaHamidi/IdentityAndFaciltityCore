@@ -12,7 +12,8 @@ public sealed class UpdateReasonCommandHandler(IFacilityPanelDbContext db, IFaci
 {
     public async Task<FacilityBaseMessageResponse<ReasonDto>> Handle(UpdateReasonCommand request, CancellationToken ct)
     {
-        var reason = await Db.Reasons.FirstOrDefaultAsync(r => r.Id == request.Id, ct) ?? throw FacilityDomainException.NotFound("مورد یافت نشد.");
+        var reason = await Db.Reasons.FirstOrDefaultAsync(r => r.Id == request.Id && r.SchemeId == request.SchemeId, ct)
+                     ?? throw FacilityDomainException.NotFound("مورد یافت نشد.");
         var before = reason.Title;
         reason.Update(request.Title, request.IsActive, request.SortOrder);
         Log(ChangeLogCategory.Company, "ویرایش فهرست اطلاعات پایه", reason.Title, null, new { title = before }, new { title = reason.Title, reason.IsActive });

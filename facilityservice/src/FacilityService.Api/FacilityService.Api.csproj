@@ -94,6 +94,11 @@
     <Using Include="FacilityService.Application.Handler.Loans.Queries.PreviewLoanRequest" />
     <Using Include="FacilityService.Application.Handler.Loans.Queries.SearchLoanRequests" />
     <Using Include="FacilityService.Application.Handler.Lookups.Queries.GetEnumCatalog" />
+    <Using Include="FacilityService.Application.Handler.BasicInfo.Queries.SearchSchemes" />
+    <Using Include="FacilityService.Application.Handler.BasicInfo.Queries.GetScheme" />
+    <Using Include="FacilityService.Application.Handler.BasicInfo.Commands.SaveScheme" />
+    <Using Include="FacilityService.Application.Handler.BasicInfo.Commands.DeleteScheme" />
+    <Using Include="FacilityService.Application.Handler.BasicInfo.Shared" />
     <Using Include="FacilityService.Application.Handler.Loans.Queries.DownloadLoanDocument" />
     <Using Include="FacilityService.Application.Handler.Dashboard.Queries.GetDashboardMonths" />
     <Using Include="FacilityService.Application.Handler.ChangeLogs.Queries.GetChangeLogUsers" />

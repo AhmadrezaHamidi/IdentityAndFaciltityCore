@@ -18,7 +18,7 @@ public sealed class UploadBalanceDocumentsCommandHandler(IFacilityPanelDbContext
         if (request.Files.Count == 0) throw Invalid("حداقل یک فایل انتخاب کنید.");
         if (request.Month != null && !Jalali.ContractMonths(company.ContractDate, Today).Contains(request.Month))
             throw Invalid($"ماه {PersianText.Digits(request.Month)} در سال جاری قرارداد نیست.");
-        await ReasonAsync(request.DocumentTypeId, ReasonType.DocumentType, "نوع مستند را انتخاب کنید.", ct);
+        await ReasonAsync(request.DocumentTypeId, ReasonType.DocumentType, company.SchemeId, "نوع مستند را انتخاب کنید.", ct);
         foreach (var f in request.Files)
         {
             var error = FileRules.Validate(f, FileRules.BalanceDocumentExtensions, FileRules.FiveMb, required: true);

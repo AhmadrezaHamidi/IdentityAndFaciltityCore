@@ -1,9 +1,19 @@
 namespace FacilityService.Domain.Entity.BasicInfo;
 
-/// <summary>فهرست‌های داینامیک اطلاعات پایه (دلایل لغو، رد، نوع مستند، ...).</summary>
+/// <summary>
+/// فهرست‌های داینامیک اطلاعات پایه (دلایل لغو، رد، نوع مستند، ...).
+///
+/// هر دلیل به یک طرح تعلق دارد: سند فرانت فهرست‌های ۱۱ تا ۱۴ را بخشی از فرم طرح می‌داند و
+/// هر طرح می‌تواند تعداد متفاوتی داشته باشد. قبلاً یک فهرست سراسری بود، یعنی دلیل لغو
+/// «نگین میثاق» در کشویی «شجره طیبه» هم ظاهر می‌شد.
+/// </summary>
 public class Reason
 {
     public int Id { get; private set; }
+
+    /// <summary>طرحی که این دلیل به آن تعلق دارد.</summary>
+    public int SchemeId { get; private set; }
+
     public ReasonType Type { get; private set; }
     public string Title { get; private set; } = null!;
     public bool IsActive { get; private set; } = true;
@@ -11,8 +21,9 @@ public class Reason
 
     private Reason() { }
 
-    public Reason(ReasonType type, string title, int sortOrder)
+    public Reason(int schemeId, ReasonType type, string title, int sortOrder)
     {
+        SchemeId = schemeId;
         Type = type;
         Rename(title);
         SortOrder = sortOrder;

@@ -12,7 +12,8 @@ public sealed class DeleteReasonCommandHandler(IFacilityPanelDbContext db, IFaci
 {
     public async Task<FacilityBaseMessageResponse<bool>> Handle(DeleteReasonCommand request, CancellationToken ct)
     {
-        var reason = await Db.Reasons.FirstOrDefaultAsync(r => r.Id == request.Id, ct) ?? throw FacilityDomainException.NotFound("مورد یافت نشد.");
+        var reason = await Db.Reasons.FirstOrDefaultAsync(r => r.Id == request.Id && r.SchemeId == request.SchemeId, ct)
+                     ?? throw FacilityDomainException.NotFound("مورد یافت نشد.");
         reason.Deactivate();
         Log(ChangeLogCategory.Company, "حذف از فهرست اطلاعات پایه", reason.Title, null);
         await Db.SaveChangesAsync(ct);

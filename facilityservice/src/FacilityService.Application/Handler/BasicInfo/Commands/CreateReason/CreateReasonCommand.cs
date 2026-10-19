@@ -12,6 +12,9 @@ namespace FacilityService.Application.Handler.BasicInfo.Commands.CreateReason;
 
 public sealed record CreateReasonCommand : FacilityBaseCommand<FacilityBaseMessageResponse<ReasonDto>>
 {
+    /// <summary>طرحی که این مورد به آن اضافه می‌شود؛ از مسیر خوانده می‌شود.</summary>
+    [JsonIgnore, BindNever] public int SchemeId { get; init; }
+
     [Required] public ReasonType Type { get; init; }
 
     /// <summary>فیلد ۴۶: ۳ تا ۱۰۰ حرف فارسی</summary>

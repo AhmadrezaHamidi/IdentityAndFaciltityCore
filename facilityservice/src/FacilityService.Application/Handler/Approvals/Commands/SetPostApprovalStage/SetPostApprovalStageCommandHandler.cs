@@ -18,7 +18,8 @@ public sealed class SetPostApprovalStageCommandHandler(IFacilityPanelDbContext d
         var company = await Db.Companies.FirstAsync(c => c.Id == loan.CompanyId, ct);
         Reason? reason = null;
         if (request.Stage == PostApprovalStage.RemoteGrantDenied)
-            reason = await ReasonAsync(request.ReasonId, ReasonType.RemoteGrantDenied, "برای «عدم اعطای تسهیلات غیرحضوری» انتخاب دلیل الزامی است.", ct);
+            reason = await ReasonAsync(request.ReasonId, ReasonType.RemoteGrantDenied, company.SchemeId,
+                "برای «عدم اعطای تسهیلات غیرحضوری» انتخاب دلیل الزامی است.", ct);
         var before = loan.PostStage;
         loan.SetPostStage(request.Stage, reason, string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim(), Me, Now);
         Log(ChangeLogCategory.Loan, "تغییر مرحلهٔ پس از تأیید", $"درخواست {PersianText.Number(loan.Id)}", company, new { stage = before }, new { stage = loan.PostStage });

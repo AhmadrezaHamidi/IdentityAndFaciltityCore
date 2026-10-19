@@ -11,4 +11,4 @@ using Microsoft.EntityFrameworkCore;
 namespace FacilityService.Application.Handler.BasicInfo.Commands.DeleteReason;
 
 /// <summary>حذف نرم (غیرفعال)؛ رکوردهای قدیمی که این دلیل را دارند سالم می‌مانند.</summary>
-public sealed record DeleteReasonCommand(int Id) : FacilityBaseCommand<FacilityBaseMessageResponse<bool>>;
+public sealed record DeleteReasonCommand(int SchemeId, int Id) : FacilityBaseCommand<FacilityBaseMessageResponse<bool>>;

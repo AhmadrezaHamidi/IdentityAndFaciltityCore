@@ -77,11 +77,15 @@ public class CompaniesController(ILogger<CompaniesController> logger) : Facility
     public async Task<IActionResult> Balances(long id, CancellationToken ct) => HandleResult(await _mediator.Send(new GetCompanyBalancesQuery(id), ct));
 
     [HttpPut("{id:long}/Balances")]
+    [Consumes("multipart/form-data")]
     [RequireFacilityPermission(K.CompaniesBalanceEdit)]
-    [SwaggerOperation(OperationId = "Companies_BalancesSave", Summary = "ذخیرهٔ میانگین‌ها (US-B4)", Description = "فقط کاربر شعبه (شعبهٔ خود) و ادمین. مبلغ قبلی و جدید در گزارش تغییرات.")]
+    [SwaggerOperation(OperationId = "Companies_BalancesSave", Summary = "ذخیرهٔ میانگین‌ها همراه مستندش (US-B4، US-B5)",
+        Description = "فقط کاربر شعبه (شعبهٔ خود) و ادمین. ⚠ بدنه multipart شد: اگر مبلغی عوض شود، documentTypeId و حداقل یک فایل الزامی است و هر دو در یک تراکنش ثبت می‌شوند. "
+                    + "یک مستند همهٔ ماه‌های تغییریافتهٔ همین ذخیره را پوشش می‌دهد. اگر هیچ مبلغی عوض نشود، مستند لازم نیست. مبلغ قبلی و جدید در گزارش تغییرات ثبت می‌شود.")]
     [SwaggerResponse(200, null, typeof(FacilityBaseMessageResponse<CompanyBalancesDto>))]
-    public async Task<IActionResult> SaveBalances(long id, [FromBody] UpdateCompanyBalancesCommand command, CancellationToken ct)
-        => HandleResult(await _mediator.Send(command with { CompanyId = id }, ct));
+    [SwaggerResponse(400, "مستند نیامده، نوع مستند نامعتبر، ماه خارج از سال جاری قرارداد، یا مبلغ نامعتبر.", typeof(FacilityBaseMessageResponse<object>))]
+    public async Task<IActionResult> SaveBalances(long id, [FromForm] UpdateCompanyBalancesCommand command, List<IFormFile> files, CancellationToken ct)
+        => HandleResult(await _mediator.Send(command with { CompanyId = id, Files = await files.ToUploadsAsync(ct) }, ct));
 
     [HttpGet("{id:long}/Balances/Documents")]
     [RequireFacilityPermission(K.CompaniesDocumentsView)]

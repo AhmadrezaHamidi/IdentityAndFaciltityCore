@@ -19,11 +19,13 @@ public sealed class DecideLoanRequestsCommandHandler(IFacilityPanelDbContext db,
         var ids = request.RequestIds.Distinct().ToList();
         if (ids.Count == 0) throw Invalid("حداقل یک درخواست انتخاب کنید.");
 
-        string? reasonTitle = null;
+        // دلیل‌ها به طرح تعلق دارند و یک دسته می‌تواند شرکت‌هایی از چند طرح داشته باشد، پس
+        // دلیل بدون قید طرح خوانده و تطابقش برای هر ردیف بررسی می‌شود.
+        Reason? rejectReason = null;
         var description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim();
         if (!approve)
         {
-            reasonTitle = (await ReasonAsync(request.ReasonId, ReasonType.LoanReject, "برای رد، انتخاب دلیل الزامی است.", ct)).Title;
+            rejectReason = await ReasonAnySchemeAsync(request.ReasonId, ReasonType.LoanReject, "برای رد، انتخاب دلیل الزامی است.", ct);
             if (description == null) throw Invalid("برای رد، درج توضیحات الزامی است.");
         }
         // US-A6: تصمیم ادمین در «تأیید اعتبارات» و «تأیید شعبهٔ دیجیتال» با درج توضیحات و الصاق فایل اجباری است؛
@@ -42,7 +44,7 @@ public sealed class DecideLoanRequestsCommandHandler(IFacilityPanelDbContext db,
             if (!Permissions.HasAnywhere(K.CreditApprovalStage))
                 throw FacilityDomainException.Forbidden("به ثبت «مرحلهٔ پس از تأیید» دسترسی ندارید.");
             if (postStage == PostApprovalStage.RemoteGrantDenied)
-                postReason = await ReasonAsync(request.PostStageReasonId, ReasonType.RemoteGrantDenied,
+                postReason = await ReasonAnySchemeAsync(request.PostStageReasonId, ReasonType.RemoteGrantDenied,
                     "برای «عدم اعطای تسهیلات غیرحضوری» انتخاب دلیل الزامی است.", ct);
         }
 
@@ -64,6 +66,17 @@ public sealed class DecideLoanRequestsCommandHandler(IFacilityPanelDbContext db,
         {
             if (!loans.TryGetValue(id, out var loan) || !CanOn(key, loan)) { skipped.Add(new(id, "خارج از دامنهٔ شما")); continue; }
             var company = companies[loan.CompanyId];
+            if (rejectReason != null && rejectReason.SchemeId != company.SchemeId)
+            {
+                skipped.Add(new(id, "دلیل انتخاب‌شده به طرح این شرکت تعلق ندارد"));
+                continue;
+            }
+            if (postReason != null && postReason.SchemeId != company.SchemeId)
+            {
+                skipped.Add(new(id, "دلیل «عدم اعطای غیرحضوری» به طرح این شرکت تعلق ندارد"));
+                continue;
+            }
+            var reasonTitle = rejectReason?.Title;
             var before = loan.Status;
             if (!loan.TryDecide(request.Stage, approve, digital.GetValueOrDefault(company.SchemeId), reasonTitle, description, Me, Now))
             {
