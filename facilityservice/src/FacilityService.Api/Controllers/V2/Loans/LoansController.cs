@@ -23,7 +23,8 @@ public class LoansController(ILogger<LoansController> logger) : FacilityPanelCon
     [HttpPost("Companies/{companyId:long}/LoanRequests/Preview")]
     [RequireFacilityPermission(K.LoansCreate)]
     [SwaggerOperation(OperationId = "Loans_Preview", Summary = "هینت‌های زندهٔ فرم (US-E5، D6)",
-        Description = "مجموع، مجاز بودن، «حداکثر تا N نفر با این مبلغ»، هشدار تجاوز از اعتبار. چیزی ذخیره نمی‌شود.")]
+        Description = "مجموع، مجاز بودن، «حداکثر تا N نفر با این مبلغ»، هشدار تجاوز از اعتبار، و repeatAllocations: افرادی که در همین ماه قبلاً وام گرفته‌اند. "
+                    + "repeatAllocations هشدار است نه خطا — isAllowed را عوض نمی‌کند و ثبت را قفل نمی‌کند؛ فرانت فهرست را نشان می‌دهد و تأیید دوباره می‌گیرد. چیزی ذخیره نمی‌شود.")]
     [SwaggerResponse(200, null, typeof(FacilityBaseMessageResponse<LoanRequestPreviewDto>))]
     public async Task<IActionResult> Preview(long companyId, [FromBody] PreviewLoanRequestQuery query, CancellationToken ct)
         => HandleResult(await _mediator.Send(query with { CompanyId = companyId }, ct));
