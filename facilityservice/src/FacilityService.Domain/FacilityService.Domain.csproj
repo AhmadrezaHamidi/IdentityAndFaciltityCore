@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- دامنهٔ پنل Facility (طرح نگین میثاق). ساختار مثل identityservice: Entity/<Context>، Enums، Rules، Helpers، Exceptions. -->
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><RootNamespace>FacilityService.Domain</RootNamespace></PropertyGroup>
+  <ItemGroup>
+    <Using Include="FacilityService.Domain.Entity.BasicInfo" />
+    <Using Include="FacilityService.Domain.Entity.ChangeLogs" />
+    <Using Include="FacilityService.Domain.Entity.Common" />
+    <Using Include="FacilityService.Domain.Entity.Companies" />
+    <Using Include="FacilityService.Domain.Entity.Employees" />
+    <Using Include="FacilityService.Domain.Entity.Loans" />
+    <Using Include="FacilityService.Domain.Enums" />
+    <Using Include="FacilityService.Domain.Exceptions" />
+    <Using Include="FacilityService.Domain.Helpers" />
+    <Using Include="FacilityService.Domain.Rules" />
+  </ItemGroup>
+</Project>

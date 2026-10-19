@@ -1,0 +1,22 @@
+{
+  "profiles": {
+    "IdentityService.Api": {
+      "commandName": "Project",
+      "launchUrl": "http://localhost:4000/swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Local"
+      },
+      "applicationUrl": "http://0.0.0.0:4000"
+    },
+  
+  "Local": {
+    "commandName": "Project",
+    "launchBrowser": true,
+    "launchUrl": "swagger",
+    "environmentVariables": {
+      "ASPNETCORE_ENVIRONMENT": "Local"
+    },
+    "applicationUrl": "http://localhost:4000"
+  }
+  }
+}

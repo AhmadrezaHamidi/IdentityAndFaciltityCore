@@ -1,0 +1,319 @@
+variables:
+  REPO: "harbor.abromid.ir/omidbank"
+  PROJECT_NAME: identity-service-api
+  NAMESPACE: omidbank-backend
+  VALUES_DEV: "deployment/development/values.yaml"
+  VALUES_QA: "deployment/qa/values.yaml"
+  VALUES_STG: "deployment/stg/values.yaml"
+  VALUES_PROD: "deployment/prod/values.yaml"
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+  GIT_DEPTH: "0"
+  # NuGet package cache location
+  NUGET_PACKAGES: "${CI_PROJECT_DIR}/.nuget/packages"
+
+stages:
+  - sonar-analysis
+  - sonar-report
+  - build
+  - deploy
+
+# SonarQube Analysis - Maximum Performance Optimization
+build-sonar:
+  stage: sonar-analysis
+  image: harbor.abromid.ir/mcr/dotnet/sdk:8.0
+  tags:
+    - docker
+    - sonar
+  variables:
+    # .NET Performance optimizations
+    DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+    DOTNET_NOLOGO: "true"
+    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
+    
+    # HTTP/Network optimizations
+    DOTNET_SYSTEM_NET_HTTP_SOCKETSHTTPHANDLER_HTTP2SUPPORT: "false"
+    DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER: "true"
+    
+    # NuGet optimizations
+    NUGET_XMLDOC_MODE: "skip"
+    NUGET_CERT_REVOCATION_MODE: "offline"
+    DOTNET_NUGET_SIGNATURE_VERIFICATION: ***
+    
+    # Restore optimizations
+    DOTNET_RESTORE_USE_STATIC_GRAPH_EVALUATION: "false"
+    
+    # Additional performance tweaks
+    MSBUILDDISABLENODEREUSE: "1"
+    DOTNET_CLI_UI_LANGUAGE: "en"
+    
+  cache:
+    - key: "sonar-scanner-${CI_COMMIT_REF_SLUG}"
+      paths:
+        - "${SONAR_USER_HOME}/cache"
+        - sonar-scanner/
+    - key: "dotnet-tools-${CI_COMMIT_REF_SLUG}"
+      paths:
+        - ~/.dotnet/tools/
+    - key: "nuget-packages-${CI_PROJECT_ID}"
+      paths:
+        - .nuget/packages/
+      policy: pull-push
+      
+  before_script:
+    - mkdir -p ~/.nuget/NuGet
+    - mkdir -p ${NUGET_PACKAGES}
+    - |
+      cat > ~/.nuget/NuGet/NuGet.Config <<'EOF'
+      <?xml version="1.0" encoding="utf-8"?>
+      <configuration>
+        <packageSources>
+          <add key="nuget-group" value="https://nuget.abromid.ir/repository/nuget-group/index.json" />
+        </packageSources>
+        <config>
+          <add key="http_timeout" value="300" />
+          <add key="maxHttpRequestsPerSource" value="16" />
+          <add key="signatureValidationMode" value="accept" />
+          <add key="globalPackagesFolder" value="${NUGET_PACKAGES}" />
+        </config>
+      </configuration>
+      EOF
+      
+  script: 
+    # Install sonar scanner only if not already installed
+    - |
+      if ! command -v dotnet-sonarscanner &> /dev/null; then
+        echo "Installing dotnet-sonarscanner..."
+        dotnet tool install --global dotnet-sonarscanner --configfile ~/.nuget/NuGet/NuGet.Config
+      else
+        echo "dotnet-sonarscanner already installed, skipping..."
+      fi
+    - "export PATH=\"$PATH:$HOME/.dotnet/tools\""
+
+    - env | grep SONAR
+    - echo "HOST=[$SONAR_HOST_URL]"
+    - echo "TOKEN LENGTH=${#SONAR_TOKEN}"
+    - curl -vk "$SONAR_HOST_URL/api/server/version"    
+    
+    # Start SonarQube analysis
+    - "dotnet sonarscanner begin /k:\"omidbank_back-end_neo-bank_services_identityservice_7fd21578-5ba3-4ab0-9e66-16aa75383bbb\" /d:sonar.token=\"$SONAR_TOKEN\" /d:\"sonar.host.url=$SONAR_HOST_URL\" "
+    
+    # Optimized restore - Maximum speed
+    - |
+      echo "Starting package restore..."
+      dotnet restore \
+        --configfile ~/.nuget/NuGet/NuGet.Config \
+        --verbosity minimal
+
+    # Build without restore
+    - "dotnet build --no-restore --verbosity minimal --nologo"
+    
+    # End SonarQube analysis
+    - "dotnet sonarscanner end /d:sonar.token=\"$SONAR_TOKEN\""
+    
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'develop'
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+  timeout: 30m
+
+sonarqube-vulnerability-report:
+  stage: sonar-report
+  image: harbor.abromid.ir/dockerhub/curlimages/curl:latest
+  tags:
+    - docker
+    - sonar
+  needs:
+    - job: build-sonar
+      optional: true
+  script:
+    - 'curl -u "${SONAR_TOKEN}:" "${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=omidbank_back-end_neo-bank_services_identityservice_7fd21578-5ba3-4ab0-9e66-16aa75383bbb&branch=${CI_COMMIT_BRANCH}&pullRequest=${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json'
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'develop'
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+  artifacts:
+    expire_in: 1 day
+    reports:
+      sast: gl-sast-sonar-report.json
+
+# Docker Build - Runs on tags only
+docker-build:
+  stage: build
+  tags:
+    - shell
+  before_script:
+    - docker info
+  script:
+    - echo "Starting build on GitLab runner..."
+    - |
+       if [[ "$CI_COMMIT_TAG" =~ ^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-admin-panel-development$ ]]; then
+        echo "Tag is for admin panel development"
+        VER="$REPO/admin-panel-dev/$PROJECT_NAME:$CI_COMMIT_TAG"
+        ENV_VAR="Development"
+        MAIN_PROJECT="./Admin.Api"
+        ENTRY_DLL="Admin.Api.dll"
+        DOCKERFILE="Dockerfile-AdminPanel"
+       elif [[ "$CI_COMMIT_TAG" =~ ^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-admin-panel-staging$ ]]; then
+        echo "Tag is for admin panel staging"
+        VER="$REPO/admin-panel-stg/$PROJECT_NAME:$CI_COMMIT_TAG"
+        ENV_VAR="Staging"
+        MAIN_PROJECT="./Admin.Api"
+        ENTRY_DLL="Admin.Api.dll"
+        DOCKERFILE="Dockerfile-AdminPanel"
+       elif [[ "$CI_COMMIT_TAG" =~ ^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-development$ ]]; then
+        echo "Tag is for development"
+        VER="$REPO/dev/$PROJECT_NAME:$CI_COMMIT_TAG"
+        ENV_VAR="Development"
+        MAIN_PROJECT="./IdentityService.Api"
+        ENTRY_DLL="IdentityService.Api.dll"
+        DOCKERFILE="Dockerfile"
+       elif [[ "$CI_COMMIT_TAG" =~ ^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-qa$ ]]; then
+        echo "Tag is for QA"
+        VER="$REPO/qa/$PROJECT_NAME:$CI_COMMIT_TAG"
+        ENV_VAR="Qa"
+        MAIN_PROJECT="./IdentityService.Api"
+        ENTRY_DLL="IdentityService.Api.dll"
+        DOCKERFILE="Dockerfile"
+       elif [[ "$CI_COMMIT_TAG" =~ ^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-staging$ ]]; then
+        echo "Tag is for staging"
+        VER="$REPO/stg/$PROJECT_NAME:$CI_COMMIT_TAG"
+        ENV_VAR="Staging"
+        MAIN_PROJECT="./IdentityService.Api"
+        ENTRY_DLL="IdentityService.Api.dll"
+        DOCKERFILE="Dockerfile"
+       elif [[ "$CI_COMMIT_TAG" =~ ^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-release$ ]]; then
+        echo "Tag is for production"
+        VER="$REPO/prod/$PROJECT_NAME:$CI_COMMIT_TAG"
+        ENV_VAR="Production"
+        MAIN_PROJECT="./IdentityService.Api"
+        ENTRY_DLL="IdentityService.Api.dll"
+        DOCKERFILE="Dockerfile"
+       else
+        echo "Tag is invalid. Expected format: X.Y.Z-{development|qa|staging|release}"
+        exit 1
+       fi
+    - echo "CI_COMMIT_TAG=$CI_COMMIT_TAG"
+    - echo "VER=$VER"
+    - echo "MAIN_PROJECT=$MAIN_PROJECT"
+    - echo "ENTRY_DLL=$ENTRY_DLL"       
+    - echo "Building Docker image - $VER"
+    - docker build -t $VER --build-arg ENV_VAR=$ENV_VAR --build-arg MAIN_PROJECT=$MAIN_PROJECT --build-arg ENTRY_DLL=$ENTRY_DLL -f $DOCKERFILE .
+    - echo "Logging in to registry..."
+    - echo "$HARBOR_PASSWORD" | docker login "$HARBOR_URL" -u "$HARBOR_USERNAME" --password-stdin
+    - echo "Pushing image - $VER"
+    - docker push $VER
+    - echo "Cleaning up local image..."
+    - docker rmi $VER || true
+  only:
+    - tags
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+
+# Deployment - Runs on tags only
+deploy:
+  stage: deploy
+  image:
+    name: harbor.abromid.ir/dockerhub/dtzar/helm-kubectl:3.19.0
+    entrypoint: [""]
+  tags:
+    - docker
+  before_script:
+    - |
+      if [[ "$CI_COMMIT_TAG" =~ ^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-development$ ]]; then
+        echo "Tag is for development"
+        VALUES="$VALUES_DEV"
+        NAMESPACE="$NAMESPACE"-dev
+        KUBECONFIG="$KUBECONFIG_DEV"
+        ENV_VAR="dev"
+      elif [[ "$CI_COMMIT_TAG" =~ ^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-qa$ ]]; then
+        echo "Tag is for QA"
+        VALUES="$VALUES_QA"
+        NAMESPACE="$NAMESPACE"-qa
+        KUBECONFIG="$KUBECONFIG_DEV"
+        ENV_VAR="qa"
+      elif [[ "$CI_COMMIT_TAG" =~ ^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-staging$ ]]; then
+        echo "Tag is for staging"
+        VALUES="$VALUES_STG"
+        NAMESPACE="$NAMESPACE"-stg
+        KUBECONFIG="$KUBECONFIG_DEV"
+        ENV_VAR="stg"
+      elif [[ "$CI_COMMIT_TAG" =~ ^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-release$ ]]; then
+        echo "Tag is for production"
+        VALUES="$VALUES_PROD"
+        NAMESPACE="$NAMESPACE"-prod
+        KUBECONFIG="$KUBECONFIG_PROD"
+        ENV_VAR="prod"
+      else
+        echo "Tag is invalid. Expected format: X.Y.Z-{development|qa|staging|release}"
+        exit 1
+      fi
+    - mkdir -p ~/.kube
+    - echo "$KUBECONFIG" > ~/.kube/config
+    - echo "$HARBOR_PASSWORD" | helm registry login "$HARBOR_URL" --username "$HARBOR_USERNAME" --password-stdin
+  script:
+    - kubectl create secret docker-registry omidboom-registry --docker-server=harbor.abromid.ir --docker-username="***" --docker-password="***" -n "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
+    - helm upgrade -i -n "$NAMESPACE" "$PROJECT_NAME" oci://harbor.abromid.ir/helm/deployment -f "$VALUES" --set app.version="$CI_COMMIT_TAG" --create-namespace --wait --timeout 5m
+  rules:
+    # -staging tags deploy to the Talos prod cluster via ArgoCD (sync-talos-prod job);
+    # this legacy path must not run for them.
+    - if: '$CI_COMMIT_TAG =~ /^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-staging$/'
+      when: never
+    # admin-panel tags use sync-talos-admin-panel (or build-only for -development)
+    - if: '$CI_COMMIT_TAG =~ /admin-panel-(staging|development)$/'
+      when: never
+    - if: '$CI_COMMIT_TAG'
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+
+# GitOps sync for the Talos/vSphere prod cluster (terraform/environments/prod in the
+# talos-vsphere infra repo). That cluster is managed by ArgoCD (pull-based): this job only
+# bumps deployment/talos-prod/values.yaml on the LATEST develop and pushes; the ArgoCD
+# Application watches develop and auto-syncs into the "omidbank" namespace. Basing the bump
+# on origin/develop (not the tagged commit) keeps the push fast-forward even when the tag
+# is not on the branch tip.
+# Requires CI/CD variable GIT_PUSH_TOKEN (Project Access Token, scope write_repository).
+sync-talos-prod:
+  stage: deploy
+  image: harbor.abromid.ir/dockerhub/alpine/git:latest
+  variables:
+    GITOPS_BRANCH: develop
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-staging$/'
+  script:
+    - git config user.email "ci@abromid.ir"
+    - git config user.name "GitLab CI"
+    - git fetch origin "$GITOPS_BRANCH"
+    - git checkout -B ci-sync "origin/$GITOPS_BRANCH"
+    - 'sed -i "s#version: .*#version: ${CI_COMMIT_TAG}#" deployment/talos-prod/values.yaml'
+    - git add deployment/talos-prod/values.yaml
+    - 'git diff --cached --quiet || git commit -m "ci: sync talos-prod ${CI_COMMIT_TAG} [skip ci]"'
+    - git push "https://oauth2:${GIT_PUSH_TOKEN}@git.abromid.ir/${CI_PROJECT_PATH}.git" "ci-sync:${GITOPS_BRANCH}"
+
+# GitOps sync for Admin Panel (Admin.Api) into namespace "admin-panel" on the same Talos cluster.
+# Does NOT touch deployment/talos-prod or the omidbank microservice deploy path.
+# Requires CI/CD variable GIT_PUSH_TOKEN (Project Access Token, scope write_repository).
+sync-talos-admin-panel:
+  stage: deploy
+  needs: ["docker-build"]
+  image: harbor.abromid.ir/dockerhub/alpine/git:latest
+  variables:
+    GITOPS_BRANCH: develop
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}-admin-panel-staging$/'
+  script:
+    - git config user.email "ci@abromid.ir"
+    - git config user.name "GitLab CI"
+    - git fetch origin "$GITOPS_BRANCH"
+    - git checkout -B ci-sync-admin "origin/$GITOPS_BRANCH"
+    - 'sed -i "s#version: .*#version: ${CI_COMMIT_TAG}#" deployment/talos-admin-panel/values.yaml'
+    - 'sed -i "s#repository: .*#repository: harbor.abromid.ir/omidbank/admin-panel-stg/${PROJECT_NAME}#" deployment/talos-admin-panel/values.yaml'
+    - git add deployment/talos-admin-panel/values.yaml
+    - 'git diff --cached --quiet || git commit -m "ci: sync talos-admin-panel ${CI_COMMIT_TAG} [skip ci]"'
+    - git push "https://oauth2:${GIT_PUSH_TOKEN}@git.abromid.ir/${CI_PROJECT_PATH}.git" "ci-sync-admin:${GITOPS_BRANCH}"

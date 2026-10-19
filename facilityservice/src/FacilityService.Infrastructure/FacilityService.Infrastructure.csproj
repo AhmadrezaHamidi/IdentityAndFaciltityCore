@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- زیرساخت پنل Facility. ساختار مثل identityservice: DBContext، Configuration/<Context>، Migrations، Services/Storage، Seed. -->
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><RootNamespace>FacilityService.Infrastructure</RootNamespace></PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
+    <PackageReference Include="Minio" Version="6.0.3" />
+    <!-- فقط برای dotnet ef migrations (طراحی) -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10" PrivateAssets="all" />
+    <!-- فقط برای اجرای محلی بدون SQL Server (FacilityPanel:Provider = Sqlite) -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../FacilityService.Contracts/FacilityService.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="FacilityService.Domain.Entity.BasicInfo" />
+    <Using Include="FacilityService.Domain.Entity.ChangeLogs" />
+    <Using Include="FacilityService.Domain.Entity.Common" />
+    <Using Include="FacilityService.Domain.Entity.Companies" />
+    <Using Include="FacilityService.Domain.Entity.Employees" />
+    <Using Include="FacilityService.Domain.Entity.Loans" />
+    <Using Include="FacilityService.Domain.Enums" />
+    <Using Include="FacilityService.Domain.Exceptions" />
+    <Using Include="FacilityService.Domain.Helpers" />
+    <Using Include="FacilityService.Domain.Rules" />
+    <Using Include="FacilityService.Contracts.Persistence" />
+    <Using Include="FacilityService.Infrastructure.DBContext" />
+    <Using Include="FacilityService.Infrastructure.Seed" />
+    <Using Include="FacilityService.Infrastructure.Services.Storage" />
+  </ItemGroup>
+</Project>

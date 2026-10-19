@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- سند Entityهای Facility از روی مدل EF. اجرا: dotnet run با پروژهٔ tools/FacilityErDoc -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/FacilityService.Infrastructure/FacilityService.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="template.html" LogicalName="FacilityErDoc.template.html" />
+  </ItemGroup>
+</Project>

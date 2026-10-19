@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\IdentityService.Contracts\IdentityService.Contracts.csproj" />
+      <ProjectReference Include="..\IdentityService.Domain\IdentityService.Domain.csproj" />
+      <ProjectReference Include="..\IdentityService.Services\IdentityService.Services.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.20" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Handler\RegexValidations\Mapping\" />
+      <Folder Include="Handler\Tosan\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Update="Services\RedisBruteForceDetections\Scripts\CheckLockoutByPhoneAndIp.lua">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+        </Content>
+    </ItemGroup>
+</Project>

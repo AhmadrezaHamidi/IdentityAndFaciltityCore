@@ -1,0 +1,288 @@
+# talos-prod values — GitOps deploy of identity-service-api into the "omidbank" namespace of the
+# Talos/vSphere prod cluster (talos-vsphere repo, terraform/environments/prod), synced by
+# ArgoCD Application "identity-service-api". app.version is bumped by the sync-talos-prod CI job on every
+# X.Y.Z-staging tag. Env config below is flattened from appsettings.Development.json merged
+# with appsettings.Qa.json (Qa wins) because the image runs ASPNETCORE_ENVIRONMENT=Staging and
+# no appsettings.Staging.json exists — every env-specific key must arrive as an env var
+# (nested keys use "__"). Review endpoints before go-live: old-infra IPs need firewall rules
+# (see talos-vsphere docs/NETWORK-TEAM-FIREWALL-REQUEST-OMIDBANK-STAGING.md) and in-cluster
+# service names resolve only once the referenced sibling service is onboarded too.
+app:
+  version: 1.0.10-staging
+  port: 50013
+  protocol: TCP
+
+replicaCount: 1
+
+image:
+  repository: harbor.abromid.ir/omidbank/stg/identity-service-api
+  pullPolicy: IfNotPresent
+  command: ""
+  args: ""
+
+env:
+  fromConfigmap:
+    enabled: true
+    data:
+      MediaCenterServerSettings__IsMediaCenterServer: 'true'
+      MediaCenterServerSettings__MediaCenterServerAddress: 'ftp://xxx.xxx.xxx.xxx/mediacenter/files/'
+      MediaCenterServerSettings__MediaCenterServerUserName: ***
+      MediaCenterServerSettings__MediaCenterServerPassword: ***
+      MediaCenterServerSettings__OnlineMediaCenterAdress: 'https://neo.omidboom.ir/gateway/mediafiles/'
+      MediaCenterServerSettings__MediaCenterBaseFolderPath: 'C:/MediaFiles/Files'
+      Logging__LogLevel__Default: 'Trace'
+      Logging__LogLevel__Microsoft: 'Warning'
+      Logging__LogLevel__Microsoft.Hosting.Lifetime: 'Information'
+      Logging__LogLevel__IgnoreRoutes__0: '/v2/InternalIdentity/Authenticate'
+      Logging__LogLevel__IgnoreRoutes__1: '/v1/Identity/CheckApiKey'
+      AllowedHosts: '*'
+      IdentityServiceUrl: 'http://identity-service-api:50013'
+      LogServiceUrl: 'http://log-service-api:50014'
+      MMSServiceUrl: 'http://mms-service-api:50016'
+      WalletServiceUrl: 'http://wallet-service-api:50024'
+      MessageServiceUrl: 'http://message-service-api:50015'
+      SmsServiceUrl: 'http://message-service-api:50015'
+      ExtraDataServiceUrl: 'http://extra-data-service-api:50012'
+      FileServiceUrl: 'https://qa-pwa.omidbnk.ir/gateway/staticfile/avatars'
+      CdnBaseUrl: 'https://stg.bankomid.ir/gateway/staticfile/'
+      TestFileServiceUrl: 'http://172.19.29.2:1002/gateway/staticfile'
+      ThirdPartyServiceUrl: 'http://thirdparty-service-api:50025'
+      IsSmsTest: 'True'
+      IsPrivate: 'False'
+      UidBaseServiceUrl: 'https://json-api.uid.ir/api'
+      UidAuthBaseServiceUrl: 'https://internal-auth-api.uid.ir/'
+      UidBusinessId: '4028c082854878d001854dee66c80000'
+      UidBusinessToken: ***
+      AvatarPathStorage: 'D:/IIS/Service.StaticFiles/wwwroot/avatars'
+      NationalCardPath: 'C:/Publish/OmidBank/OmidBank.Services/StaticFileService/wwwroot/nationalCard'
+      SignPath: 'C:/Publish/OmidBank/OmidBank.Services/StaticFileService/wwwroot/signPath'
+      ConnectionStrings__IdentityConnection: ***
+      ConnectionStrings__TransactionConnection: ***
+      ConnectionStrings__ApiManagerConnection: ***
+      ConnectionStrings__WalletConnection: ***
+      MongoIdentityServiceSettings__Connection: ***
+      MongoIdentityServiceSettings__DatabaseName: 'OmidBank_dentityDb'
+      MongoLogServiceSettings__Connection: ***
+      MongoLogServiceSettings__DatabaseName: 'OmidBank_logDB'
+      JwtSettings__Issuer: 'Admin_Api'
+      JwtSettings__Audience: 'OmidBank'
+      JwtSettings__ExpirationMinutes: '60'
+      JwtSettings__JwtSecretKey: ***
+      JwtTokenEncryptorKey: ***
+      BytesLimitationUploadAvatar: '1048576'
+      BaseOmidTechUrl: 'https://sandbox.omidtech.co'
+      ApiKeyOmidTech: ***
+      ApiKeyInternal: ***
+      BaseUrlAradPushNotification: 'http://10.30.34.10/api/v1'
+      AradPushNotificationXAPIKEY: ***
+      UserNameAradPushNotification: ***
+      PasswordAradPushNotification: ***
+      IpRateLimiting__EnableEndpointRateLimiting: 'true'
+      IpRateLimiting__StackBlockedRequests: 'false'
+      IpRateLimiting__RealIPHeader: 'X-Forwarded-For'
+      IpRateLimiting__ClientIdHeader: 'X-ClientId'
+      IpRateLimiting__QuotaExceededResponse__Content: '{{ "message": "Internal server error!" }}'
+      IpRateLimiting__HttpStatusCode: '429'
+      IpRateLimiting__GeneralRules__0__Endpoint: '*:/v1/*'
+      IpRateLimiting__GeneralRules__0__Period: '60s'
+      IpRateLimiting__GeneralRules__0__Limit: '60'
+      IpRateLimiting__GeneralRules__1__Endpoint: '*:/v1/Identity/LoginOrRegisterStepOne'
+      IpRateLimiting__GeneralRules__1__Period: '60s'
+      IpRateLimiting__GeneralRules__1__Limit: '3'
+      IpRateLimiting__GeneralRules__2__Endpoint: '*:/v1/Identity/LoginOrRegisterStepTwo'
+      IpRateLimiting__GeneralRules__2__Period: '60s'
+      IpRateLimiting__GeneralRules__2__Limit: '3'
+      IpRateLimiting__GeneralRules__3__Endpoint: '*:/v1/V2Identity/Register'
+      IpRateLimiting__GeneralRules__3__Period: '60s'
+      IpRateLimiting__GeneralRules__3__Limit: '3'
+      IpRateLimiting__GeneralRules__4__Endpoint: '*:/v2/Identity/Register'
+      IpRateLimiting__GeneralRules__4__Period: '60s'
+      IpRateLimiting__GeneralRules__4__Limit: '3'
+      IpRateLimiting__GeneralRules__5__Endpoint: '*:/v1/V2Identity/VerifyMobileNumber'
+      IpRateLimiting__GeneralRules__5__Period: '60s'
+      IpRateLimiting__GeneralRules__5__Limit: '3'
+      IpRateLimiting__GeneralRules__6__Endpoint: '*:/v2/Identity/VerifyMobileNumber'
+      IpRateLimiting__GeneralRules__6__Period: '60s'
+      IpRateLimiting__GeneralRules__6__Limit: '3'
+      IpRateLimiting__GeneralRules__7__Endpoint: '*:/v1/V2Identity/Login'
+      IpRateLimiting__GeneralRules__7__Period: '60s'
+      IpRateLimiting__GeneralRules__7__Limit: '3'
+      IpRateLimiting__GeneralRules__8__Endpoint: '*:/v2/Identity/Login'
+      IpRateLimiting__GeneralRules__8__Period: '60s'
+      IpRateLimiting__GeneralRules__8__Limit: '3'
+      IpRateLimiting__GeneralRules__9__Endpoint: '*:/v1/V2Identity/VerifyOtpCode'
+      IpRateLimiting__GeneralRules__9__Period: '60s'
+      IpRateLimiting__GeneralRules__9__Limit: '3'
+      IpRateLimiting__GeneralRules__10__Endpoint: '*:/v2/Identity/VerifyOtpCode'
+      IpRateLimiting__GeneralRules__10__Period: '60s'
+      IpRateLimiting__GeneralRules__10__Limit: '3'
+      IpRateLimiting__GeneralRules__11__Endpoint: '*:/v1/V2Identity/ResendOtpCode'
+      IpRateLimiting__GeneralRules__11__Period: '60s'
+      IpRateLimiting__GeneralRules__11__Limit: '3'
+      IpRateLimiting__GeneralRules__12__Endpoint: '*:/v2/Identity/ResendOtpCode'
+      IpRateLimiting__GeneralRules__12__Period: '60s'
+      IpRateLimiting__GeneralRules__12__Limit: '3'
+      IpRateLimiting__GeneralRules__13__Endpoint: '*:/v2/Identity/test'
+      IpRateLimiting__GeneralRules__13__Period: '60s'
+      IpRateLimiting__GeneralRules__13__Limit: '3'
+      IpRateLimiting__GeneralRules__14__Endpoint: '*:/v1/V2Identity/HealthCheck/test'
+      IpRateLimiting__GeneralRules__14__Period: '60s'
+      IpRateLimiting__GeneralRules__14__Limit: '3'
+      CheckNationalCodeTryCount: '100'
+      IplimitationCount: '100'
+      MobileLimitationCount: '100'
+      SwaggerServerUrl__0: 'https://dev.bankomid.ir/gateway/identity/'
+      IsDevelopment: 'True'
+      IsDevelopTosan: 'True'
+      PushNotificationPort: ':8883'
+      ApiKeyExternal: ***
+      ApplicationUrl: 'https://dev.bankomid.ir/gateway/identity'
+      UMPWACallBackUrl: 'Insert Url'
+      UMOWPCallBackUrl: 'Insert Url'
+      UMMobileCallBackUrl: 'Insert Url'
+      AccessTokenExpierTime: ***
+      RefreshTokenExpierTime: ***
+      TokenDevelopment: ***
+      ApplicationVersionV2: '2'
+      WalletChangePasswordExpireDay: ***
+      ChangePasswordWalletIsActive: ***
+      TimeoutAradServices: '5'
+      BaseUrlMetaBoom: 'https://api.metaboom.co'
+      BasUrlDrApi: 'https://drapi.ir'
+      UsernameNoavaran: ***
+      PasswordNoavaran: ***
+      PublicTokenKey: ***
+      TosanSetting__BaseUrl: 'http://10.47.142.114:30107'
+      TosanSetting__Username: ***
+      TosanSetting__Password: ***
+      ExpirationTimeUserToken: ***
+      ExpirationTimePublicToken: ***
+      RedisSetting__Host: '172.19.29.10'
+      RedisSetting__Port: '8379'
+      RedisSetting__ConnectRetry: '5'
+      RedisSetting__ConnectTimeout: '5000'
+      ElasticSetting__Uri: 'http://elasticsearch-svc:9200'
+      ElasticSetting__Username: ***
+      ElasticSetting__Password: ***
+      ElasticSetting__IndexFormat: 'omidbank-Development-IdentityService-{0:yyyy-MM}'
+      ElasticSetting__NumberOfReplicas: '1'
+      ElasticSetting__NumberOfShards: '2'
+      ElasticSetting__EnableFileLog: 'false'
+      RedisCacheExpireTimeForLoginTemporary: '120'
+      SmsServiceType: '3'
+      BaseAddressAteye: 'https://payamsms.com'
+      SourceAddressAteye: '98200020'
+      SourceAddressOmidSystem: ''
+      BaseUrlApiOmidSystem: 'https://100.64.0.1:8085'
+      UserNameAteye: ***
+      PasswordAteye: ***
+      ApiKeyOmidSystem: ***
+      EnableCreateCustomer: 'true'
+      Metaboom__BaseUrl: 'https://api.metaboom.co'
+      Metaboom__Client: 'OmidBank'
+      Metaboom__Nid: '9999999999'
+      Metaboom__Signature: ***
+      Metaboom__Scopes: 'OmidBank'
+      ShahkarServiceType: '1'
+      BankServiceUrl: 'http://bank-service-api:50011'
+      DefaultEnglishName: 'OmidBNK'
+      AttempPerProviderPostal: '2'
+      AttempPerProviderShahkar: '2'
+      AttempPerProviderSabtahval: '2'
+      AvatarFileServerUrl: 'https://pwa.omidbnk.ir/gateway/Identity/Profile/GetAvatar'
+      OmidTechAuthService__Omid__BaseAddress: 'http://10.43.1.62'
+      OmidTechAuthService__Omid__ApiKey: ***
+      SabtAhvalProviders__AttemptsPerProvider: '2'
+      SabtAhvalProviders__Order__0: 'Metaboom'
+      SabtAhvalProviders__Order__1: 'OmidTech'
+      PostalProviders__AttemptsPerProvider: '2'
+      PostalProviders__Order__0: 'OmidTech'
+      PostalProviders__Order__1: 'Metaboom'
+      ExpierMinutesRegisterToken: ***
+      AradVasSettings__BaseAddress: 'http://api.aradvas.ir'
+      AradVasSettings__ApiKey: ***
+      AradVasSettings__SourceAddress: '98700728'
+      MoobinNetSettings__BaseAddress: 'https://smsc2.mobinnet.ir'
+      MoobinNetSettings__Username: ***
+      MoobinNetSettings__Password: ***
+      MoobinNetSettings__SourceAddress: '9444089891'
+      SmsProviders__AttemptsPerProvider: '1'
+      SmsProviders__Order__0: 'OmidSystem'
+      SmsProviders__Order__1: 'Arad'
+      SmsProviders__Order__2: 'MobinNet'
+      OtpValidTimeSeconds: '120'
+      ErrorCodeNotFoundAuthInquiry: '1002'
+      BruteForceOptions__LoginVerify__MaxAttempts: '3'
+      BruteForceOptions__LoginVerify__LockSeconds: '10'
+
+  fromSecret:
+    ***
+    data: {}
+
+restartPolicy: Always
+
+imagePullSecrets:
+  ***
+
+nameOverride: "identity-service-api"
+# fullnameOverride makes the Service DNS name exactly "identity-service-api" so the
+# http://identity-service-api:50013 references in the other services' config resolve in-namespace.
+fullnameOverride: "identity-service-api"
+
+serviceMonitor:
+  enabled: false
+  namespace: monitoring
+  interval: 10s
+  scrapeTimeout: 10s
+  selector:
+    prometheus: kube-prometheus
+    release: prometheus
+
+readinessProbe:
+  enabled: false
+  path: "/health"
+  initialDelaySeconds: 10
+  periodSeconds: 20
+  failureThreshold: 3
+  timeoutSeconds: 5
+
+livenessProbe:
+  enabled: false
+  path: "/health"
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  failureThreshold: 3
+  timeoutSeconds: 5
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 50013
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+# MUST stay {} on chart 0.1.0: a non-empty nodeSelector activates a "with" block in
+# templates/deployment.yaml that dereferences .Values.restartPolicy under a rescoped dot
+# (nil pointer -> template error). Compute pool is still targeted implicitly because the
+# storage and ingress pools are tainted.
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>disable</Nullable>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="MongoDB.Bson" Version="2.20.0" />
+		<PackageReference Include="SkiaSharp" Version="2.88.8" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.8" />
+		<PackageReference Include="OmidBank.Common" Version="14.4.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!--نیم اسپیس زیر را به عنوان یوزینگ عمومی در کل پروژه ثبت میشود-->
+		<Using Include="MongoDB.Bson" />
+		<Using Include="OmidBank.Common.Seedwork" />
+		<Using Include="OmidBank.Common.Extentions" />
+		<Using Include="OmidBank.Common.Helper" />
+		<Using Include="System" />
+		<Using Include="System.Collections.Generic" />
+		<Using Include="IdentityService.Domain.Models.User" />
+		<Using Include="System.Text.Json.Serialization;" />
+		<Using Include="OmidBank.Common" />
+		<Using Include="System.Threading.Tasks" />
+	</ItemGroup>
+
+
+
+</Project>

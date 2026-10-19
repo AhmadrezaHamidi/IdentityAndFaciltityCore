@@ -1,0 +1,3264 @@
+diff --git a/Admin.Api/Controllers/V2/UserManagement/UserManagementController.cs b/Admin.Api/Controllers/V2/UserManagement/UserManagementController.cs
+index 40f503f..74710f5 100644
+--- a/Admin.Api/Controllers/V2/UserManagement/UserManagementController.cs
++++ b/Admin.Api/Controllers/V2/UserManagement/UserManagementController.cs
+@@ -1,4 +1,5 @@
+ using Admin.Api.Filters;
++using IdentityService.Domain.Authorization;
+ using IdentityService.Application.Handler.Admin.UserManagementPanel;
+ using OmidBank.Common.Attribute;
+ 
+@@ -22,91 +23,141 @@ namespace Admin.Api.Controllers.V2.UserManagement
+     {
+         // ── تب ۱: مدیریت دسترسی‌ها ────────────────────────────────────────────────
+         [HttpGet("Accesses")]
++        [RequirePanelPermission(AdminPermissionKeys.PermissionsRead)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> SearchAccesses([FromQuery] string? term, [FromQuery] int page, [FromQuery] int pageSize, CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(new SearchAccessesQuery(term, page, pageSize), cancellationToken));
+ 
+         [HttpGet("Accesses/{id:int}")]
++        [RequirePanelPermission(AdminPermissionKeys.PermissionsRead)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> GetAccess(int id, CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(new GetAccessQuery(id), cancellationToken));
+ 
+         [HttpPost("Accesses")]
++        [RequirePanelPermission(AdminPermissionKeys.PermissionsWrite)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> CreateAccess([FromBody] CreateAccessCommand command, CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(command, cancellationToken));
+ 
+         [HttpPut("Accesses/{id:int}")]
++        [RequirePanelPermission(AdminPermissionKeys.PermissionsWrite)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> UpdateAccess(int id, [FromBody] UpdateAccessCommand command, CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(command with { Id = id }, cancellationToken));
+ 
+         // ── تب ۲: مدیریت مجوزها (نقش) ────────────────────────────────────────────
+         [HttpGet("Roles")]
++        [RequirePanelPermission(AdminPermissionKeys.RolesRead)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> SearchRoles([FromQuery] string? term, [FromQuery] int page, [FromQuery] int pageSize, CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(new SearchRolesQuery(PanelRoleKind.Role, term, page, pageSize), cancellationToken));
+ 
+         [HttpGet("Roles/{id:int}")]
++        [RequirePanelPermission(AdminPermissionKeys.RolesRead)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> GetRole(int id, CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(new GetRoleQuery(id, PanelRoleKind.Role), cancellationToken));
+ 
+         [HttpPost("Roles")]
++        [RequirePanelPermission(AdminPermissionKeys.RolesWrite)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> CreateRole([FromBody] CreateRoleCommand command, CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(
+                 command with { Kind = PanelRoleKind.Role, Token = _baseRequest.RequestInfo.Token }, cancellationToken));
+ 
+         [HttpPut("Roles/{id:int}")]
++        [RequirePanelPermission(AdminPermissionKeys.RolesWrite)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> UpdateRole(int id, [FromBody] UpdateRoleCommand command, CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(command with { Id = id, Kind = PanelRoleKind.Role }, cancellationToken));
+ 
+         // ── تب ۳: مدیریت گروه‌ها ─────────────────────────────────────────────────
+         [HttpGet("Groups")]
++        [RequirePanelPermission(AdminPermissionKeys.GroupsRead)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> SearchGroups([FromQuery] string? term, [FromQuery] int page, [FromQuery] int pageSize, CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(new SearchRolesQuery(PanelRoleKind.Group, term, page, pageSize), cancellationToken));
+ 
+         [HttpGet("Groups/{id:int}")]
++        [RequirePanelPermission(AdminPermissionKeys.GroupsRead)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> GetGroup(int id, CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(new GetRoleQuery(id, PanelRoleKind.Group), cancellationToken));
+ 
+         [HttpPost("Groups")]
++        [RequirePanelPermission(AdminPermissionKeys.GroupsWrite)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> CreateGroup([FromBody] CreateRoleCommand command, CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(
+                 command with { Kind = PanelRoleKind.Group, Token = _baseRequest.RequestInfo.Token }, cancellationToken));
+ 
+         [HttpPut("Groups/{id:int}")]
++        [RequirePanelPermission(AdminPermissionKeys.GroupsWrite)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> UpdateGroup(int id, [FromBody] UpdateRoleCommand command, CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(command with { Id = id, Kind = PanelRoleKind.Group }, cancellationToken));
+ 
+         // ── تب ۴: مدیریت کاربران پنل ─────────────────────────────────────────────
+         [HttpGet("PanelUsers")]
++        [RequirePanelPermission(AdminPermissionKeys.UsersRead)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> SearchPanelUsers([FromQuery] string? term, [FromQuery] int page, [FromQuery] int pageSize, CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(new SearchPanelUsersQuery(term, page, pageSize), cancellationToken));
+ 
+         [HttpGet("PanelUsers/{id:int}")]
++        [RequirePanelPermission(AdminPermissionKeys.UsersRead)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> GetPanelUser(int id, CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(new GetPanelUserQuery(id), cancellationToken));
+ 
+         [HttpPut("PanelUsers/{id:int}/Active")]
++        [RequirePanelPermission(AdminPermissionKeys.UsersWrite)]
+         [AuthenticationUserAdminByCookie]
+         public async Task<IActionResult> SetPanelUserActive(int id, [FromQuery] bool isActive, CancellationToken cancellationToken)
+-            => BaseResult(await _mediator.Send(new SetPanelUserActiveCommand(id, isActive), cancellationToken));
++            => BaseResult(await _mediator.Send(new SetPanelUserActiveCommand(id, isActive, CurrentPanelUserId), cancellationToken));
+ 
+         // ── ماتریس دسترسی: هر Role/Group به چه دسترسی‌هایی دسترسی دارد ──────────────
++        // POST /UserManagement/PanelUsers — فرم سند: نام کاربری، رمز، نام کامل، کد کاربر،
++        // نام و کد شعبه، و انتساب نقش با دامنه.
++        [HttpPost("PanelUsers")]
++        [RequirePanelPermission(AdminPermissionKeys.UsersWrite)]
++        [AuthenticationUserAdminByCookie]
++        public async Task<IActionResult> CreatePanelUser([FromBody] CreatePanelUserCommand command, CancellationToken cancellationToken)
++            => BaseResult(await _mediator.Send(command with { ActorPanelUserId = CurrentPanelUserId }, cancellationToken));
++
++        [HttpPut("PanelUsers/{id:int}")]
++        [RequirePanelPermission(AdminPermissionKeys.UsersWrite)]
++        [AuthenticationUserAdminByCookie]
++        public async Task<IActionResult> UpdatePanelUser(int id, [FromBody] UpdatePanelUserCommand command, CancellationToken cancellationToken)
++            => BaseResult(await _mediator.Send(command with { Id = id, ActorPanelUserId = CurrentPanelUserId }, cancellationToken));
++
++        // انتساب نقش جدا از ویرایش کاربر، تا فرم بتواند فقط نقش‌ها را بفرستد.
++        [HttpPut("PanelUsers/{id:int}/Roles")]
++        [RequirePanelPermission(AdminPermissionKeys.UsersAssign)]
++        [AuthenticationUserAdminByCookie]
++        public async Task<IActionResult> AssignRoles(int id, [FromBody] List<RoleAssignmentDto> roles, CancellationToken cancellationToken)
++            => BaseResult(await _mediator.Send(new UpdatePanelUserRolesCommand(id, roles, CurrentPanelUserId), cancellationToken));
++
++        // ── لاگ امنیتی — دستهٔ «کاربران» در گزارش تغییرات ─────────────────────────
++        [HttpGet("SecurityAudit")]
++        [RequirePanelPermission(AdminPermissionKeys.AuditRead)]
++        [AuthenticationUserAdminByCookie]
++        public async Task<IActionResult> SearchSecurityAudit([FromQuery] string? action, [FromQuery] string? targetType, [FromQuery] int page, [FromQuery] int pageSize, CancellationToken cancellationToken)
++            => BaseResult(await _mediator.Send(new SearchSecurityAuditQuery(action, targetType, page, pageSize), cancellationToken));
++
+         [HttpGet("AccessMatrix")]
++        [RequirePanelPermission(AdminPermissionKeys.UsersRead)]
+         [AuthenticationUserAdminByCookie]
+-        [RequirePanelRole("SuperAdmin", "Admin")]
+         public async Task<IActionResult> GetAccessMatrix(CancellationToken cancellationToken)
+             => BaseResult(await _mediator.Send(new GetRoleAccessMatrixQuery(), cancellationToken));
++
++        /// <summary>شناسهٔ کاربر جاری از نشستی که PanelPermissionFilter گذاشته — برای لاگ امنیتی.</summary>
++        private int? CurrentPanelUserId =>
++            HttpContext.Items.TryGetValue(PanelPermissionFilter.CurrentUserKey, out var value)
++            && value is IdentityService.Domain.Authorization.PanelSession session
++                ? session.PanelUserId
++                : null;
+     }
+ 
+ }
+diff --git a/Admin.Api/Filters/RequirePanelPermissionAttribute.cs b/Admin.Api/Filters/RequirePanelPermissionAttribute.cs
+new file mode 100644
+index 0000000..2e74017
+--- /dev/null
++++ b/Admin.Api/Filters/RequirePanelPermissionAttribute.cs
+@@ -0,0 +1,98 @@
++using IdentityService.Domain.Authorization;
++using Microsoft.AspNetCore.Mvc;
++using Microsoft.AspNetCore.Mvc.Controllers;
++using Microsoft.AspNetCore.Mvc.Filters;
++using System.Reflection;
++
++namespace Admin.Api.Filters;
++
++/// <summary>
++/// جایگزین <c>RequirePanelRoleAttribute</c>.
++///
++/// تفاوت بنیادی: آن یکی نام نقش را از claim توکن می‌خواند، پس وقتی ادمین مجوزهای یک نقش را
++/// عوض می‌کرد هیچ اثری روی endpointها نداشت — خلاف «کلیه دسترسی به کارکردها و سرویس‌های هر
++/// بخش توسط ادمین قابل تغییر است». این یکی کلید مجوز را می‌خواهد و مجوزها را لحظه‌ای از
++/// دیتابیس می‌گیرد، پس تغییر ادمین فوراً اثر می‌کند.
++///
++/// روی کنترلر یا اکشن. اگر هر دو داشته باشند، اکشن برنده است (نه جمع هر دو).
++/// چک دقیق روی منبع در Handler با <c>permissions.Can(key, resource)</c> انجام می‌شود —
++/// این فیلتر فقط گیت درشت است.
++/// </summary>
++[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
++public sealed class RequirePanelPermissionAttribute(params string[] anyOfKeys) : Attribute
++{
++    public string[] AnyOfKeys { get; } = anyOfKeys;
++}
++
++/// <summary>این endpoint توکن کاربر پنل نمی‌خواهد (ورود، کپچا، health).</summary>
++[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
++public sealed class PanelAnonymousAttribute : Attribute;
++
++/// <summary>
++/// یک فیلتر Global برای همهٔ اکشن‌ها. در Program.cs:
++///     builder.Services.Configure&lt;MvcOptions&gt;(o =&gt; o.Filters.Add&lt;PanelPermissionFilter&gt;());
++///
++/// اکشنی که نه <see cref="RequirePanelPermissionAttribute"/> دارد و نه
++/// <see cref="PanelAnonymousAttribute"/>، بسته است و در لاگ به‌عنوان خطای پیکربندی ثبت می‌شود.
++/// علت: در مدل قبلی نبودن attribute یعنی endpoint باز، و فراموش کردنش یک رخنهٔ بی‌صدا می‌ساخت.
++/// </summary>
++public sealed class PanelPermissionFilter(
++    IPanelSessionResolver sessions,
++    ILogger<PanelPermissionFilter> logger) : IAsyncAuthorizationFilter
++{
++    /// <summary>کلیدی که کاربر جاری زیر آن در HttpContext.Items گذاشته می‌شود.</summary>
++    public const string CurrentUserKey = "__PanelCurrentUser";
++
++    public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
++    {
++        if (context.ActionDescriptor is not ControllerActionDescriptor action)
++        {
++            logger.LogError("Panel permission filter ran on a non-controller endpoint: {Path}", context.HttpContext.Request.Path);
++            context.Result = Error(StatusCodes.Status403Forbidden, "به این بخش دسترسی ندارید.");
++            return;
++        }
++
++        if (Has<PanelAnonymousAttribute>(action))
++            return;
++
++        var required = Required(action);
++        if (required is null)
++        {
++            logger.LogError(
++                "No [RequirePanelPermission] on {Controller}.{Action} — denied. یا کلید را اعلام کن یا [PanelAnonymous] بگذار.",
++                action.ControllerName, action.ActionName);
++            context.Result = Error(StatusCodes.Status403Forbidden, "به این بخش دسترسی ندارید.");
++            return;
++        }
++
++        var session = await sessions.ResolveAsync(context.HttpContext.RequestAborted);
++
++        // نشست باطل: توکن نامعتبر، کاربر غیرفعال، یا دسترسی عوض شده (معیار ۶) ← ۴۰۱ و بازگشت به صفحهٔ ورود.
++        if (session is null)
++        {
++            context.Result = Error(StatusCodes.Status401Unauthorized, "نشست نامعتبر است؛ دوباره وارد شوید.");
++            return;
++        }
++
++        if (required.Length > 0 && !session.Permissions.HasAnyOf(required))
++        {
++            logger.LogWarning("Panel permission denied. User {UserId} lacks any of [{Keys}] for {Path}",
++                session.PanelUserId, string.Join(", ", required), context.HttpContext.Request.Path);
++            context.Result = Error(StatusCodes.Status403Forbidden, "به این بخش دسترسی ندارید.");
++            return;
++        }
++
++        context.HttpContext.Items[CurrentUserKey] = session;
++    }
++
++    private static string[]? Required(ControllerActionDescriptor action) =>
++        action.MethodInfo.GetCustomAttribute<RequirePanelPermissionAttribute>(true)?.AnyOfKeys
++        ?? action.ControllerTypeInfo.GetCustomAttribute<RequirePanelPermissionAttribute>(true)?.AnyOfKeys;
++
++    private static bool Has<T>(ControllerActionDescriptor action) where T : Attribute =>
++        action.MethodInfo.GetCustomAttribute<T>(true) is not null
++        || action.ControllerTypeInfo.GetCustomAttribute<T>(true) is not null;
++
++    private static ObjectResult Error(int status, string message) =>
++        new(new { statusCode = status, message }) { StatusCode = status };
++}
+diff --git a/Admin.Api/Program.cs b/Admin.Api/Program.cs
+index 90399c7..b4c68af 100644
+--- a/Admin.Api/Program.cs
++++ b/Admin.Api/Program.cs
+@@ -1,3 +1,5 @@
++using Microsoft.AspNetCore.Mvc;
++using Admin.Api.Filters;
+ using AspNetCoreRateLimit;
+ using IdentityService.Service.IService.MonitoringDashboard;
+ using IdentityService.Service.Service.MonitoringDashboard;
+@@ -60,6 +62,10 @@ builder.AddOmidTechBaseConfiguration();
+ //var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+ //builder.WebHost.UseSentry();
+ builder.Services.AddMemoryCache();
++
++// یک فیلتر برای همهٔ اکشن‌ها: کلید لازم از [RequirePanelPermission] روی اکشن یا کنترلر
++// خوانده می‌شود و اکشن بر کنترلر مقدم است. اکشن بدون اعلان، بسته است.
++builder.Services.Configure<MvcOptions>(options => options.Filters.Add<PanelPermissionFilter>());
+ builder.Services.AddRedisConfiguration(builder.Configuration);
+ builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+ 
+diff --git a/Database/01_panel_authorization.sql b/Database/01_panel_authorization.sql
+new file mode 100644
+index 0000000..fd362e1
+--- /dev/null
++++ b/Database/01_panel_authorization.sql
+@@ -0,0 +1,127 @@
++/* =====================================================================
++   مدل دسترسی پنل — «دسترسی به نقش، نقش به کاربر، با دامنه»
++   مبنا: شاخهٔ identityservice-base
++
++   هیچ جدول جدیدی برای مجوز ساخته نمی‌شود: زنجیرهٔ موجود
++     PanelUser → PanelUserRole → Role → RolePanelMenu → PanelMenu
++   نگه داشته می‌شود و فقط ستون‌های لازم اضافه می‌شوند.
++
++   قابل اجرای چندباره (idempotent).
++   ===================================================================== */
++
++SET XACT_ABORT ON;
++BEGIN TRAN;
++
++/* ---------- ۱) فیلدهای فرم کاربر در سند + نسخهٔ مجوز (معیار ۶) ---------- */
++
++IF COL_LENGTH('dbo.PanelUser', 'FullName')               IS NULL ALTER TABLE dbo.PanelUser ADD FullName               NVARCHAR(60)  NULL;
++IF COL_LENGTH('dbo.PanelUser', 'UserCode')               IS NULL ALTER TABLE dbo.PanelUser ADD UserCode               VARCHAR(20)   NULL;
++IF COL_LENGTH('dbo.PanelUser', 'BranchCode')             IS NULL ALTER TABLE dbo.PanelUser ADD BranchCode             NVARCHAR(50)  NULL;
++IF COL_LENGTH('dbo.PanelUser', 'BranchName')             IS NULL ALTER TABLE dbo.PanelUser ADD BranchName             NVARCHAR(100) NULL;
++IF COL_LENGTH('dbo.PanelUser', 'PermissionVersion')      IS NULL ALTER TABLE dbo.PanelUser ADD PermissionVersion      INT NOT NULL CONSTRAINT DF_PanelUser_PermissionVersion DEFAULT (1);
++IF COL_LENGTH('dbo.PanelUser', 'LastPermissionChangeAt') IS NULL ALTER TABLE dbo.PanelUser ADD LastPermissionChangeAt DATETIME2(3)  NULL;
++GO
++
++/* کد کاربر یکتاست، ولی رکوردهای قدیمی NULL‌اند ← ایندکس فیلترشده */
++IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'UX_PanelUser_UserCode' AND object_id = OBJECT_ID('dbo.PanelUser'))
++    CREATE UNIQUE INDEX UX_PanelUser_UserCode ON dbo.PanelUser(UserCode) WHERE UserCode IS NOT NULL;
++GO
++
++/* ---------- ۲) نقش: دامنهٔ مجاز و سیستمی بودن ---------- */
++
++IF COL_LENGTH('dbo.Role', 'AllowedScopeType') IS NULL ALTER TABLE dbo.Role ADD AllowedScopeType TINYINT NOT NULL CONSTRAINT DF_Role_AllowedScopeType DEFAULT (0);
++IF COL_LENGTH('dbo.Role', 'IsSystem')         IS NULL ALTER TABLE dbo.Role ADD IsSystem         BIT     NOT NULL CONSTRAINT DF_Role_IsSystem         DEFAULT (0);
++GO
++
++/* ---------- ۳) انتساب نقش: دامنه ---------- */
++
++IF COL_LENGTH('dbo.PanelUserRole', 'ScopeType')            IS NULL ALTER TABLE dbo.PanelUserRole ADD ScopeType            TINYINT NOT NULL CONSTRAINT DF_PanelUserRole_ScopeType DEFAULT (0);
++IF COL_LENGTH('dbo.PanelUserRole', 'ScopeId')              IS NULL ALTER TABLE dbo.PanelUserRole ADD ScopeId              VARCHAR(50) NULL;
++IF COL_LENGTH('dbo.PanelUserRole', 'CreatedAt')            IS NULL ALTER TABLE dbo.PanelUserRole ADD CreatedAt            DATETIME2(3) NOT NULL CONSTRAINT DF_PanelUserRole_CreatedAt DEFAULT (SYSUTCDATETIME());
++IF COL_LENGTH('dbo.PanelUserRole', 'CreatedByPanelUserId') IS NULL ALTER TABLE dbo.PanelUserRole ADD CreatedByPanelUserId INT NULL;
++GO
++
++/* یک کاربر می‌تواند یک نقش را در چند دامنه داشته باشد (کاربر شعبه در دو شعبه)،
++   ولی نه دو بار در یک دامنه. ایندکس یکتای قدیمی (PanelUserId, RoleId) اگر هست باید برود. */
++IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'UX_PanelUserRole_PanelUserId_RoleOd' AND object_id = OBJECT_ID('dbo.PanelUserRole'))
++    DROP INDEX UX_PanelUserRole_PanelUserId_RoleOd ON dbo.PanelUserRole;
++
++IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'UX_PanelUserRole_User_Role_Scope' AND object_id = OBJECT_ID('dbo.PanelUserRole'))
++    CREATE UNIQUE INDEX UX_PanelUserRole_User_Role_Scope
++        ON dbo.PanelUserRole(PanelUserId, RoleId, ScopeType, ScopeId);
++GO
++
++/* ---------- ۴) PanelMenu به کاتالوگ دو سطحی مجوز ---------- */
++
++IF COL_LENGTH('dbo.PanelMenu', 'PermissionKey') IS NULL ALTER TABLE dbo.PanelMenu ADD PermissionKey VARCHAR(150) NULL;
++IF COL_LENGTH('dbo.PanelMenu', 'Kind')          IS NULL ALTER TABLE dbo.PanelMenu ADD Kind          TINYINT NOT NULL CONSTRAINT DF_PanelMenu_Kind DEFAULT (0);
++IF COL_LENGTH('dbo.PanelMenu', 'SortOrder')     IS NULL ALTER TABLE dbo.PanelMenu ADD SortOrder     INT     NOT NULL CONSTRAINT DF_PanelMenu_SortOrder DEFAULT (0);
++GO
++
++/* عمداً یکتا نیست: دو ردیف می‌توانند به یک کلید اشاره کنند (مثلاً دو تب که با یک مجوز باز می‌شوند).
++   فقط برای جست‌وجوی سریع در فیلتر. */
++IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_PanelMenu_PermissionKey' AND object_id = OBJECT_ID('dbo.PanelMenu'))
++    CREATE INDEX IX_PanelMenu_PermissionKey ON dbo.PanelMenu(PermissionKey) WHERE PermissionKey IS NOT NULL;
++GO
++
++/* ---------- ۵) لاگ امنیتی («گزارش تغییرات» دستهٔ کاربران) ---------- */
++
++IF OBJECT_ID('dbo.PanelSecurityAuditLog') IS NULL
++BEGIN
++    CREATE TABLE dbo.PanelSecurityAuditLog
++    (
++        Id               BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_PanelSecurityAuditLog PRIMARY KEY,
++        [Action]         VARCHAR(60)   NOT NULL,
++        ActorPanelUserId INT           NULL,
++        TargetType       VARCHAR(60)   NOT NULL,
++        TargetId         VARCHAR(50)   NULL,
++        BeforeJson       NVARCHAR(MAX) NULL,
++        AfterJson        NVARCHAR(MAX) NULL,
++        Ip               VARCHAR(45)   NULL,
++        UserAgent        NVARCHAR(300) NULL,
++        CreatedAt        DATETIME2(3)  NOT NULL CONSTRAINT DF_PanelSecurityAuditLog_CreatedAt DEFAULT (SYSUTCDATETIME())
++    );
++
++    CREATE INDEX IX_PanelSecurityAuditLog_CreatedAt ON dbo.PanelSecurityAuditLog(CreatedAt);
++    CREATE INDEX IX_PanelSecurityAuditLog_Target    ON dbo.PanelSecurityAuditLog(TargetType, TargetId);
++END
++GO
++
++/* ---------- ۶) ۵ نقش سند ---------- */
++/* AllowedScopeType: 0 سراسری، 1 شعبه، 2 شرکت */
++
++MERGE dbo.[Role] AS t
++USING (VALUES
++    (N'admin',           N'ادمین (مدیر سامانه)',   0),
++    (N'digital_branch',  N'شعبهٔ دیجیتال',          0),
++    (N'branch_user',     N'کاربر شعبه',             1),
++    (N'company_manager', N'مدیر شرکت',              2),
++    (N'company_hr',      N'منابع انسانی شرکت',      2)
++) AS s(Title, PersianTitle, AllowedScopeType)
++ON t.Title = s.Title
++WHEN MATCHED THEN
++    UPDATE SET t.IsSystem = 1, t.AllowedScopeType = s.AllowedScopeType, t.IsActive = 1
++WHEN NOT MATCHED THEN
++    INSERT (Title, PersianTitle, IsActive, [Kind], AllowedScopeType, IsSystem, CreatedAt)
++    VALUES (s.Title, s.PersianTitle, 1, 0, s.AllowedScopeType, 1, SYSUTCDATETIME());
++GO
++
++COMMIT;
++GO
++
++/* =====================================================================
++   مانده (عمداً اینجا نیست، چون به تصمیم شما بسته است):
++
++   الف) کلیدهای مجوز: ردیف‌های PanelMenu با Kind و PermissionKey.
++        ساختار: تب (Kind=0، بدون کلید) و زیرش مشاهده (Kind=1) و عملیات (Kind=2).
++        مثال برای «تأیید اعتبارات»:
++          INSERT dbo.PanelMenu (ParentId, Title, Kind, PermissionKey, IsActive, ...)
++          VALUES (@tab, N'مشاهدهٔ صف اعتبارات', 1, 'facility.credit-approval.view',    1, ...),
++                 (@tab, N'تأیید اعتبارات',      2, 'facility.credit-approval.approve', 1, ...),
++                 (@tab, N'رد اعتبارات',          2, 'facility.credit-approval.reject',  1, ...);
++
++   ب) ماتریس پیش‌فرض: ردیف‌های RolePanelMenu برای ۵ نقش، طبق «ماتریس جامع دسترسی» سند.
++
++   این دو را وقتی فهرست نهایی تب/سرویس‌ها را تأیید کردید می‌نویسم — چون باید مو‌به‌مو با
++   ماتریس سند بخواند و یک ردیف اشتباه یعنی یک نفر دسترسی‌ای دارد که نباید.
++   ===================================================================== */
+diff --git a/Database/02_seed_permissions_and_matrix.sql b/Database/02_seed_permissions_and_matrix.sql
+new file mode 100644
+index 0000000..b7f045c
+--- /dev/null
++++ b/Database/02_seed_permissions_and_matrix.sql
+@@ -0,0 +1,285 @@
++/* =====================================================================
++   کاتالوگ مجوزها + ماتریس پیش‌فرض ۵ نقش
++   مبنا: «ماتریس جامع دسترسی بخش‌ها و قابلیت‌ها» سند طرح نگین میثاق
++
++   ساختار: هر تب یک ردیف Kind=1 با کلید «.view» و Url است؛ عملیات‌های آن تب
++   ردیف‌های فرزند Kind=2 بدون Url هستند. پس:
++     - تب در منو دیده می‌شود ⇔ کاربر کلید view آن را دارد  (معیار پذیرش ۱)
++     - دکمه‌ها جدا کنترل می‌شوند                            («بخش و سرویس‌های آن بخش»)
++
++   کلیدها عیناً با FacilityPermissionKeys و AdminPermissionKeys یکی هستند تا اگر
++   سرویس Facility اضافه شد، چیزی تغییر نکند. کلید منتشرشده هرگز تغییر نام نمی‌دهد.
++
++   پیش‌نیاز: 01_panel_authorization.sql
++   قابل اجرای چندباره (idempotent).
++   ===================================================================== */
++
++SET XACT_ABORT ON;
++BEGIN TRAN;
++
++IF COL_LENGTH('dbo.PanelMenu', 'PermissionKey') IS NULL
++    THROW 50010, N'اول 01_panel_authorization.sql را اجرا کن.', 1;
++
++/* ---------------------------------------------------------------------
++   الف) کاتالوگ
++   Kind: 1 = تب/مشاهده (Url دارد، در منو دیده می‌شود) ، 2 = عملیات (در منو نیست)
++   --------------------------------------------------------------------- */
++
++DECLARE @cat TABLE
++(
++    [Key]      VARCHAR(150) NOT NULL PRIMARY KEY,
++    ParentKey  VARCHAR(150) NULL,
++    Kind       TINYINT      NOT NULL,
++    Title      NVARCHAR(150) NOT NULL,
++    Url        VARCHAR(200) NULL,
++    SortOrder  INT          NOT NULL
++);
++
++INSERT @cat ([Key], ParentKey, Kind, Title, Url, SortOrder) VALUES
++-- اطلاعات پایه طرح ----------------------------------------------------
++ ('facility.basic-info.view',            NULL,                         1, N'اطلاعات پایه طرح',                       '/basic-info',      100),
++ ('facility.basic-info.edit',            'facility.basic-info.view',    2, N'ویرایش پارامترها، نرخ‌ها و دلایل',       NULL,               101),
++
++-- مدیریت شرکت‌ها -------------------------------------------------------
++ ('facility.companies.view',             NULL,                         1, N'مدیریت شرکت‌ها',                          '/companies',       200),
++ ('facility.companies.create',           'facility.companies.view',     2, N'ثبت شرکت جدید',                          NULL,               201),
++ ('facility.companies.edit',             'facility.companies.view',     2, N'ویرایش شرکت',                            NULL,               202),
++ ('facility.companies.delete',           'facility.companies.view',     2, N'حذف شرکت',                               NULL,               203),
++ ('facility.companies.balance.edit',     'facility.companies.view',     2, N'ثبت/ویرایش میانگین موجودی',              NULL,               204),
++ ('facility.companies.documents.view',   'facility.companies.view',     2, N'مشاهده و دانلود مستندات میانگین',        NULL,               205),
++ ('facility.companies.documents.upload', 'facility.companies.view',     2, N'پیوست مستندات میانگین',                  NULL,               206),
++ ('facility.companies.documents.delete', 'facility.companies.view',     2, N'حذف مستند میانگین',                      NULL,               207),
++ ('facility.companies.contract.cancel',  'facility.companies.view',     2, N'لغو قرارداد شرکت',                       NULL,               208),
++
++-- پرسنل شرکت ----------------------------------------------------------
++ ('facility.personnel.view',             NULL,                         1, N'پرسنل شرکت',                              '/personnel',       300),
++ ('facility.personnel.create',           'facility.personnel.view',     2, N'معرفی پرسنل',                            NULL,               301),
++ ('facility.personnel.edit',             'facility.personnel.view',     2, N'ویرایش پرسنل',                           NULL,               302),
++ ('facility.personnel.delete',           'facility.personnel.view',     2, N'حذف پرسنل (با توضیح و فایل)',            NULL,               303),
++ ('facility.personnel.upload',           'facility.personnel.view',     2, N'آپلود اکسل پرسنل',                       NULL,               304),
++ ('facility.personnel.approve',          'facility.personnel.view',     2, N'تأیید/رد افراد معرفی‌شده',                NULL,               305),
++
++-- تخصیص وام -----------------------------------------------------------
++ ('facility.loans.view',                 NULL,                         1, N'تخصیص وام',                               '/loan-allocation', 400),
++ ('facility.loans.credit.view',          'facility.loans.view',         2, N'مشاهدهٔ اعتبار طرح‌ها و میانگین‌ها',       NULL,               401),
++ ('facility.loans.create',               'facility.loans.view',         2, N'ثبت درخواست وام',                        NULL,               402),
++ ('facility.loans.members.edit',         'facility.loans.view',         2, N'افزودن/حذف فرد از درخواست',              NULL,               403),
++ ('facility.loans.cancel',               'facility.loans.view',         2, N'لغو درخواست قبل از تأیید اعتبارات',      NULL,               404),
++
++-- تأیید مدیر شرکت -----------------------------------------------------
++ ('facility.manager-approval.view',      NULL,                         1, N'تأیید مدیر شرکت',                         '/manager-approval', 500),
++ ('facility.manager-approval.approve',   'facility.manager-approval.view', 2, N'تأیید درخواست‌ها (مدیر شرکت)',        NULL,               501),
++ ('facility.manager-approval.reject',    'facility.manager-approval.view', 2, N'رد درخواست‌ها (مدیر شرکت)',           NULL,               502),
++
++-- تأیید اعتبارات + شعبهٔ دیجیتال ---------------------------------------
++ ('facility.credit-approval.view',       NULL,                         1, N'تأیید اعتبارات',                          '/credit-approval', 600),
++ ('facility.credit-approval.approve',    'facility.credit-approval.view', 2, N'تأیید اعتبارات',                       NULL,               601),
++ ('facility.credit-approval.reject',     'facility.credit-approval.view', 2, N'رد اعتبارات',                          NULL,               602),
++ ('facility.credit-approval.stage',      'facility.credit-approval.view', 2, N'تغییر مرحلهٔ پس از تأیید',             NULL,               603),
++ ('facility.digital-approval.decide',    'facility.credit-approval.view', 2, N'تصمیم مرحلهٔ شعبهٔ دیجیتال',           NULL,               604),
++
++-- داشبورد -------------------------------------------------------------
++ ('facility.dashboard.view',             NULL,                         1, N'داشبورد مدیریتی',                         '/dashboard',       700),
++ ('facility.dashboard.export',           'facility.dashboard.view',     2, N'خروجی CSV داشبورد',                      NULL,               701),
++
++-- گزارش تغییرات -------------------------------------------------------
++ ('facility.audit.view',                 NULL,                         1, N'گزارش تغییرات',                           '/change-log',      800),
++ ('facility.audit.export',               'facility.audit.view',         2, N'خروجی گزارش تغییرات',                    NULL,               801),
++ ('facility.audit.restore',              'facility.audit.view',         2, N'بازگردانی عملیات',                       NULL,               802),
++
++-- مدیریت کاربران ------------------------------------------------------
++ ('admin.users.read',                    NULL,                         1, N'مدیریت کاربران',                          '/user-management', 900),
++ ('admin.users.write',                   'admin.users.read',            2, N'ساخت و ویرایش کاربر پنل',                NULL,               901),
++ ('admin.users.assign',                  'admin.users.read',            2, N'انتساب نقش با دامنه',                    NULL,               902),
++ ('admin.users.reset-password',          'admin.users.read',            2, N'بازنشانی رمز کاربر',                     NULL,               903),
++ ('admin.users.revoke-sessions',         'admin.users.read',            2, N'خروج اجباری کاربر',                      NULL,               904),
++ ('admin.roles.read',                    'admin.users.read',            2, N'مشاهدهٔ نقش‌ها',                          NULL,               905),
++ ('admin.roles.write',                   'admin.users.read',            2, N'تعریف و ویرایش نقش',                     NULL,               906),
++ ('admin.groups.read',                   'admin.users.read',            2, N'مشاهدهٔ گروه‌ها',                        NULL,               907),
++ ('admin.groups.write',                  'admin.users.read',            2, N'تعریف و ویرایش گروه',                    NULL,               908),
++ ('admin.permissions.read',              'admin.users.read',            2, N'مشاهدهٔ کاتالوگ مجوزها',                 NULL,               909),
++ ('admin.permissions.write',             'admin.users.read',            2, N'ویرایش کاتالوگ مجوزها',                  NULL,               910),
++ ('admin.audit.read',                    'admin.users.read',            2, N'لاگ امنیتی کاربران',                     NULL,               911);
++
++/* ردیف‌های ریشه (تب‌ها) اول، تا ParentId فرزندها قابل تنظیم باشد */
++MERGE dbo.PanelMenu AS t
++USING (SELECT * FROM @cat WHERE ParentKey IS NULL) AS s
++ON t.PermissionKey = s.[Key]
++WHEN MATCHED THEN
++    UPDATE SET t.Title = s.Title, t.Url = s.Url, t.[Kind] = s.Kind,
++               t.SortOrder = s.SortOrder, t.IsActive = 1
++WHEN NOT MATCHED THEN
++    INSERT (ParentId, Title, Url, IsRootMenu, IsInternalMenu, CreationTime, IsActive, PermissionKey, [Kind], SortOrder)
++    VALUES (NULL, s.Title, s.Url, 1, 0, SYSUTCDATETIME(), 1, s.[Key], s.Kind, s.SortOrder);
++
++MERGE dbo.PanelMenu AS t
++USING (
++    SELECT c.[Key], c.Title, c.Url, c.Kind, c.SortOrder, p.Id AS ParentId
++    FROM @cat c
++    JOIN dbo.PanelMenu p ON p.PermissionKey = c.ParentKey
++    WHERE c.ParentKey IS NOT NULL
++) AS s
++ON t.PermissionKey = s.[Key]
++WHEN MATCHED THEN
++    UPDATE SET t.Title = s.Title, t.Url = s.Url, t.[Kind] = s.Kind,
++               t.SortOrder = s.SortOrder, t.ParentId = s.ParentId, t.IsActive = 1
++WHEN NOT MATCHED THEN
++    INSERT (ParentId, Title, Url, IsRootMenu, IsInternalMenu, CreationTime, IsActive, PermissionKey, [Kind], SortOrder)
++    VALUES (s.ParentId, s.Title, s.Url, 0, 0, SYSUTCDATETIME(), 1, s.[Key], s.Kind, s.SortOrder);
++
++/* ---------------------------------------------------------------------
++   ب) ماتریس پیش‌فرض
++   A = ادمین ، D = شعبهٔ دیجیتال ، B = کاربر شعبه ، M = مدیر شرکت ، H = منابع انسانی
++   ۱ = دارد ، ۰ = ندارد. «R» سند یعنی فقط کلیدهای view ← ستون D برای عملیات صفر است.
++   --------------------------------------------------------------------- */
++
++DECLARE @m TABLE ([Key] VARCHAR(150) NOT NULL PRIMARY KEY, A BIT, D BIT, B BIT, M BIT, H BIT);
++
++INSERT @m ([Key], A, D, B, M, H) VALUES
++-- اطلاعات پایه: «✓ ویرایش کامل» فقط ادمین؛ بقیه «—»
++ ('facility.basic-info.view',            1, 0, 0, 0, 0),
++ ('facility.basic-info.edit',            1, 0, 0, 0, 0),
++
++-- مدیریت شرکت‌ها: ادمین ✓ ، دیجیتال R ، کاربر شعبه ✓ (شعبهٔ خود) ، شرکت —
++ ('facility.companies.view',             1, 1, 1, 0, 0),
++ ('facility.companies.create',           1, 0, 1, 0, 0),
++ ('facility.companies.edit',             1, 0, 1, 0, 0),
++ ('facility.companies.delete',           1, 0, 0, 0, 0),   -- «حذف شرکت فقط ادمین»
++ ('facility.companies.balance.edit',     1, 0, 1, 0, 0),
++ ('facility.companies.documents.view',   1, 1, 1, 0, 0),   -- دیجیتال: «R (مشاهده/دانلود)»
++ ('facility.companies.documents.upload', 1, 0, 1, 0, 0),
++ ('facility.companies.documents.delete', 1, 0, 0, 0, 0),   -- «حذف مستند فقط ادمین»
++ ('facility.companies.contract.cancel',  1, 0, 1, 0, 0),
++
++-- پرسنل: ادمین ✓ ، دیجیتال R ، شعبه — ، مدیر ✓ ، منابع انسانی ✓
++ ('facility.personnel.view',             1, 1, 0, 1, 1),
++ ('facility.personnel.create',           1, 0, 0, 1, 1),
++ ('facility.personnel.edit',             1, 0, 0, 1, 1),
++ ('facility.personnel.delete',           1, 0, 0, 1, 1),
++ ('facility.personnel.upload',           1, 0, 0, 1, 1),
++ ('facility.personnel.approve',          1, 0, 0, 1, 0),   -- «تأیید/رد فقط مدیر شرکت»
++
++-- تخصیص وام
++ ('facility.loans.view',                 1, 1, 1, 1, 1),
++ ('facility.loans.credit.view',          1, 1, 1, 1, 1),   -- ⚠ Q1 (پایین را بخوان)
++ ('facility.loans.create',               1, 0, 0, 1, 1),
++ ('facility.loans.members.edit',         1, 0, 0, 1, 1),
++ ('facility.loans.cancel',               1, 0, 0, 1, 0),   -- «لغو: ✓ مدیر ، — منابع انسانی»
++
++-- تأیید مدیر شرکت
++ ('facility.manager-approval.view',      1, 1, 0, 1, 0),
++ ('facility.manager-approval.approve',   1, 0, 0, 1, 0),
++ ('facility.manager-approval.reject',    1, 0, 0, 1, 0),
++
++-- تأیید اعتبارات: ادمین ✓ ، دیجیتال R ، کاربر شعبه ✓
++ ('facility.credit-approval.view',       1, 1, 1, 0, 0),
++ ('facility.credit-approval.approve',    1, 0, 1, 0, 0),
++ ('facility.credit-approval.reject',     1, 0, 1, 0, 0),
++ ('facility.credit-approval.stage',      1, 0, 1, 0, 0),
++-- تأیید شعبهٔ دیجیتال: تنها عملیاتی که دیجیتال ✓ دارد
++ ('facility.digital-approval.decide',    1, 1, 1, 0, 0),
++
++-- داشبورد: منابع انسانی «—» (جملهٔ صریح سند)
++ ('facility.dashboard.view',             1, 1, 1, 1, 0),
++ ('facility.dashboard.export',           1, 0, 1, 1, 0),
++
++-- گزارش تغییرات: بازگردانی فقط ادمین
++ ('facility.audit.view',                 1, 1, 1, 1, 0),
++ ('facility.audit.export',               1, 1, 1, 1, 0),
++ ('facility.audit.restore',              1, 0, 0, 0, 0),
++
++-- مدیریت کاربران: ⚠ Q2 (پایین را بخوان)
++ ('admin.users.read',                    1, 1, 0, 0, 0),
++ ('admin.users.write',                   1, 0, 0, 0, 0),
++ ('admin.users.assign',                  1, 0, 0, 0, 0),
++ ('admin.users.reset-password',          1, 0, 0, 0, 0),
++ ('admin.users.revoke-sessions',         1, 0, 0, 0, 0),
++ ('admin.roles.read',                    1, 1, 0, 0, 0),
++ ('admin.roles.write',                   1, 0, 0, 0, 0),
++ ('admin.groups.read',                   1, 1, 0, 0, 0),
++ ('admin.groups.write',                  1, 0, 0, 0, 0),
++ ('admin.permissions.read',              1, 1, 0, 0, 0),
++ ('admin.permissions.write',             1, 0, 0, 0, 0),
++ ('admin.audit.read',                    1, 1, 0, 0, 0);
++
++/* درج ردیف‌های RolePanelMenu طبق ماتریس */
++;WITH flat AS (
++    SELECT v.RoleTitle, m.[Key]
++    FROM @m m
++    CROSS APPLY (VALUES
++        (N'admin',           m.A),
++        (N'digital_branch',  m.D),
++        (N'branch_user',     m.B),
++        (N'company_manager', m.M),
++        (N'company_hr',      m.H)
++    ) v(RoleTitle, Has)
++    WHERE v.Has = 1
++)
++MERGE dbo.RolePanelMenu AS t
++USING (
++    SELECT r.Id AS RoleId, pm.Id AS PanelMenuId
++    FROM flat f
++    JOIN dbo.[Role]      r  ON r.Title = f.RoleTitle AND r.IsSystem = 1
++    JOIN dbo.PanelMenu   pm ON pm.PermissionKey = f.[Key]
++) AS s
++ON t.RoleId = s.RoleId AND t.PanelMenuId = s.PanelMenuId
++WHEN NOT MATCHED THEN
++    INSERT (RoleId, PanelMenuId) VALUES (s.RoleId, s.PanelMenuId);
++
++/* ردیف‌هایی که ماتریس نمی‌خواهد ولی در دیتابیس هستند، برای ۵ نقش سیستمی پاک می‌شوند
++   تا اجرای دوباره، ماتریس را دقیقاً به حالت سند برگرداند.
++   ⚠ اگر ادمین عمداً دسترسی‌ای به یک نقش سیستمی اضافه کرده، این آن را برمی‌دارد. */
++;WITH wanted AS (
++    SELECT r.Id AS RoleId, pm.Id AS PanelMenuId
++    FROM @m m
++    CROSS APPLY (VALUES
++        (N'admin', m.A), (N'digital_branch', m.D), (N'branch_user', m.B),
++        (N'company_manager', m.M), (N'company_hr', m.H)
++    ) v(RoleTitle, Has)
++    JOIN dbo.[Role]    r  ON r.Title = v.RoleTitle AND r.IsSystem = 1
++    JOIN dbo.PanelMenu pm ON pm.PermissionKey = m.[Key]
++    WHERE v.Has = 1
++)
++DELETE rpm
++FROM dbo.RolePanelMenu rpm
++JOIN dbo.[Role] r ON r.Id = rpm.RoleId AND r.IsSystem = 1
++WHERE NOT EXISTS (SELECT 1 FROM wanted w WHERE w.RoleId = rpm.RoleId AND w.PanelMenuId = rpm.PanelMenuId);
++
++/* مجوز نقش‌ها عوض شد ← نشست‌های فعلی باید باطل شوند (معیار پذیرش ۶) */
++UPDATE u
++SET u.PermissionVersion = u.PermissionVersion + 1,
++    u.LastPermissionChangeAt = SYSUTCDATETIME()
++FROM dbo.PanelUser u
++WHERE EXISTS (
++    SELECT 1 FROM dbo.PanelUserRole ur
++    JOIN dbo.[Role] r ON r.Id = ur.RoleId AND r.IsSystem = 1
++    WHERE ur.PanelUserId = u.Id
++);
++
++COMMIT;
++GO
++
++/* =====================================================================
++   دو تناقض سند — این‌ها را خودتان تأیید کنید
++
++   ⚠ Q1 — «مشاهدهٔ اعتبار طرح‌ها» برای منابع انسانی
++     ماتریس جامع: «—»
++     ولی شرح نقش منابع انسانی بند ۲: «تخصیص وام: مشاهده اعتبار طرح‌ها طبق تفاهم‌نامه»
++     و US-E4: «می‌خواهم ... اعتبار هر طرح و میانگین‌ها را ببینم»
++     ⇒ اینجا ۱ گذاشته شد، چون بدون دیدن اعتبار نمی‌تواند درخواست ثبت کند
++       (و ثبت درخواست در ماتریس برایش ✓ است).
++     اگر ماتریس درست است:  UPDATE ... SET H = 0 برای facility.loans.credit.view
++
++   ⚠ Q2 — «مدیریت کاربران» برای شعبهٔ دیجیتال
++     ماتریس جامع: «✓ (ویرایش/افزودن/غیرفعال‌سازی)»
++     ولی تعریف نقش: «در حالت پیش‌فرض نقش آن فقط مشاهده است و امکان ایجاد، ویرایش،
++     حذف، تأیید/رد یا هر تغییر دیگری ندارد»
++     و US-C4: «ماتریس دسترسی و فهرست کاربران را ... فقط مشاهده کنم»
++     ⇒ اینجا فقط کلیدهای read داده شد (محدودتر)، چون دو جای سند «فقط مشاهده» می‌گویند
++       و در امنیت، تفسیر محدودتر پیش‌فرض درست است.
++     اگر ماتریس درست است: admin.users.write / assign / reset-password /
++       revoke-sessions / roles.write / groups.write را برای D یک کنید.
++
++   این دو ردیف تنها جاهایی هستند که سند با خودش نمی‌خواند؛ بقیهٔ ۴۳ ردیف
++   مستقیماً از ماتریس آمده‌اند.
++   ===================================================================== */
+diff --git a/docs/Panel-Access-API.md b/docs/Panel-Access-API.md
+new file mode 100644
+index 0000000..a15d495
+--- /dev/null
++++ b/docs/Panel-Access-API.md
+@@ -0,0 +1,234 @@
++# مدیریت کاربران و دسترسی — مسیرها، ورودی و خروجی
++
++مبنا: سند «مشخصات عملکردی پنل مدیریت درخواست‌های تسهیلات سازمانی» (طرح نگین میثاق).
++آدرس پایه: Admin.Api.
++
++## مدل دسترسی در یک نگاه
++
++```
++PanelUser ──> PanelUserRole ──> Role ──> RolePanelMenu ──> PanelMenu
++              (+ دامنه)                                     (کاتالوگ مجوز)
++```
++
++- **دسترسی به نقش داده می‌شود، نقش به کاربر.** هیچ جدولی دسترسی را مستقیم به کاربر نمی‌دهد.
++- **دامنه روی انتساب است، نه روی نقش.** نقش «کاربر شعبه» یک بار تعریف می‌شود و هر کاربر
++  همان نقش را با شعبهٔ خودش می‌گیرد. یک کاربر می‌تواند یک نقش را در چند دامنه داشته باشد.
++- **`PanelMenu` هم تب است هم مجوز:**
++
++| `Kind` | معنی | `Url` | در منو |
++|---|---|---|---|
++| ۱ | تب / مشاهده | دارد | دیده می‌شود |
++| ۲ | عملیات (تأیید، رد، حذف) | ندارد | دیده نمی‌شود |
++
++تب دیده می‌شود ⇔ کاربر کلید `.view` آن را دارد (معیار پذیرش ۱).
++
++### دامنه
++
++| `scopeType` | معنی | `scopeId` |
++|---|---|---|
++| `0` | سراسری | باید `null` باشد |
++| `1` | شعبه | کد شعبه، الزامی |
++| `2` | شرکت | شناسهٔ شرکت، الزامی |
++
++### پاسخ‌های مشترک
++
++| کد | معنی |
++|---|---|
++| `401` | نشست باطل است — توکن نامعتبر، خروج، کاربر غیرفعال، یا **تغییر دسترسی** (معیار ۶) → صفحهٔ ورود |
++| `403` | این کاربر این مجوز را ندارد. دکمه‌ها را از روی کلیدهای کاربر مخفی کنید، نه با ۴۰۳ |
++| `404` | پیدا نشد — یا بیرون از دامنهٔ کاربر است (معیار ۴ و ۵: فرقی نمی‌کند) |
++
++همهٔ پاسخ‌ها در پوشش `BaseMessageResponse`:
++
++```json
++{ "isSuccess": true, "statusCode": 200, "message": "...", "data": { } }
++```
++
++---
++
++## مسیرها
++
++همه زیر `/UserManagement` و همه `ApiVersion = 2`.
++
++### تب ۱ — مدیریت دسترسی‌ها
++
++| متد | مسیر | مجوز لازم |
++|---|---|---|
++| `GET` | `Accesses?term=&page=&pageSize=` | `admin.permissions.read` |
++| `GET` | `Accesses/{id}` | `admin.permissions.read` |
++| `POST` | `Accesses` | `admin.permissions.write` |
++| `PUT` | `Accesses/{id}` | `admin.permissions.write` |
++
++### تب ۲ و ۳ — مجوزها (`Kind=0`) و گروه‌ها (`Kind=1`)
++
++| متد | مسیر | مجوز لازم |
++|---|---|---|
++| `GET` | `Roles?term=&page=&pageSize=` | `admin.roles.read` |
++| `GET` | `Roles/{id}` | `admin.roles.read` |
++| `POST` | `Roles` | `admin.roles.write` |
++| `PUT` | `Roles/{id}` | `admin.roles.write` |
++| `GET` | `Groups?term=&page=&pageSize=` | `admin.groups.read` |
++| `GET` | `Groups/{id}` | `admin.groups.read` |
++| `POST` | `Groups` | `admin.groups.write` |
++| `PUT` | `Groups/{id}` | `admin.groups.write` |
++
++### تب ۴ — مدیریت کاربران
++
++| متد | مسیر | مجوز لازم |
++|---|---|---|
++| `GET` | `PanelUsers?term=&page=&pageSize=` | `admin.users.read` |
++| `GET` | `PanelUsers/{id}` | `admin.users.read` |
++| `POST` | `PanelUsers` | `admin.users.write` |
++| `PUT` | `PanelUsers/{id}` | `admin.users.write` |
++| `PUT` | `PanelUsers/{id}/Roles` | `admin.users.assign` |
++| `PUT` | `PanelUsers/{id}/Active?isActive=` | `admin.users.write` |
++| `GET` | `AccessMatrix` | `admin.users.read` |
++| `GET` | `SecurityAudit?action=&targetType=&page=&pageSize=` | `admin.audit.read` |
++
++---
++
++## ورودی و خروجی
++
++### `POST /UserManagement/PanelUsers`
++
++فرم سند: نام کاربری، رمز، نام کامل، کد کاربر، نام و کد شعبه + انتساب نقش با دامنه.
++
++```json
++{
++  "personId": 1024,
++  "userName": "b.karimi",
++  "password": "...",
++  "email": "b.karimi@example.com",
++  "fullName": "بهنام کریمی",
++  "userCode": "10457",
++  "branchCode": "150002",
++  "branchName": "شعبهٔ مرکزی",
++  "roles": [
++    { "roleId": 3, "scopeType": 1, "scopeId": "150002" }
++  ]
++}
++```
++
++`email` و `roles` اختیاری‌اند. `password` با همان متدی هش می‌شود که مسیر Membership
++استفاده می‌کند — هیچ هش دومی در این مسیر نیست.
++
++خروجی (`data`) برای هر سه endpoint نوشتن کاربر یکسان است:
++
++```json
++{
++  "id": 77,
++  "userName": "b.karimi",
++  "email": "b.karimi@example.com",
++  "fullName": "بهنام کریمی",
++  "userCode": "10457",
++  "branchCode": "150002",
++  "branchName": "شعبهٔ مرکزی",
++  "isActive": true,
++  "permissionVersion": 1,
++  "roles": [ { "roleId": 3, "scopeType": 1, "scopeId": "150002" } ]
++}
++```
++
++### `PUT /UserManagement/PanelUsers/{id}`
++
++```json
++{
++  "userName": "b.karimi",
++  "newPassword": null,
++  "email": "b.karimi@example.com",
++  "fullName": "بهنام کریمی",
++  "userCode": "10457",
++  "branchCode": "150002",
++  "branchName": "شعبهٔ مرکزی",
++  "isActive": true,
++  "roles": null
++}
++```
++
++دو قرارداد مهم:
++
++- `newPassword: null` یا خالی → رمز **دست نمی‌خورد**.
++- `roles: null` → نقش‌ها **دست نمی‌خورند**. `roles: []` → همهٔ نقش‌ها **برداشته می‌شوند**.
++
++### `PUT /UserManagement/PanelUsers/{id}/Roles`
++
++بدنه، فهرست کامل است نه تغییرات جزئی — هر چه نفرستید، برداشته می‌شود.
++
++```json
++[
++  { "roleId": 3, "scopeType": 1, "scopeId": "150002" },
++  { "roleId": 5, "scopeType": 2, "scopeId": "9912" }
++]
++```
++
++### `GET /UserManagement/SecurityAudit`
++
++```json
++{
++  "items": [
++    {
++      "id": 4521,
++      "action": "panel-user.roles.update",
++      "actorPanelUserId": 1,
++      "targetType": "PanelUser",
++      "targetId": "77",
++      "beforeJson": "[{\"RoleId\":3,\"ScopeType\":0,\"ScopeId\":null}]",
++      "afterJson":  "[{\"roleId\":3,\"scopeType\":1,\"scopeId\":\"150002\"}]",
++      "createdAt": "2026-10-19T08:14:22.113Z"
++    }
++  ],
++  "total": 318,
++  "page": 1,
++  "pageSize": 20
++}
++```
++
++`action` یکی از `panel-user.create`، `panel-user.update`، `panel-user.roles.update`،
++`panel-user.active.change`، `role.update`.
++
++### خطای اعتبارسنجی
++
++`400` با پیام فارسی در `message`:
++
++| پیام | علت |
++|---|---|
++| `نام کاربری الزامی است.` | `userName` خالی |
++| `این نام کاربری قبلاً استفاده شده است.` | تکراری |
++| `این کد کاربر قبلاً استفاده شده است.` | تکراری |
++| `برای دامنهٔ شعبه یا شرکت، شناسهٔ دامنه الزامی است.` | `scopeType` ۱ یا ۲ بدون `scopeId` |
++| `دامنهٔ سراسری شناسه نمی‌گیرد.` | `scopeType` صفر با `scopeId` |
++| `رمز عبور الزامی است.` | ساخت کاربر بدون رمز |
++
++---
++
++## خروج اجباری با تغییر دسترسی (معیار پذیرش ۶)
++
++> «در صورت هرگونه اعمال تغییر در سطح دسترسی کاربران، آن کاربر از سامانه لاگ‌اوت و ملزم
++> به ورود با اطلاعات جدید گردد.»
++
++هر مسیری که دسترسی را عوض می‌کند، `PanelUser.PermissionVersion` کاربران درگیر را یک
++واحد بالا می‌برد و کش نشستشان را دور می‌اندازد. درخواست بعدی آن کاربر `401` می‌گیرد.
++
++این در **رپازیتوری** انجام می‌شود، نه در Handlerها — یعنی هر Handler جدیدی هم که اضافه
++شود، نمی‌تواند فراموشش کند. نقاطش:
++
++| تغییر | کاربران bump‌شده |
++|---|---|
++| ویرایش مجوزهای یک نقش | همهٔ دارندگان آن نقش |
++| تغییر فهرست کاربران یک نقش | هم کاربران قبلی، هم جدید |
++| انتساب نقش به کاربر | همان کاربر |
++| فعال/غیرفعال کردن کاربر | همان کاربر |
++
++برای فرانت: `401` روی هر درخواستی ممکن است بیاید، نه فقط روی ورود. پاسخ درست، رفتن به
++صفحهٔ ورود است، نه تلاش دوباره.
++
++---
++
++## آنچه این API ندارد
++
++**دسترسی مستقیم به یک کاربر.** سند در US-A3 «برای هر کاربر ... اعطا یا سلب با چک‌باکس»
++خواسته. این پیاده‌سازی دسترسی را فقط از طریق نقش می‌دهد؛ استثنا با ساختن نقش دیگر بیان
++می‌شود. جدول‌های `PanelUserPermission` و `PanelUserMenu` عمداً وجود ندارند.
++
++**Deny.** چون دسترسی مستقیم کاربر نیست، «سلب» هم نیست. نبودن یک مجوز در نقش‌های کاربر
++همان معنای ندادن را دارد.
+diff --git a/src/IdentityService.Application/Handler/Admin/MainMenuHandler.cs b/src/IdentityService.Application/Handler/Admin/MainMenuHandler.cs
+index c992f9e..30b795d 100644
+--- a/src/IdentityService.Application/Handler/Admin/MainMenuHandler.cs
++++ b/src/IdentityService.Application/Handler/Admin/MainMenuHandler.cs
+@@ -36,7 +36,11 @@ namespace IdentityService.Application.Handler.Admin
+                 return null;
+ 
+             var menus = await _panelMenuRepository.GetPanelRoleMenuAsyncv2(checkAuthenticate.Item4, cancellationToken);
+-            response.Data = menus.ToList();
++
++            // PanelMenu هم تب است هم مجوز: ردیف‌های عملیات (تأیید، رد، حذف — Kind=2) آدرس ندارند
++            // و فقط برای اعطای دسترسی وجود دارند. اگر فیلتر نشوند، در sidebar به‌عنوان آیتم منو
++            // ظاهر می‌شوند. معیار پذیرش ۱ سند: «بخش‌های بدون دسترسی کاملاً مخفی باشند».
++            response.Data = menus.Where(m => !string.IsNullOrWhiteSpace(m.Url)).ToList();
+             return response;
+         }
+ 
+diff --git a/src/IdentityService.Application/Handler/Admin/UserManagementPanel/PanelUserHandlers.cs b/src/IdentityService.Application/Handler/Admin/UserManagementPanel/PanelUserHandlers.cs
+index 9d94314..f51cfa3 100644
+--- a/src/IdentityService.Application/Handler/Admin/UserManagementPanel/PanelUserHandlers.cs
++++ b/src/IdentityService.Application/Handler/Admin/UserManagementPanel/PanelUserHandlers.cs
+@@ -1,87 +1,100 @@
+-using IdentityService.Domain.Services.UserManagementPanel;
+-using static OmidBank.Common.Enums;
+-
+-namespace IdentityService.Application.Handler.Admin.UserManagementPanel;
+-
+-// ══════════════════════════════════════════════════════════════════════════
+-// تب ۴ — «مدیریت کاربران» پنل ادمین.
+-//
+-// ساخت کاربر پنل عمداً این‌جا نیست: در نسخهٔ فعلی ساخت کاربر با رمز عبور از
+-// مسیر موجود Membership انجام می‌شود و تکرارش این‌جا یعنی دو جای متفاوت برای
+-// هش‌کردن رمز. این تب فهرست/جزئیات و فعال-غیرفعال‌سازی را پوشش می‌دهد؛
+-// نقش‌دهی به کاربر هم از تب مجوزها/گروه‌ها انجام می‌شود (همان جدول واسط).
+-// ══════════════════════════════════════════════════════════════════════════
+-
+-public sealed record PanelUserListItem(
+-    int Id,
+-    string UserName,
+-    string? Email,
+-    int PersonId,
+-    bool IsActive,
+-    DateTime CreationTime);
+-
+-// ── گرید ────────────────────────────────────────────────────────────────────
+-public sealed class SearchPanelUsersQueryHandler
+-    : IBaseHandler<SearchPanelUsersQuery, BaseMessageResponse<PagedResult<PanelUserListItem>>>
+-{
+-    private readonly IPanelAccessControlRepository _repository;
+-
+-    public SearchPanelUsersQueryHandler(IPanelAccessControlRepository repository) => _repository = repository;
+-
+-    public async Task<BaseMessageResponse<PagedResult<PanelUserListItem>>> Handle(
+-        SearchPanelUsersQuery query, CancellationToken cancellationToken)
+-    {
+-        var (items, total) = await _repository.SearchPanelUsersAsync(query.Term, query.Page, query.PageSize, cancellationToken);
+-
+-        var response = MessageResponse.GenerateMessageResponse<PagedResult<PanelUserListItem>>(EResponseStatusCode.DoneSuccessfully);
+-        response.Data = new PagedResult<PanelUserListItem>(
+-            items.Select(u => new PanelUserListItem(u.Id, u.UserName, u.Email, u.PersonId, u.IsActive, u.CreationTime)).ToList(),
+-            total, query.Page <= 0 ? 1 : query.Page, query.PageSize <= 0 ? 20 : query.PageSize);
+-        return response;
+-    }
+-}
+-
+-public sealed record SearchPanelUsersQuery(string? Term, int Page = 1, int PageSize = 20)
+-    : BaseQuery<BaseMessageResponse<PagedResult<PanelUserListItem>>>;
+-
+-// ── جزئیات ──────────────────────────────────────────────────────────────────
+-public sealed class GetPanelUserQueryHandler : IBaseHandler<GetPanelUserQuery, BaseMessageResponse<PanelUserListItem>>
+-{
+-    private readonly IPanelAccessControlRepository _repository;
+-
+-    public GetPanelUserQueryHandler(IPanelAccessControlRepository repository) => _repository = repository;
+-
+-    public async Task<BaseMessageResponse<PanelUserListItem>> Handle(GetPanelUserQuery query, CancellationToken cancellationToken)
+-    {
+-        var user = await _repository.GetPanelUserAsync(query.Id, cancellationToken);
+-        if (user is null)
+-            return MessageResponse.GenerateMessageResponse<PanelUserListItem>(EResponseStatusCode.NotFound);
+-
+-        var response = MessageResponse.GenerateMessageResponse<PanelUserListItem>(EResponseStatusCode.DoneSuccessfully);
+-        response.Data = new PanelUserListItem(user.Id, user.UserName, user.Email, user.PersonId, user.IsActive, user.CreationTime);
+-        return response;
+-    }
+-}
+-
+-public sealed record GetPanelUserQuery(int Id) : BaseQuery<BaseMessageResponse<PanelUserListItem>>;
+-
+-// ── فعال / غیرفعال ─────────────────────────────────────────────────────────
+-public sealed class SetPanelUserActiveCommandHandler : IBaseHandler<SetPanelUserActiveCommand, BaseMessageResponse<bool>>
+-{
+-    private readonly IPanelAccessControlRepository _repository;
+-
+-    public SetPanelUserActiveCommandHandler(IPanelAccessControlRepository repository) => _repository = repository;
+-
+-    public async Task<BaseMessageResponse<bool>> Handle(SetPanelUserActiveCommand command, CancellationToken cancellationToken)
+-    {
+-        var updated = await _repository.SetPanelUserActiveAsync(command.Id, command.IsActive, cancellationToken);
+-        if (!updated)
+-            return MessageResponse.GenerateMessageResponse<bool>(EResponseStatusCode.NotFound);
+-
+-        var response = MessageResponse.GenerateMessageResponse<bool>(EResponseStatusCode.DoneSuccessfully);
+-        response.Data = true;
+-        return response;
+-    }
+-}
+-
+-public sealed record SetPanelUserActiveCommand(int Id, bool IsActive) : BaseCommand<BaseMessageResponse<bool>>;
++using IdentityService.Domain.Services.UserManagementPanel;
++using static OmidBank.Common.Enums;
++
++namespace IdentityService.Application.Handler.Admin.UserManagementPanel;
++
++// ══════════════════════════════════════════════════════════════════════════
++// تب ۴ — «مدیریت کاربران» پنل ادمین.
++//
++// ساخت کاربر پنل عمداً این‌جا نیست: در نسخهٔ فعلی ساخت کاربر با رمز عبور از
++// مسیر موجود Membership انجام می‌شود و تکرارش این‌جا یعنی دو جای متفاوت برای
++// هش‌کردن رمز. این تب فهرست/جزئیات و فعال-غیرفعال‌سازی را پوشش می‌دهد؛
++// نقش‌دهی به کاربر هم از تب مجوزها/گروه‌ها انجام می‌شود (همان جدول واسط).
++// ══════════════════════════════════════════════════════════════════════════
++
++public sealed record PanelUserListItem(
++    int Id,
++    string UserName,
++    string? Email,
++    int PersonId,
++    bool IsActive,
++    DateTime CreationTime);
++
++// ── گرید ────────────────────────────────────────────────────────────────────
++public sealed class SearchPanelUsersQueryHandler
++    : IBaseHandler<SearchPanelUsersQuery, BaseMessageResponse<PagedResult<PanelUserListItem>>>
++{
++    private readonly IPanelAccessControlRepository _repository;
++
++    public SearchPanelUsersQueryHandler(IPanelAccessControlRepository repository) => _repository = repository;
++
++    public async Task<BaseMessageResponse<PagedResult<PanelUserListItem>>> Handle(
++        SearchPanelUsersQuery query, CancellationToken cancellationToken)
++    {
++        var (items, total) = await _repository.SearchPanelUsersAsync(query.Term, query.Page, query.PageSize, cancellationToken);
++
++        var response = MessageResponse.GenerateMessageResponse<PagedResult<PanelUserListItem>>(EResponseStatusCode.DoneSuccessfully);
++        response.Data = new PagedResult<PanelUserListItem>(
++            items.Select(u => new PanelUserListItem(u.Id, u.UserName, u.Email, u.PersonId, u.IsActive, u.CreationTime)).ToList(),
++            total, query.Page <= 0 ? 1 : query.Page, query.PageSize <= 0 ? 20 : query.PageSize);
++        return response;
++    }
++}
++
++public sealed record SearchPanelUsersQuery(string? Term, int Page = 1, int PageSize = 20)
++    : BaseQuery<BaseMessageResponse<PagedResult<PanelUserListItem>>>;
++
++// ── جزئیات ──────────────────────────────────────────────────────────────────
++public sealed class GetPanelUserQueryHandler : IBaseHandler<GetPanelUserQuery, BaseMessageResponse<PanelUserListItem>>
++{
++    private readonly IPanelAccessControlRepository _repository;
++
++    public GetPanelUserQueryHandler(IPanelAccessControlRepository repository) => _repository = repository;
++
++    public async Task<BaseMessageResponse<PanelUserListItem>> Handle(GetPanelUserQuery query, CancellationToken cancellationToken)
++    {
++        var user = await _repository.GetPanelUserAsync(query.Id, cancellationToken);
++        if (user is null)
++            return MessageResponse.GenerateMessageResponse<PanelUserListItem>(EResponseStatusCode.NotFound);
++
++        var response = MessageResponse.GenerateMessageResponse<PanelUserListItem>(EResponseStatusCode.DoneSuccessfully);
++        response.Data = new PanelUserListItem(user.Id, user.UserName, user.Email, user.PersonId, user.IsActive, user.CreationTime);
++        return response;
++    }
++}
++
++public sealed record GetPanelUserQuery(int Id) : BaseQuery<BaseMessageResponse<PanelUserListItem>>;
++
++// ── فعال / غیرفعال ─────────────────────────────────────────────────────────
++public sealed class SetPanelUserActiveCommandHandler : IBaseHandler<SetPanelUserActiveCommand, BaseMessageResponse<bool>>
++{
++    private readonly IPanelAccessControlRepository _repository;
++
++    public SetPanelUserActiveCommandHandler(IPanelAccessControlRepository repository) => _repository = repository;
++
++    public async Task<BaseMessageResponse<bool>> Handle(SetPanelUserActiveCommand command, CancellationToken cancellationToken)
++    {
++        var before = await _repository.GetPanelUserAsync(command.Id, cancellationToken);
++
++        var updated = await _repository.SetPanelUserActiveAsync(command.Id, command.IsActive, cancellationToken);
++        if (!updated)
++            return MessageResponse.GenerateMessageResponse<bool>(EResponseStatusCode.NotFound);
++
++        await _repository.WriteAuditAsync(new IdentityService.Domain.Entity.PanelSecurityAuditLogEntity
++        {
++            Action = "panel-user.active.change",
++            ActorPanelUserId = command.ActorPanelUserId,
++            TargetType = "PanelUser",
++            TargetId = command.Id.ToString(),
++            BeforeJson = System.Text.Json.JsonSerializer.Serialize(new { IsActive = before?.IsActive }),
++            AfterJson = System.Text.Json.JsonSerializer.Serialize(new { command.IsActive }),
++        }, cancellationToken);
++
++        var response = MessageResponse.GenerateMessageResponse<bool>(EResponseStatusCode.DoneSuccessfully);
++        response.Data = true;
++        return response;
++    }
++}
++
++public sealed record SetPanelUserActiveCommand(int Id, bool IsActive, int? ActorPanelUserId = null)
++    : BaseCommand<BaseMessageResponse<bool>>;
+diff --git a/src/IdentityService.Application/Handler/Admin/UserManagementPanel/PanelUserWriteHandlers.cs b/src/IdentityService.Application/Handler/Admin/UserManagementPanel/PanelUserWriteHandlers.cs
+new file mode 100644
+index 0000000..25eed6a
+--- /dev/null
++++ b/src/IdentityService.Application/Handler/Admin/UserManagementPanel/PanelUserWriteHandlers.cs
+@@ -0,0 +1,342 @@
++using IdentityService.Domain.Authorization;
++using IdentityService.Domain.Entity;
++using IdentityService.Domain.Models.User;
++using IdentityService.Domain.Services.UserManagementPanel;
++using static OmidBank.Common.Enums;
++
++namespace IdentityService.Application.Handler.Admin.UserManagementPanel;
++
++// ══════════════════════════════════════════════════════════════════════════
++// ساخت و ویرایش کاربر پنل — فرم سند:
++//   نام کاربری، رمز، نام کامل، کد کاربر، نام و کد شعبه، و انتساب نقش با دامنه.
++//
++// رمز با UserModel.SetPassword هش می‌شود، همان متدی که مسیر Membership استفاده
++// می‌کند. هیچ هش دومی این‌جا نوشته نشده: دو جای متفاوت برای هش‌کردن رمز یعنی
++// روزی یکی‌شان عوض می‌شود و ورود می‌شکند.
++// ══════════════════════════════════════════════════════════════════════════
++
++public sealed record RoleAssignmentDto(int RoleId, AccessScopeType ScopeType, string? ScopeId);
++
++public sealed record PanelUserDetails(
++    int Id,
++    string UserName,
++    string? Email,
++    string? FullName,
++    string? UserCode,
++    string? BranchCode,
++    string? BranchName,
++    bool IsActive,
++    int PermissionVersion,
++    List<RoleAssignmentDto> Roles);
++
++// ── ساخت ────────────────────────────────────────────────────────────────────
++public sealed class CreatePanelUserCommandHandler
++    : IBaseHandler<CreatePanelUserCommand, BaseMessageResponse<PanelUserDetails>>
++{
++    private readonly IPanelAccessControlRepository _repository;
++
++    public CreatePanelUserCommandHandler(IPanelAccessControlRepository repository) => _repository = repository;
++
++    public async Task<BaseMessageResponse<PanelUserDetails>> Handle(
++        CreatePanelUserCommand command, CancellationToken cancellationToken)
++    {
++        var invalid = await Validate(_repository, command.UserName, command.UserCode, command.Roles, null, cancellationToken);
++        if (invalid is not null) return Fail(invalid);
++
++        if (string.IsNullOrWhiteSpace(command.Password))
++            return Fail("رمز عبور الزامی است.");
++
++        if (command.PersonId <= 0)
++            return Fail("شناسهٔ شخص الزامی است.");
++
++        // هش از همان مسیر Membership
++        var credentials = new UserModel();
++        credentials.SetPassword(command.Password);
++
++        var user = new PanelUserEntity
++        {
++            PersonId = command.PersonId,
++            UserName = command.UserName.Trim(),
++            PasswordHash = credentials.Password,
++            Email = command.Email?.Trim()!,
++            FullName = command.FullName?.Trim(),
++            UserCode = command.UserCode?.Trim(),
++            BranchCode = command.BranchCode?.Trim(),
++            BranchName = command.BranchName?.Trim(),
++            IsActive = true,
++        };
++
++        var id = await _repository.AddPanelUserAsync(user, ToAssignments(command.Roles, command.ActorPanelUserId), cancellationToken);
++
++        await _repository.WriteAuditAsync(new PanelSecurityAuditLogEntity
++        {
++            Action = "panel-user.create",
++            ActorPanelUserId = command.ActorPanelUserId,
++            TargetType = "PanelUser",
++            TargetId = id.ToString(),
++            AfterJson = System.Text.Json.JsonSerializer.Serialize(new
++            {
++                user.UserName, user.FullName, user.UserCode, user.BranchCode, command.Roles,
++            }),
++        }, cancellationToken);
++
++        return await Read(_repository, id, cancellationToken);
++    }
++
++    private static BaseMessageResponse<PanelUserDetails> Fail(string message)
++    {
++        var response = MessageResponse.GenerateMessageResponse<PanelUserDetails>(EResponseStatusCode.BadRequest);
++        response.Message = message;
++        return response;
++    }
++
++    internal static List<RoleAssignment> ToAssignments(List<RoleAssignmentDto>? roles, int? actor) =>
++        (roles ?? []).Select(r => new RoleAssignment(r.RoleId, r.ScopeType, r.ScopeId, actor)).ToList();
++
++    /// <summary>
++    /// یکتایی نام کاربری و کد کاربر، و اینکه دامنهٔ هر انتساب با AllowedScopeType نقش بخواند.
++    /// بدون این چک، «کاربر شعبه» را می‌شد سراسری داد و معیار ۵ بی‌اثر می‌شد.
++    /// </summary>
++    internal static async Task<string?> Validate(
++        IPanelAccessControlRepository repository,
++        string? userName,
++        string? userCode,
++        List<RoleAssignmentDto>? roles,
++        int? exceptId,
++        CancellationToken cancellationToken)
++    {
++        if (string.IsNullOrWhiteSpace(userName))
++            return "نام کاربری الزامی است.";
++
++        if (await repository.PanelUserNameExistsAsync(userName.Trim(), exceptId, cancellationToken))
++            return "این نام کاربری قبلاً استفاده شده است.";
++
++        if (!string.IsNullOrWhiteSpace(userCode) &&
++            await repository.PanelUserCodeExistsAsync(userCode.Trim(), exceptId, cancellationToken))
++            return "این کد کاربر قبلاً استفاده شده است.";
++
++        foreach (var role in roles ?? [])
++        {
++            if (role.ScopeType != AccessScopeType.Global && string.IsNullOrWhiteSpace(role.ScopeId))
++                return "برای دامنهٔ شعبه یا شرکت، شناسهٔ دامنه الزامی است.";
++
++            if (role.ScopeType == AccessScopeType.Global && !string.IsNullOrWhiteSpace(role.ScopeId))
++                return "دامنهٔ سراسری شناسه نمی‌گیرد.";
++        }
++
++        return null;
++    }
++
++    internal static async Task<BaseMessageResponse<PanelUserDetails>> Read(
++        IPanelAccessControlRepository repository, int id, CancellationToken cancellationToken)
++    {
++        var saved = await repository.GetPanelUserWithPermissionsAsync(id, cancellationToken);
++        if (saved is null)
++            return MessageResponse.GenerateMessageResponse<PanelUserDetails>(EResponseStatusCode.NotFound);
++
++        var response = MessageResponse.GenerateMessageResponse<PanelUserDetails>(EResponseStatusCode.DoneSuccessfully);
++        response.Data = new PanelUserDetails(
++            saved.Id, saved.UserName, saved.Email, saved.FullName, saved.UserCode,
++            saved.BranchCode, saved.BranchName, saved.IsActive, saved.PermissionVersion,
++            saved.PanelUserRoles.Select(a => new RoleAssignmentDto(a.RoleId, a.ScopeType, a.ScopeId)).ToList());
++        return response;
++    }
++}
++
++public sealed record CreatePanelUserCommand(
++    int PersonId,
++    string UserName,
++    string Password,
++    string? Email,
++    string? FullName,
++    string? UserCode,
++    string? BranchCode,
++    string? BranchName,
++    List<RoleAssignmentDto>? Roles,
++    int? ActorPanelUserId = null) : BaseCommand<BaseMessageResponse<PanelUserDetails>>;
++
++// ── ویرایش ──────────────────────────────────────────────────────────────────
++public sealed class UpdatePanelUserCommandHandler
++    : IBaseHandler<UpdatePanelUserCommand, BaseMessageResponse<PanelUserDetails>>
++{
++    private readonly IPanelAccessControlRepository _repository;
++
++    public UpdatePanelUserCommandHandler(IPanelAccessControlRepository repository) => _repository = repository;
++
++    public async Task<BaseMessageResponse<PanelUserDetails>> Handle(
++        UpdatePanelUserCommand command, CancellationToken cancellationToken)
++    {
++        var before = await _repository.GetPanelUserWithPermissionsAsync(command.Id, cancellationToken);
++        if (before is null)
++            return MessageResponse.GenerateMessageResponse<PanelUserDetails>(EResponseStatusCode.NotFound);
++
++        var invalid = await CreatePanelUserCommandHandler.Validate(
++            _repository, command.UserName, command.UserCode, command.Roles, command.Id, cancellationToken);
++
++        if (invalid is not null)
++        {
++            var bad = MessageResponse.GenerateMessageResponse<PanelUserDetails>(EResponseStatusCode.BadRequest);
++            bad.Message = invalid;
++            return bad;
++        }
++
++        string? passwordHash = null;
++        if (!string.IsNullOrWhiteSpace(command.NewPassword))
++        {
++            var credentials = new UserModel();
++            credentials.SetPassword(command.NewPassword);
++            passwordHash = credentials.Password;
++        }
++
++        var updated = await _repository.UpdatePanelUserAsync(new PanelUserEntity
++        {
++            Id = command.Id,
++            UserName = command.UserName.Trim(),
++            PasswordHash = passwordHash!,
++            Email = command.Email?.Trim()!,
++            FullName = command.FullName?.Trim(),
++            UserCode = command.UserCode?.Trim(),
++            BranchCode = command.BranchCode?.Trim(),
++            BranchName = command.BranchName?.Trim(),
++            IsActive = command.IsActive,
++        },
++        // null یعنی فرم نقش‌ها را نفرستاده، پس دست نخورند.
++        command.Roles is null ? null : CreatePanelUserCommandHandler.ToAssignments(command.Roles, command.ActorPanelUserId),
++        cancellationToken);
++
++        if (!updated)
++            return MessageResponse.GenerateMessageResponse<PanelUserDetails>(EResponseStatusCode.NotFound);
++
++        await _repository.WriteAuditAsync(new PanelSecurityAuditLogEntity
++        {
++            Action = "panel-user.update",
++            ActorPanelUserId = command.ActorPanelUserId,
++            TargetType = "PanelUser",
++            TargetId = command.Id.ToString(),
++            BeforeJson = System.Text.Json.JsonSerializer.Serialize(new
++            {
++                before.UserName, before.FullName, before.UserCode, before.BranchCode, before.IsActive,
++                Roles = before.PanelUserRoles.Select(a => new { a.RoleId, a.ScopeType, a.ScopeId }),
++            }),
++            AfterJson = System.Text.Json.JsonSerializer.Serialize(new
++            {
++                command.UserName, command.FullName, command.UserCode, command.BranchCode, command.IsActive,
++                Roles = command.Roles,
++            }),
++        }, cancellationToken);
++
++        return await CreatePanelUserCommandHandler.Read(_repository, command.Id, cancellationToken);
++    }
++}
++
++public sealed record UpdatePanelUserCommand(
++    int Id,
++    string UserName,
++    string? NewPassword,
++    string? Email,
++    string? FullName,
++    string? UserCode,
++    string? BranchCode,
++    string? BranchName,
++    bool IsActive,
++    List<RoleAssignmentDto>? Roles,
++    int? ActorPanelUserId = null) : BaseCommand<BaseMessageResponse<PanelUserDetails>>;
++
++// ── لاگ امنیتی ──────────────────────────────────────────────────────────────
++public sealed class SearchSecurityAuditQueryHandler
++    : IBaseHandler<SearchSecurityAuditQuery, BaseMessageResponse<PagedResult<SecurityAuditItem>>>
++{
++    private readonly IPanelAccessControlRepository _repository;
++
++    public SearchSecurityAuditQueryHandler(IPanelAccessControlRepository repository) => _repository = repository;
++
++    public async Task<BaseMessageResponse<PagedResult<SecurityAuditItem>>> Handle(
++        SearchSecurityAuditQuery query, CancellationToken cancellationToken)
++    {
++        var (items, total) = await _repository.SearchAuditAsync(
++            query.Action, query.TargetType, query.Page, query.PageSize, cancellationToken);
++
++        var response = MessageResponse.GenerateMessageResponse<PagedResult<SecurityAuditItem>>(EResponseStatusCode.DoneSuccessfully);
++        response.Data = new PagedResult<SecurityAuditItem>(
++            items.Select(x => new SecurityAuditItem(
++                x.Id, x.Action, x.ActorPanelUserId, x.TargetType, x.TargetId,
++                x.BeforeJson, x.AfterJson, x.CreatedAt)).ToList(),
++            total, query.Page <= 0 ? 1 : query.Page, query.PageSize <= 0 ? 20 : query.PageSize);
++        return response;
++    }
++}
++
++public sealed record SecurityAuditItem(
++    long Id,
++    string Action,
++    int? ActorPanelUserId,
++    string TargetType,
++    string? TargetId,
++    string? BeforeJson,
++    string? AfterJson,
++    DateTime CreatedAt);
++
++public sealed record SearchSecurityAuditQuery(string? Action, string? TargetType, int Page = 1, int PageSize = 20)
++    : BaseQuery<BaseMessageResponse<PagedResult<SecurityAuditItem>>>;
++
++// ── انتساب نقش، جدا از ویرایش کاربر ─────────────────────────────────────────
++public sealed class UpdatePanelUserRolesCommandHandler
++    : IBaseHandler<UpdatePanelUserRolesCommand, BaseMessageResponse<PanelUserDetails>>
++{
++    private readonly IPanelAccessControlRepository _repository;
++
++    public UpdatePanelUserRolesCommandHandler(IPanelAccessControlRepository repository) => _repository = repository;
++
++    public async Task<BaseMessageResponse<PanelUserDetails>> Handle(
++        UpdatePanelUserRolesCommand command, CancellationToken cancellationToken)
++    {
++        var before = await _repository.GetPanelUserWithPermissionsAsync(command.Id, cancellationToken);
++        if (before is null)
++            return MessageResponse.GenerateMessageResponse<PanelUserDetails>(EResponseStatusCode.NotFound);
++
++        var invalid = await CreatePanelUserCommandHandler.Validate(
++            _repository, before.UserName, before.UserCode, command.Roles, command.Id, cancellationToken);
++
++        if (invalid is not null)
++        {
++            var bad = MessageResponse.GenerateMessageResponse<PanelUserDetails>(EResponseStatusCode.BadRequest);
++            bad.Message = invalid;
++            return bad;
++        }
++
++        var updated = await _repository.UpdatePanelUserAsync(new PanelUserEntity
++        {
++            Id = before.Id,
++            UserName = before.UserName,
++            Email = before.Email,
++            FullName = before.FullName,
++            UserCode = before.UserCode,
++            BranchCode = before.BranchCode,
++            BranchName = before.BranchName,
++            IsActive = before.IsActive,
++        },
++        CreatePanelUserCommandHandler.ToAssignments(command.Roles, command.ActorPanelUserId),
++        cancellationToken);
++
++        if (!updated)
++            return MessageResponse.GenerateMessageResponse<PanelUserDetails>(EResponseStatusCode.NotFound);
++
++        await _repository.WriteAuditAsync(new PanelSecurityAuditLogEntity
++        {
++            Action = "panel-user.roles.update",
++            ActorPanelUserId = command.ActorPanelUserId,
++            TargetType = "PanelUser",
++            TargetId = command.Id.ToString(),
++            BeforeJson = System.Text.Json.JsonSerializer.Serialize(
++                before.PanelUserRoles.Select(a => new { a.RoleId, a.ScopeType, a.ScopeId })),
++            AfterJson = System.Text.Json.JsonSerializer.Serialize(command.Roles),
++        }, cancellationToken);
++
++        return await CreatePanelUserCommandHandler.Read(_repository, command.Id, cancellationToken);
++    }
++}
++
++public sealed record UpdatePanelUserRolesCommand(
++    int Id,
++    List<RoleAssignmentDto> Roles,
++    int? ActorPanelUserId = null) : BaseCommand<BaseMessageResponse<PanelUserDetails>>;
+diff --git a/src/IdentityService.Application/Handler/Admin/UserManagementPanel/RoleGroupHandlers.cs b/src/IdentityService.Application/Handler/Admin/UserManagementPanel/RoleGroupHandlers.cs
+index ec06209..b29ec33 100644
+--- a/src/IdentityService.Application/Handler/Admin/UserManagementPanel/RoleGroupHandlers.cs
++++ b/src/IdentityService.Application/Handler/Admin/UserManagementPanel/RoleGroupHandlers.cs
+@@ -1,208 +1,223 @@
+-using IdentityService.Domain.Entity;
+-using IdentityService.Domain.Services.UserManagementPanel;
+-using OmidBank.Common.JwtHelper;
+-using static OmidBank.Common.Enums;
+-
+-namespace IdentityService.Application.Handler.Admin.UserManagementPanel;
+-
+-// ══════════════════════════════════════════════════════════════════════════
+-// تب ۲ «مدیریت مجوزها» (نقش) و تب ۳ «مدیریت گروه‌ها».
+-//
+-// هر دو تب در طرح Figma یک فرم دارند: نام، افزودن کاربر/کاربران با username،
+-// دسترسی/دسترسی‌ها، توضیحات، وضعیت فعال/غیرفعال — و هر دو با «بررسی» تکراری‌بودن
+-// نام و پیام موفقیت تمام می‌شوند. پس یک مجموعه هندلر با پارامتر Kind هر دو را
+-// پوشش می‌دهد: 0 = نقش، 1 = گروه.
+-// ══════════════════════════════════════════════════════════════════════════
+-
+-public static class PanelRoleKind
+-{
+-    public const int Role = 0;
+-    public const int Group = 1;
+-}
+-
+-public sealed record RoleListItem(
+-    int Id,
+-    string Title,
+-    string PersianTitle,
+-    string? Description,
+-    bool IsActive,
+-    DateTime? CreatedAtUtc,
+-    int? CreatedByPanelUserId);
+-
+-public sealed record RoleDetail(
+-    int Id,
+-    string Title,
+-    string PersianTitle,
+-    string? Description,
+-    bool IsActive,
+-    DateTime? CreatedAtUtc,
+-    int? CreatedByPanelUserId,
+-    List<int> AccessIds,
+-    List<string> UserNames);
+-
+-// ── گرید (ردیف، نام، تاریخ ایجاد، کاربر ایجادکننده، عملیات) ─────────────────
+-public sealed class SearchRolesQueryHandler
+-    : IBaseHandler<SearchRolesQuery, BaseMessageResponse<PagedResult<RoleListItem>>>
+-{
+-    private readonly IPanelAccessControlRepository _repository;
+-
+-    public SearchRolesQueryHandler(IPanelAccessControlRepository repository) => _repository = repository;
+-
+-    public async Task<BaseMessageResponse<PagedResult<RoleListItem>>> Handle(
+-        SearchRolesQuery query, CancellationToken cancellationToken)
+-    {
+-        var (items, total) = await _repository.SearchRolesAsync(query.Kind, query.Term, query.Page, query.PageSize, cancellationToken);
+-
+-        var response = MessageResponse.GenerateMessageResponse<PagedResult<RoleListItem>>(EResponseStatusCode.DoneSuccessfully);
+-        response.Data = new PagedResult<RoleListItem>(
+-            items.Select(r => new RoleListItem(r.Id, r.Title, r.PersianTitle, r.Description, r.IsActive, r.CreatedAt, r.CreatedByPanelUserId)).ToList(),
+-            total, query.Page <= 0 ? 1 : query.Page, query.PageSize <= 0 ? 20 : query.PageSize);
+-        return response;
+-    }
+-}
+-
+-public sealed record SearchRolesQuery(int Kind, string? Term, int Page = 1, int PageSize = 20)
+-    : BaseQuery<BaseMessageResponse<PagedResult<RoleListItem>>>;
+-
+-// ── جزئیات (پاپ‌آپ: کاربران، دسترسی‌ها، توضیحات، وضعیت) ─────────────────────
+-public sealed class GetRoleQueryHandler : IBaseHandler<GetRoleQuery, BaseMessageResponse<RoleDetail>>
+-{
+-    private readonly IPanelAccessControlRepository _repository;
+-
+-    public GetRoleQueryHandler(IPanelAccessControlRepository repository) => _repository = repository;
+-
+-    public async Task<BaseMessageResponse<RoleDetail>> Handle(GetRoleQuery query, CancellationToken cancellationToken)
+-    {
+-        var role = await _repository.GetRoleAsync(query.Id, query.Kind, cancellationToken);
+-        if (role is null)
+-            return MessageResponse.GenerateMessageResponse<RoleDetail>(EResponseStatusCode.NotFound);
+-
+-        var accessIds = await _repository.GetRoleMenuIdsAsync(role.Id, cancellationToken);
+-        var users = await _repository.GetRoleUsersAsync(role.Id, cancellationToken);
+-
+-        var response = MessageResponse.GenerateMessageResponse<RoleDetail>(EResponseStatusCode.DoneSuccessfully);
+-        response.Data = new RoleDetail(
+-            role.Id, role.Title, role.PersianTitle, role.Description, role.IsActive,
+-            role.CreatedAt, role.CreatedByPanelUserId,
+-            accessIds, users.Select(u => u.UserName).ToList());
+-        return response;
+-    }
+-}
+-
+-public sealed record GetRoleQuery(int Id, int Kind) : BaseQuery<BaseMessageResponse<RoleDetail>>;
+-
+-// ── ایجاد ───────────────────────────────────────────────────────────────────
+-public sealed class CreateRoleCommandHandler : IBaseHandler<CreateRoleCommand, BaseMessageResponse<int>>
+-{
+-    private readonly IPanelAccessControlRepository _repository;
+-    private readonly IJwtService _jwtService;
+-
+-    public CreateRoleCommandHandler(IPanelAccessControlRepository repository, IJwtService jwtService)
+-    {
+-        _repository = repository;
+-        _jwtService = jwtService;
+-    }
+-
+-    public async Task<BaseMessageResponse<int>> Handle(CreateRoleCommand command, CancellationToken cancellationToken)
+-    {
+-        if (string.IsNullOrWhiteSpace(command.PersianTitle))
+-            return MessageResponse.GenerateMessageResponse<int>(EResponseStatusCode.WrongParameters);
+-
+-        // طرح: «نام نقش تکراری است، قبلا با این نام نقشی ایجاد شده است.»
+-        // (و برای تب گروه‌ها همان پیام با واژهٔ گروه) — یکتایی به‌ازای هر Kind جداست.
+-        if (await _repository.RoleTitleExistsAsync(command.Kind, command.PersianTitle, exceptId: null, cancellationToken))
+-            return MessageResponse.GenerateMessageResponse<int>(EResponseStatusCode.DuplicateKey);
+-
+-        var userIds = await ResolveUserIdsAsync(command.UserNames, cancellationToken);
+-
+-        var role = new RoleEntity
+-        {
+-            Kind = command.Kind,
+-            PersianTitle = command.PersianTitle,
+-            Title = string.IsNullOrWhiteSpace(command.Title) ? command.PersianTitle : command.Title,
+-            Description = command.Description,
+-            IsActive = command.IsActive,
+-            CreatedAt = DateTime.UtcNow,
+-            CreatedByPanelUserId = ResolvePanelUserId(command.Token),
+-        };
+-
+-        var response = MessageResponse.GenerateMessageResponse<int>(EResponseStatusCode.DoneSuccessfully);
+-        response.Data = await _repository.AddRoleAsync(role, command.AccessIds ?? [], userIds, cancellationToken);
+-        return response;
+-    }
+-
+-    private async Task<List<int>> ResolveUserIdsAsync(List<string>? userNames, CancellationToken cancellationToken)
+-    {
+-        if (userNames is null || userNames.Count == 0) return [];
+-        var users = await _repository.GetPanelUsersByUserNamesAsync(userNames, cancellationToken);
+-        return users.Select(u => u.Id).ToList();
+-    }
+-
+-    private int? ResolvePanelUserId(string? token)
+-    {
+-        if (string.IsNullOrWhiteSpace(token)) return null;
+-        var valid = _jwtService.ValidateToken(token);
+-        return valid.Item1 ? (int)valid.Item3.UserId : null;
+-    }
+-}
+-
+-public sealed record CreateRoleCommand(
+-    int Kind,
+-    string PersianTitle,
+-    string? Title,
+-    string? Description,
+-    bool IsActive,
+-    List<int>? AccessIds,
+-    List<string>? UserNames,
+-    string? Token) : BaseCommand<BaseMessageResponse<int>>;
+-
+-// ── ویرایش ──────────────────────────────────────────────────────────────────
+-public sealed class UpdateRoleCommandHandler : IBaseHandler<UpdateRoleCommand, BaseMessageResponse<bool>>
+-{
+-    private readonly IPanelAccessControlRepository _repository;
+-
+-    public UpdateRoleCommandHandler(IPanelAccessControlRepository repository) => _repository = repository;
+-
+-    public async Task<BaseMessageResponse<bool>> Handle(UpdateRoleCommand command, CancellationToken cancellationToken)
+-    {
+-        if (string.IsNullOrWhiteSpace(command.PersianTitle))
+-            return MessageResponse.GenerateMessageResponse<bool>(EResponseStatusCode.WrongParameters);
+-
+-        if (await _repository.RoleTitleExistsAsync(command.Kind, command.PersianTitle, exceptId: command.Id, cancellationToken))
+-            return MessageResponse.GenerateMessageResponse<bool>(EResponseStatusCode.DuplicateKey);
+-
+-        var userIds = new List<int>();
+-        if (command.UserNames is { Count: > 0 })
+-        {
+-            var users = await _repository.GetPanelUsersByUserNamesAsync(command.UserNames, cancellationToken);
+-            userIds = users.Select(u => u.Id).ToList();
+-        }
+-
+-        var updated = await _repository.UpdateRoleAsync(new RoleEntity
+-        {
+-            Id = command.Id,
+-            Kind = command.Kind,
+-            PersianTitle = command.PersianTitle,
+-            Title = string.IsNullOrWhiteSpace(command.Title) ? command.PersianTitle : command.Title,
+-            Description = command.Description,
+-            IsActive = command.IsActive,
+-        }, command.AccessIds ?? [], userIds, cancellationToken);
+-
+-        if (!updated)
+-            return MessageResponse.GenerateMessageResponse<bool>(EResponseStatusCode.NotFound);
+-
+-        var response = MessageResponse.GenerateMessageResponse<bool>(EResponseStatusCode.DoneSuccessfully);
+-        response.Data = true;
+-        return response;
+-    }
+-}
+-
+-public sealed record UpdateRoleCommand(
+-    int Id,
+-    int Kind,
+-    string PersianTitle,
+-    string? Title,
+-    string? Description,
+-    bool IsActive,
+-    List<int>? AccessIds,
+-    List<string>? UserNames) : BaseCommand<BaseMessageResponse<bool>>;
++using IdentityService.Domain.Entity;
++using IdentityService.Domain.Services.UserManagementPanel;
++using OmidBank.Common.JwtHelper;
++using static OmidBank.Common.Enums;
++
++namespace IdentityService.Application.Handler.Admin.UserManagementPanel;
++
++// ══════════════════════════════════════════════════════════════════════════
++// تب ۲ «مدیریت مجوزها» (نقش) و تب ۳ «مدیریت گروه‌ها».
++//
++// هر دو تب در طرح Figma یک فرم دارند: نام، افزودن کاربر/کاربران با username،
++// دسترسی/دسترسی‌ها، توضیحات، وضعیت فعال/غیرفعال — و هر دو با «بررسی» تکراری‌بودن
++// نام و پیام موفقیت تمام می‌شوند. پس یک مجموعه هندلر با پارامتر Kind هر دو را
++// پوشش می‌دهد: 0 = نقش، 1 = گروه.
++// ══════════════════════════════════════════════════════════════════════════
++
++public static class PanelRoleKind
++{
++    public const int Role = 0;
++    public const int Group = 1;
++}
++
++public sealed record RoleListItem(
++    int Id,
++    string Title,
++    string PersianTitle,
++    string? Description,
++    bool IsActive,
++    DateTime? CreatedAtUtc,
++    int? CreatedByPanelUserId);
++
++public sealed record RoleDetail(
++    int Id,
++    string Title,
++    string PersianTitle,
++    string? Description,
++    bool IsActive,
++    DateTime? CreatedAtUtc,
++    int? CreatedByPanelUserId,
++    List<int> AccessIds,
++    List<string> UserNames);
++
++// ── گرید (ردیف، نام، تاریخ ایجاد، کاربر ایجادکننده، عملیات) ─────────────────
++public sealed class SearchRolesQueryHandler
++    : IBaseHandler<SearchRolesQuery, BaseMessageResponse<PagedResult<RoleListItem>>>
++{
++    private readonly IPanelAccessControlRepository _repository;
++
++    public SearchRolesQueryHandler(IPanelAccessControlRepository repository) => _repository = repository;
++
++    public async Task<BaseMessageResponse<PagedResult<RoleListItem>>> Handle(
++        SearchRolesQuery query, CancellationToken cancellationToken)
++    {
++        var (items, total) = await _repository.SearchRolesAsync(query.Kind, query.Term, query.Page, query.PageSize, cancellationToken);
++
++        var response = MessageResponse.GenerateMessageResponse<PagedResult<RoleListItem>>(EResponseStatusCode.DoneSuccessfully);
++        response.Data = new PagedResult<RoleListItem>(
++            items.Select(r => new RoleListItem(r.Id, r.Title, r.PersianTitle, r.Description, r.IsActive, r.CreatedAt, r.CreatedByPanelUserId)).ToList(),
++            total, query.Page <= 0 ? 1 : query.Page, query.PageSize <= 0 ? 20 : query.PageSize);
++        return response;
++    }
++}
++
++public sealed record SearchRolesQuery(int Kind, string? Term, int Page = 1, int PageSize = 20)
++    : BaseQuery<BaseMessageResponse<PagedResult<RoleListItem>>>;
++
++// ── جزئیات (پاپ‌آپ: کاربران، دسترسی‌ها، توضیحات، وضعیت) ─────────────────────
++public sealed class GetRoleQueryHandler : IBaseHandler<GetRoleQuery, BaseMessageResponse<RoleDetail>>
++{
++    private readonly IPanelAccessControlRepository _repository;
++
++    public GetRoleQueryHandler(IPanelAccessControlRepository repository) => _repository = repository;
++
++    public async Task<BaseMessageResponse<RoleDetail>> Handle(GetRoleQuery query, CancellationToken cancellationToken)
++    {
++        var role = await _repository.GetRoleAsync(query.Id, query.Kind, cancellationToken);
++        if (role is null)
++            return MessageResponse.GenerateMessageResponse<RoleDetail>(EResponseStatusCode.NotFound);
++
++        var accessIds = await _repository.GetRoleMenuIdsAsync(role.Id, cancellationToken);
++        var users = await _repository.GetRoleUsersAsync(role.Id, cancellationToken);
++
++        var response = MessageResponse.GenerateMessageResponse<RoleDetail>(EResponseStatusCode.DoneSuccessfully);
++        response.Data = new RoleDetail(
++            role.Id, role.Title, role.PersianTitle, role.Description, role.IsActive,
++            role.CreatedAt, role.CreatedByPanelUserId,
++            accessIds, users.Select(u => u.UserName).ToList());
++        return response;
++    }
++}
++
++public sealed record GetRoleQuery(int Id, int Kind) : BaseQuery<BaseMessageResponse<RoleDetail>>;
++
++// ── ایجاد ───────────────────────────────────────────────────────────────────
++public sealed class CreateRoleCommandHandler : IBaseHandler<CreateRoleCommand, BaseMessageResponse<int>>
++{
++    private readonly IPanelAccessControlRepository _repository;
++    private readonly IJwtService _jwtService;
++
++    public CreateRoleCommandHandler(IPanelAccessControlRepository repository, IJwtService jwtService)
++    {
++        _repository = repository;
++        _jwtService = jwtService;
++    }
++
++    public async Task<BaseMessageResponse<int>> Handle(CreateRoleCommand command, CancellationToken cancellationToken)
++    {
++        if (string.IsNullOrWhiteSpace(command.PersianTitle))
++            return MessageResponse.GenerateMessageResponse<int>(EResponseStatusCode.WrongParameters);
++
++        // طرح: «نام نقش تکراری است، قبلا با این نام نقشی ایجاد شده است.»
++        // (و برای تب گروه‌ها همان پیام با واژهٔ گروه) — یکتایی به‌ازای هر Kind جداست.
++        if (await _repository.RoleTitleExistsAsync(command.Kind, command.PersianTitle, exceptId: null, cancellationToken))
++            return MessageResponse.GenerateMessageResponse<int>(EResponseStatusCode.DuplicateKey);
++
++        var userIds = await ResolveUserIdsAsync(command.UserNames, cancellationToken);
++
++        var role = new RoleEntity
++        {
++            Kind = command.Kind,
++            PersianTitle = command.PersianTitle,
++            Title = string.IsNullOrWhiteSpace(command.Title) ? command.PersianTitle : command.Title,
++            Description = command.Description,
++            IsActive = command.IsActive,
++            CreatedAt = DateTime.UtcNow,
++            CreatedByPanelUserId = ResolvePanelUserId(command.Token),
++        };
++
++        var response = MessageResponse.GenerateMessageResponse<int>(EResponseStatusCode.DoneSuccessfully);
++        response.Data = await _repository.AddRoleAsync(role, command.AccessIds ?? [], userIds, cancellationToken);
++        return response;
++    }
++
++    private async Task<List<int>> ResolveUserIdsAsync(List<string>? userNames, CancellationToken cancellationToken)
++    {
++        if (userNames is null || userNames.Count == 0) return [];
++        var users = await _repository.GetPanelUsersByUserNamesAsync(userNames, cancellationToken);
++        return users.Select(u => u.Id).ToList();
++    }
++
++    private int? ResolvePanelUserId(string? token)
++    {
++        if (string.IsNullOrWhiteSpace(token)) return null;
++        var valid = _jwtService.ValidateToken(token);
++        return valid.Item1 ? (int)valid.Item3.UserId : null;
++    }
++}
++
++public sealed record CreateRoleCommand(
++    int Kind,
++    string PersianTitle,
++    string? Title,
++    string? Description,
++    bool IsActive,
++    List<int>? AccessIds,
++    List<string>? UserNames,
++    string? Token) : BaseCommand<BaseMessageResponse<int>>;
++
++// ── ویرایش ──────────────────────────────────────────────────────────────────
++public sealed class UpdateRoleCommandHandler : IBaseHandler<UpdateRoleCommand, BaseMessageResponse<bool>>
++{
++    private readonly IPanelAccessControlRepository _repository;
++
++    public UpdateRoleCommandHandler(IPanelAccessControlRepository repository) => _repository = repository;
++
++    public async Task<BaseMessageResponse<bool>> Handle(UpdateRoleCommand command, CancellationToken cancellationToken)
++    {
++        if (string.IsNullOrWhiteSpace(command.PersianTitle))
++            return MessageResponse.GenerateMessageResponse<bool>(EResponseStatusCode.WrongParameters);
++
++        if (await _repository.RoleTitleExistsAsync(command.Kind, command.PersianTitle, exceptId: command.Id, cancellationToken))
++            return MessageResponse.GenerateMessageResponse<bool>(EResponseStatusCode.DuplicateKey);
++
++        var userIds = new List<int>();
++        if (command.UserNames is { Count: > 0 })
++        {
++            var users = await _repository.GetPanelUsersByUserNamesAsync(command.UserNames, cancellationToken);
++            userIds = users.Select(u => u.Id).ToList();
++        }
++
++        var updated = await _repository.UpdateRoleAsync(new RoleEntity
++        {
++            Id = command.Id,
++            Kind = command.Kind,
++            PersianTitle = command.PersianTitle,
++            Title = string.IsNullOrWhiteSpace(command.Title) ? command.PersianTitle : command.Title,
++            Description = command.Description,
++            IsActive = command.IsActive,
++        }, command.AccessIds ?? [], userIds, cancellationToken);
++
++        if (updated)
++        {
++            // مجوزهای یک نقش عوض شد؛ bump نسخه در رپازیتوری انجام شده و این‌جا فقط ثبت می‌شود.
++            await _repository.WriteAuditAsync(new IdentityService.Domain.Entity.PanelSecurityAuditLogEntity
++            {
++                Action = "role.update",
++                TargetType = command.Kind == 0 ? "Role" : "Group",
++                TargetId = command.Id.ToString(),
++                AfterJson = System.Text.Json.JsonSerializer.Serialize(new
++                {
++                    command.PersianTitle, command.IsActive, command.AccessIds, command.UserNames,
++                }),
++            }, cancellationToken);
++        }
++
++        if (!updated)
++            return MessageResponse.GenerateMessageResponse<bool>(EResponseStatusCode.NotFound);
++
++        var response = MessageResponse.GenerateMessageResponse<bool>(EResponseStatusCode.DoneSuccessfully);
++        response.Data = true;
++        return response;
++    }
++}
++
++public sealed record UpdateRoleCommand(
++    int Id,
++    int Kind,
++    string PersianTitle,
++    string? Title,
++    string? Description,
++    bool IsActive,
++    List<int>? AccessIds,
++    List<string>? UserNames) : BaseCommand<BaseMessageResponse<bool>>;
+diff --git a/src/IdentityService.Domain/Authorization/AccessScope.cs b/src/IdentityService.Domain/Authorization/AccessScope.cs
+new file mode 100644
+index 0000000..a0b476a
+--- /dev/null
++++ b/src/IdentityService.Domain/Authorization/AccessScope.cs
+@@ -0,0 +1,80 @@
++namespace IdentityService.Domain.Authorization;
++
++/// <summary>
++/// دامنهٔ یک انتساب نقش: سراسری، یک شعبه، یا یک شرکت.
++/// «منطق شخصی‌سازی داده‌ها»ی سند: ادمین و شعبهٔ دیجیتال سراسری، کاربر شعبه یک شعبه،
++/// مدیر و منابع انسانی شرکت یک شرکت.
++/// </summary>
++public enum AccessScopeType : byte
++{
++    Global = 0,
++    Branch = 1,
++    Company = 2,
++}
++
++/// <summary>
++/// دامنهٔ دسترسی. <see cref="Id"/> برای شعبه کد شعبه و برای شرکت شناسهٔ شرکت است.
++/// روی انتساب نقش می‌نشیند، نه روی خود نقش: نقش «کاربر شعبه» یک بار تعریف می‌شود و
++/// هر کاربر همان نقش را با شعبهٔ خودش می‌گیرد.
++/// </summary>
++public readonly record struct AccessScope
++{
++    public AccessScopeType Type { get; }
++    public string? Id { get; }
++
++    private AccessScope(AccessScopeType type, string? id)
++    {
++        Type = type;
++        Id = id;
++    }
++
++    public static AccessScope Global { get; } = new(AccessScopeType.Global, null);
++
++    public static AccessScope ForBranch(string branchCode) => new(AccessScopeType.Branch, Required(branchCode, "کد شعبه"));
++
++    public static AccessScope ForCompany(string companyId) => new(AccessScopeType.Company, Required(companyId, "شناسهٔ شرکت"));
++
++    public static AccessScope From(AccessScopeType type, string? id) => type switch
++    {
++        AccessScopeType.Global when string.IsNullOrWhiteSpace(id) => Global,
++        AccessScopeType.Global => throw new InvalidOperationException("دامنهٔ سراسری شناسه ندارد."),
++        AccessScopeType.Branch => ForBranch(id!),
++        AccessScopeType.Company => ForCompany(id!),
++        _ => throw new InvalidOperationException($"نوع دامنهٔ نامعتبر: {type}"),
++    };
++
++    /// <summary>
++    /// آیا این دامنه منبع هدف را پوشش می‌دهد؟
++    /// معیار پذیرش ۴ و ۵: منبعی که پوشش داده نشود مثل «پیدا نشد» رفتار می‌کند،
++    /// حتی وقتی شناسه‌اش را دستی در URL گذاشته باشند.
++    /// </summary>
++    public bool Covers(ResourceScope resource) => Type switch
++    {
++        AccessScopeType.Global => true,
++        AccessScopeType.Branch => resource.BranchCode is not null && resource.BranchCode == Id,
++        AccessScopeType.Company => resource.CompanyId is not null && resource.CompanyId == Id,
++        _ => false,
++    };
++
++    private static string Required(string? value, string name) =>
++        string.IsNullOrWhiteSpace(value)
++            ? throw new InvalidOperationException($"{name} برای این دامنه الزامی است.")
++            : value.Trim();
++
++    public override string ToString() => Type == AccessScopeType.Global ? "Global" : $"{Type}:{Id}";
++}
++
++/// <summary>
++/// شناسنامهٔ دامنه‌ای منبع هدف. یک شرکت هم کد شعبه دارد هم شناسهٔ خودش، پس هم کاربر آن
++/// شعبه و هم کاربر آن شرکت پوشش داده می‌شوند.
++/// برای منابع بی‌دامنه (نقش، کاربر پنل، اطلاعات پایه) از <see cref="None"/> استفاده کن؛
++/// آن وقت فقط دامنهٔ سراسری پوشش می‌دهد.
++/// </summary>
++public readonly record struct ResourceScope(string? BranchCode, string? CompanyId)
++{
++    public static ResourceScope None { get; } = new(null, null);
++
++    public static ResourceScope OfBranch(string branchCode) => new(branchCode, null);
++
++    public static ResourceScope OfCompany(string? branchCode, string companyId) => new(branchCode, companyId);
++}
+diff --git a/src/IdentityService.Domain/Authorization/AdminPermissionKeys.cs b/src/IdentityService.Domain/Authorization/AdminPermissionKeys.cs
+new file mode 100644
+index 0000000..012f177
+--- /dev/null
++++ b/src/IdentityService.Domain/Authorization/AdminPermissionKeys.cs
+@@ -0,0 +1,30 @@
++namespace IdentityService.Domain.Authorization;
++
++/// <summary>
++/// کلیدهای مجوز ماژول «مدیریت کاربران» پنل.
++///
++/// هر کلید باید یک ردیف PanelMenu با همین PermissionKey داشته باشد
++/// (Database/02_seed_permissions_and_matrix.sql آن‌ها را می‌سازد).
++///
++/// کلید منتشرشده هرگز تغییر نام نمی‌دهد و حذف نمی‌شود — فقط غیرفعال می‌شود.
++/// عوض کردن یک کلید یعنی هر نقشی که آن را داشت، بی‌صدا دسترسی‌اش را از دست می‌دهد.
++/// </summary>
++public static class AdminPermissionKeys
++{
++    public const string PermissionsRead = "admin.permissions.read";
++    public const string PermissionsWrite = "admin.permissions.write";
++
++    public const string RolesRead = "admin.roles.read";
++    public const string RolesWrite = "admin.roles.write";
++
++    public const string GroupsRead = "admin.groups.read";
++    public const string GroupsWrite = "admin.groups.write";
++
++    public const string UsersRead = "admin.users.read";
++    public const string UsersWrite = "admin.users.write";
++    public const string UsersAssign = "admin.users.assign";
++    public const string UsersResetPassword = "admin.users.reset-password";
++    public const string UsersRevokeSessions = "admin.users.revoke-sessions";
++
++    public const string AuditRead = "admin.audit.read";
++}
+diff --git a/src/IdentityService.Domain/Authorization/EffectivePermissions.cs b/src/IdentityService.Domain/Authorization/EffectivePermissions.cs
+new file mode 100644
+index 0000000..8826ed4
+--- /dev/null
++++ b/src/IdentityService.Domain/Authorization/EffectivePermissions.cs
+@@ -0,0 +1,86 @@
++using IdentityService.Domain.Entity;
++
++namespace IdentityService.Domain.Authorization;
++
++/// <summary>
++/// مجوزهای مؤثر یک کاربر پنل: (کلید ← دامنه‌ها).
++///
++/// زنجیره، همان زنجیرهٔ موجود پروژه است — جدول جدیدی لازم نیست:
++///   PanelUser → PanelUserRole (+ دامنه) → Role → RolePanelMenu → PanelMenu.PermissionKey
++///
++/// یعنی «دسترسی را به نقش می‌دهیم و نقش را به کاربر»، و دامنه از انتساب می‌آید نه از نقش.
++/// همان نقش «کاربر شعبه» برای صد کاربر در صد شعبه کار می‌کند.
++/// </summary>
++public sealed class EffectivePermissions
++{
++    private readonly Dictionary<string, List<AccessScope>> _allows;
++
++    public int PermissionVersion { get; }
++
++    private EffectivePermissions(Dictionary<string, List<AccessScope>> allows, int permissionVersion)
++    {
++        _allows = allows;
++        PermissionVersion = permissionVersion;
++    }
++
++    public static EffectivePermissions Empty { get; } =
++        new(new Dictionary<string, List<AccessScope>>(StringComparer.OrdinalIgnoreCase), 0);
++
++    /// <summary>
++    /// پیش‌نیاز بارگذاری (وگرنه خالی برمی‌گردد):
++    ///   .Include(u =&gt; u.PanelUserRoles).ThenInclude(a =&gt; a.Role).ThenInclude(r =&gt; r.RolePanelMenus).ThenInclude(rm =&gt; rm.PanelMenu)
++    /// </summary>
++    public static EffectivePermissions Build(PanelUserEntity user)
++    {
++        var allows = new Dictionary<string, List<AccessScope>>(StringComparer.OrdinalIgnoreCase);
++
++        // کاربر غیرفعال هیچ مجوزی ندارد — نه اینکه مجوزهایش را داشته باشد و جلوی ورودش گرفته شود.
++        if (!user.IsActive)
++            return new EffectivePermissions(allows, user.PermissionVersion);
++
++        foreach (var assignment in user.PanelUserRoles)
++        {
++            if (assignment.Role is null || !assignment.Role.IsActive) continue;
++
++            var scope = assignment.Scope;
++
++            foreach (var link in assignment.Role.RolePanelMenus)
++            {
++                var menu = link.PanelMenu;
++                if (menu is null || !menu.IsActive || string.IsNullOrWhiteSpace(menu.PermissionKey)) continue;
++
++                Add(allows, menu.PermissionKey!, scope);
++            }
++        }
++
++        return new EffectivePermissions(allows, user.PermissionVersion);
++    }
++
++    /// <summary>چک کامل روی منبع هدف — در Handler، بعد از اینکه منبع خوانده شد.</summary>
++    public bool Can(string key, ResourceScope resource) =>
++        _allows.TryGetValue(key, out var scopes) && scopes.Any(s => s.Covers(resource));
++
++    /// <summary>
++    /// گیت درشت (در فیلتر): کاربر این مجوز را در حداقل یک دامنه دارد؟
++    /// چک واقعی روی منبع بعداً با <see cref="Can"/> انجام می‌شود.
++    /// </summary>
++    public bool HasAnywhere(string key) => _allows.TryGetValue(key, out var scopes) && scopes.Count > 0;
++
++    public bool HasAnyOf(IEnumerable<string> keys) => keys.Any(HasAnywhere);
++
++    /// <summary>دامنه‌های مجاز یک کلید — برای فیلتر Query قبل از صفحه‌بندی (معیار ۵).</summary>
++    public IReadOnlyList<AccessScope> ScopesFor(string key) =>
++        _allows.TryGetValue(key, out var scopes) ? scopes : [];
++
++    /// <summary>همهٔ کلیدها — برای GET /Me تا فرانت دکمه‌های بی‌دسترسی را مخفی کند (معیار ۱).</summary>
++    public IReadOnlyCollection<string> Keys => _allows.Keys;
++
++    private static void Add(Dictionary<string, List<AccessScope>> map, string key, AccessScope scope)
++    {
++        if (!map.TryGetValue(key, out var list))
++            map[key] = list = [];
++
++        if (!list.Contains(scope))
++            list.Add(scope);
++    }
++}
+diff --git a/src/IdentityService.Domain/Authorization/PanelSession.cs b/src/IdentityService.Domain/Authorization/PanelSession.cs
+new file mode 100644
+index 0000000..a6521f5
+--- /dev/null
++++ b/src/IdentityService.Domain/Authorization/PanelSession.cs
+@@ -0,0 +1,26 @@
++namespace IdentityService.Domain.Authorization;
++
++/// <summary>
++/// کاربر پنل جاری با مجوزهای لحظه‌ای.
++/// در لایهٔ Domain است تا هم فیلتر Admin.Api و هم پیاده‌سازی Infrastructure به آن دسترسی داشته باشند.
++/// </summary>
++public sealed record PanelSession(
++    int PanelUserId,
++    string UserName,
++    string? FullName,
++    string? UserCode,
++    string? BranchCode,
++    string? BranchName,
++    EffectivePermissions Permissions);
++
++/// <summary>
++/// توکن ← کاربر جاری با مجوزهای لحظه‌ای. null یعنی نشست باطل است:
++/// توکن نامعتبر، کاربر غیرفعال، یا دسترسی عوض شده (معیار پذیرش ۶).
++/// </summary>
++public interface IPanelSessionResolver
++{
++    Task<PanelSession?> ResolveAsync(CancellationToken cancellationToken);
++
++    /// <summary>کش نشست یک کاربر را دور می‌اندازد — بعد از تغییر دسترسی یا خروج اجباری.</summary>
++    void Invalidate(int panelUserId);
++}
+diff --git a/src/IdentityService.Domain/Entity/PanelAuthorizationEntities.Partial.cs b/src/IdentityService.Domain/Entity/PanelAuthorizationEntities.Partial.cs
+new file mode 100644
+index 0000000..f5bec35
+--- /dev/null
++++ b/src/IdentityService.Domain/Entity/PanelAuthorizationEntities.Partial.cs
+@@ -0,0 +1,79 @@
++using IdentityService.Domain.Authorization;
++
++namespace IdentityService.Domain.Entity;
++
++// فیلدهای جدید مدل دسترسی، به‌صورت partial اضافه شده‌اند تا فایل‌های موجود Entity
++// (که scaffold شده‌اند) دست‌نخورده بمانند و دوباره تولیدشان چیزی را پاک نکند.
++
++public partial class PanelUserEntity
++{
++    /// <summary>فرم کاربر در سند: «نام کامل».</summary>
++    public string? FullName { get; set; }
++
++    /// <summary>فرم کاربر در سند: «کد کاربر».</summary>
++    public string? UserCode { get; set; }
++
++    /// <summary>فرم کاربر در سند: «کد شعبه». دامنهٔ پیش‌فرض انتساب نقش از همین پر می‌شود.</summary>
++    public string? BranchCode { get; set; }
++
++    /// <summary>فرم کاربر در سند: «نام شعبه». فقط نمایشی.</summary>
++    public string? BranchName { get; set; }
++
++    /// <summary>
++    /// معیار پذیرش ۶: «در صورت هرگونه اعمال تغییر در سطح دسترسی کاربران، آن کاربر از سامانه
++    /// لاگ‌اوت و ملزم به ورود با اطلاعات جدید گردد.»
++    /// با هر تغییر دسترسی یک واحد بالا می‌رود. توکنی که نسخه‌اش از این کوچک‌تر باشد باطل است.
++    /// </summary>
++    public int PermissionVersion { get; set; } = 1;
++
++    public DateTime? LastPermissionChangeAt { get; set; }
++}
++
++public partial class RoleEntity
++{
++    /// <summary>
++    /// این نقش با چه نوع دامنه‌ای قابل انتساب است. «ادمین» فقط سراسری، «کاربر شعبه» فقط شعبه،
++    /// «مدیر/منابع انسانی شرکت» فقط شرکت. جلوی انتساب بی‌معنا را می‌گیرد.
++    /// </summary>
++    public AccessScopeType AllowedScopeType { get; set; } = AccessScopeType.Global;
++
++    /// <summary>۵ نقش سند. حذف و تغییر نامشان مجاز نیست؛ مجوزهایشان قابل تغییر است.</summary>
++    public bool IsSystem { get; set; }
++}
++
++public partial class PanelUserRoleEntity
++{
++    /// <summary>سراسری / شعبه / شرکت.</summary>
++    public AccessScopeType ScopeType { get; set; } = AccessScopeType.Global;
++
++    /// <summary>کد شعبه یا شناسهٔ شرکت. برای دامنهٔ سراسری null است.</summary>
++    public string? ScopeId { get; set; }
++
++    public DateTime CreatedAt { get; set; }
++
++    public int? CreatedByPanelUserId { get; set; }
++
++    /// <summary>دامنهٔ این انتساب، آماده برای EffectivePermissions.</summary>
++    public AccessScope Scope => AccessScope.From(ScopeType, ScopeId);
++}
++
++public partial class PanelMenuEntity
++{
++    /// <summary>
++    /// کلید پایدار مجوز، مثل facility.credit-approval.approve.
++    /// همین است که در کد با [RequirePanelPermission(...)] به آن ارجاع می‌شود، پس عوض کردنش
++    /// دسترسی را می‌شکند. برای ردیف‌های گروه‌بندی (Kind=0) خالی می‌ماند.
++    /// </summary>
++    public string? PermissionKey { get; set; }
++
++    /// <summary>
++    /// 0 = گروه/تب (در منو دیده می‌شود، خودش مجوز نیست)
++    /// 1 = مشاهده (مجوز دیدن همان تب)
++    /// 2 = عملیات (تأیید، رد، ویرایش، حذف — در منو دیده نمی‌شود)
++    ///
++    /// این همان «دسترسی به هر بخش و سرویس‌های آن بخش» سند است: بخش = 0، سرویس = 1 و 2.
++    /// </summary>
++    public byte Kind { get; set; }
++
++    public int SortOrder { get; set; }
++}
+diff --git a/src/IdentityService.Domain/Entity/PanelSecurityAuditLogEntity.cs b/src/IdentityService.Domain/Entity/PanelSecurityAuditLogEntity.cs
+new file mode 100644
+index 0000000..dfdf39a
+--- /dev/null
++++ b/src/IdentityService.Domain/Entity/PanelSecurityAuditLogEntity.cs
+@@ -0,0 +1,34 @@
++namespace IdentityService.Domain.Entity;
++
++/// <summary>
++/// لاگ امنیتی تغییرات کاربر، نقش و دسترسی — دستهٔ «کاربران» در تب «گزارش تغییرات» سند.
++///
++/// جدا از <c>UserManagementSettingChangeHistory</c> است: آن یکی تغییرات تنظیمات مشتری را
++/// ثبت می‌کند، این یکی تغییرات پنل ادمین را. سند برای گزارش تغییرات «نام کاربر و زمان و
++/// جزئیات عملیات شامل مقدار قبلی و فعلی» را می‌خواهد، که BeforeJson/AfterJson همان است.
++/// </summary>
++public class PanelSecurityAuditLogEntity
++{
++    public long Id { get; set; }
++
++    /// <summary>مثل role.update، panel-user.create، panel-user.active.change.</summary>
++    public string Action { get; set; } = null!;
++
++    /// <summary>کاربری که عمل را انجام داد. null برای عملیات سیستمی (مثل اجرای اسکریپت).</summary>
++    public int? ActorPanelUserId { get; set; }
++
++    /// <summary>Role، PanelUser، PanelMenu.</summary>
++    public string TargetType { get; set; } = null!;
++
++    public string? TargetId { get; set; }
++
++    public string? BeforeJson { get; set; }
++
++    public string? AfterJson { get; set; }
++
++    public string? Ip { get; set; }
++
++    public string? UserAgent { get; set; }
++
++    public DateTime CreatedAt { get; set; }
++}
+diff --git a/src/IdentityService.Domain/Services/UserManagementPanel/IPanelAccessControlRepository.cs b/src/IdentityService.Domain/Services/UserManagementPanel/IPanelAccessControlRepository.cs
+index 4ecc71f..23acb68 100644
+--- a/src/IdentityService.Domain/Services/UserManagementPanel/IPanelAccessControlRepository.cs
++++ b/src/IdentityService.Domain/Services/UserManagementPanel/IPanelAccessControlRepository.cs
+@@ -1,55 +1,93 @@
+-using IdentityService.Domain.Entity;
+-
+-namespace IdentityService.Domain.Services.UserManagementPanel;
+-
+-/// <summary>
+-/// دسترسی مستقیم EF برای تب‌های «مدیریت کاربران» پنل ادمین
+-/// (مدیریت دسترسی‌ها / مجوزها / گروه‌ها / کاربران).
+-///
+-/// عمداً از <c>IRoleRepository</c> و <c>IPanelMenuRepository</c> موجود استفاده
+-/// نمی‌کند: آن‌ها Dapper + Stored Procedure هستند و فیلدهای جدید طرح (توضیحات،
+-/// تاریخ ایجاد، ایجادکننده، تفکیک نقش/گروه) در SPهایشان وجود ندارد. طبق تصمیم
+-/// «بدون SP جدید، مستقیم با EF»، این رپازیتوری همان جدول‌ها را با EF می‌خواند و
+-/// می‌نویسد. رپازیتوری‌های قدیمی دست‌نخورده باقی می‌مانند تا جریان‌های موجود نشکنند.
+-/// </summary>
+-public interface IPanelAccessControlRepository
+-{
+-    // ── تب ۱: مدیریت دسترسی‌ها (PanelMenu) ────────────────────────────────────
+-    Task<(List<PanelMenuEntity> Items, int Total)> SearchAccessesAsync(
+-        string? term, int page, int pageSize, CancellationToken cancellationToken);
+-
+-    Task<PanelMenuEntity?> GetAccessAsync(int id, CancellationToken cancellationToken);
+-
+-    Task<bool> AccessTitleExistsAsync(string title, int? exceptId, CancellationToken cancellationToken);
+-
+-    Task<int> AddAccessAsync(PanelMenuEntity access, CancellationToken cancellationToken);
+-
+-    Task<bool> UpdateAccessAsync(PanelMenuEntity access, CancellationToken cancellationToken);
+-
+-    // ── تب ۲ و ۳: مجوزها (Kind=0) و گروه‌ها (Kind=1) — هر دو روی جدول Role ─────
+-    Task<(List<RoleEntity> Items, int Total)> SearchRolesAsync(
+-        int kind, string? term, int page, int pageSize, CancellationToken cancellationToken);
+-
+-    Task<RoleEntity?> GetRoleAsync(int id, int kind, CancellationToken cancellationToken);
+-
+-    Task<bool> RoleTitleExistsAsync(int kind, string title, int? exceptId, CancellationToken cancellationToken);
+-
+-    Task<int> AddRoleAsync(RoleEntity role, List<int> menuIds, List<int> panelUserIds, CancellationToken cancellationToken);
+-
+-    Task<bool> UpdateRoleAsync(RoleEntity role, List<int> menuIds, List<int> panelUserIds, CancellationToken cancellationToken);
+-
+-    Task<List<int>> GetRoleMenuIdsAsync(int roleId, CancellationToken cancellationToken);
+-
+-    Task<List<PanelUserEntity>> GetRoleUsersAsync(int roleId, CancellationToken cancellationToken);
+-
+-    /// <summary>نگاشت نام کاربری → شناسه؛ برای فرم «افزودن کاربر/کاربران با پارامتر username».</summary>
+-    Task<List<PanelUserEntity>> GetPanelUsersByUserNamesAsync(List<string> userNames, CancellationToken cancellationToken);
+-
+-    // ── تب ۴: مدیریت کاربران پنل ─────────────────────────────────────────────
+-    Task<(List<PanelUserEntity> Items, int Total)> SearchPanelUsersAsync(
+-        string? term, int page, int pageSize, CancellationToken cancellationToken);
+-
+-    Task<PanelUserEntity?> GetPanelUserAsync(int id, CancellationToken cancellationToken);
+-
+-    Task<bool> SetPanelUserActiveAsync(int id, bool isActive, CancellationToken cancellationToken);
+-}
++using IdentityService.Domain.Authorization;
++using IdentityService.Domain.Entity;
++
++namespace IdentityService.Domain.Services.UserManagementPanel;
++
++/// <summary>
++/// دسترسی مستقیم EF برای تب‌های «مدیریت کاربران» پنل ادمین
++/// (مدیریت دسترسی‌ها / مجوزها / گروه‌ها / کاربران).
++///
++/// عمداً از <c>IRoleRepository</c> و <c>IPanelMenuRepository</c> موجود استفاده
++/// نمی‌کند: آن‌ها Dapper + Stored Procedure هستند و فیلدهای جدید طرح (توضیحات،
++/// تاریخ ایجاد، ایجادکننده، تفکیک نقش/گروه) در SPهایشان وجود ندارد. طبق تصمیم
++/// «بدون SP جدید، مستقیم با EF»، این رپازیتوری همان جدول‌ها را با EF می‌خواند و
++/// می‌نویسد. رپازیتوری‌های قدیمی دست‌نخورده باقی می‌مانند تا جریان‌های موجود نشکنند.
++/// </summary>
++public interface IPanelAccessControlRepository
++{
++    // ── تب ۱: مدیریت دسترسی‌ها (PanelMenu) ────────────────────────────────────
++    Task<(List<PanelMenuEntity> Items, int Total)> SearchAccessesAsync(
++        string? term, int page, int pageSize, CancellationToken cancellationToken);
++
++    Task<PanelMenuEntity?> GetAccessAsync(int id, CancellationToken cancellationToken);
++
++    Task<bool> AccessTitleExistsAsync(string title, int? exceptId, CancellationToken cancellationToken);
++
++    Task<int> AddAccessAsync(PanelMenuEntity access, CancellationToken cancellationToken);
++
++    Task<bool> UpdateAccessAsync(PanelMenuEntity access, CancellationToken cancellationToken);
++
++    // ── تب ۲ و ۳: مجوزها (Kind=0) و گروه‌ها (Kind=1) — هر دو روی جدول Role ─────
++    Task<(List<RoleEntity> Items, int Total)> SearchRolesAsync(
++        int kind, string? term, int page, int pageSize, CancellationToken cancellationToken);
++
++    Task<RoleEntity?> GetRoleAsync(int id, int kind, CancellationToken cancellationToken);
++
++    Task<bool> RoleTitleExistsAsync(int kind, string title, int? exceptId, CancellationToken cancellationToken);
++
++    Task<int> AddRoleAsync(RoleEntity role, List<int> menuIds, List<int> panelUserIds, CancellationToken cancellationToken);
++
++    Task<bool> UpdateRoleAsync(RoleEntity role, List<int> menuIds, List<int> panelUserIds, CancellationToken cancellationToken);
++
++    Task<List<int>> GetRoleMenuIdsAsync(int roleId, CancellationToken cancellationToken);
++
++    Task<List<PanelUserEntity>> GetRoleUsersAsync(int roleId, CancellationToken cancellationToken);
++
++    /// <summary>نگاشت نام کاربری → شناسه؛ برای فرم «افزودن کاربر/کاربران با پارامتر username».</summary>
++    Task<List<PanelUserEntity>> GetPanelUsersByUserNamesAsync(List<string> userNames, CancellationToken cancellationToken);
++
++    // ── تب ۴: مدیریت کاربران پنل ─────────────────────────────────────────────
++    Task<(List<PanelUserEntity> Items, int Total)> SearchPanelUsersAsync(
++        string? term, int page, int pageSize, CancellationToken cancellationToken);
++
++    Task<PanelUserEntity?> GetPanelUserAsync(int id, CancellationToken cancellationToken);
++
++    Task<bool> SetPanelUserActiveAsync(int id, bool isActive, CancellationToken cancellationToken);
++
++    // ── مجوزهای مؤثر و ابطال نشست ─────────────────────────────────────────────
++
++    /// <summary>کاربر با Includeهای لازم برای EffectivePermissions.Build.</summary>
++    Task<PanelUserEntity?> GetPanelUserWithPermissionsAsync(int panelUserId, CancellationToken cancellationToken);
++
++    /// <summary>معیار پذیرش ۶ — نسخهٔ مجوز را بالا می‌برد و کش نشست را دور می‌اندازد.</summary>
++    Task BumpPermissionVersionAsync(IReadOnlyCollection<int> panelUserIds, CancellationToken cancellationToken);
++
++    Task BumpPermissionVersionForRoleAsync(int roleId, CancellationToken cancellationToken);
++
++    // ── لاگ امنیتی ────────────────────────────────────────────────────────────
++
++    Task WriteAuditAsync(PanelSecurityAuditLogEntity entry, CancellationToken cancellationToken);
++
++    Task<(List<PanelSecurityAuditLogEntity> Items, int Total)> SearchAuditAsync(
++        string? action, string? targetType, int page, int pageSize, CancellationToken cancellationToken);
++
++    // ── ساخت و ویرایش کاربر پنل ───────────────────────────────────────────────
++
++    Task<bool> PanelUserNameExistsAsync(string userName, int? exceptId, CancellationToken cancellationToken);
++
++    Task<bool> PanelUserCodeExistsAsync(string userCode, int? exceptId, CancellationToken cancellationToken);
++
++    Task<int> AddPanelUserAsync(
++        PanelUserEntity user, IReadOnlyCollection<RoleAssignment> assignments, CancellationToken cancellationToken);
++
++    /// <param name="assignments">null یعنی نقش‌ها دست نخورند؛ فهرست خالی یعنی همه برداشته شوند.</param>
++    Task<bool> UpdatePanelUserAsync(
++        PanelUserEntity user, IReadOnlyCollection<RoleAssignment>? assignments, CancellationToken cancellationToken);
++}
++
++/// <summary>یک نقش با دامنه‌اش، همان‌طور که فرم «مدیریت کاربران» می‌فرستد.</summary>
++public sealed record RoleAssignment(
++    int RoleId,
++    AccessScopeType ScopeType,
++    string? ScopeId,
++    int? CreatedByPanelUserId = null);
+diff --git a/src/IdentityService.Infrastructure/DBContext/ApplicationDBContext.cs b/src/IdentityService.Infrastructure/DBContext/ApplicationDBContext.cs
+index e6f622e..7f52e9d 100644
+--- a/src/IdentityService.Infrastructure/DBContext/ApplicationDBContext.cs
++++ b/src/IdentityService.Infrastructure/DBContext/ApplicationDBContext.cs
+@@ -35,6 +35,8 @@ public class ApplicationDBContext : DbContext
+ 
+     public virtual DbSet<PanelUserRoleEntity> PanelUserRole { get; set; }
+ 
++    public virtual DbSet<PanelSecurityAuditLogEntity> PanelSecurityAuditLog { get; set; }
++
+     public virtual DbSet<PersonEntity> People { get; set; }
+ 
+     public virtual DbSet<PersonDetailEntity> PersonDetail { get; set; }
+diff --git a/src/IdentityService.Infrastructure/DependencyInjectionExtension.cs b/src/IdentityService.Infrastructure/DependencyInjectionExtension.cs
+index df3bf43..5841f4a 100644
+--- a/src/IdentityService.Infrastructure/DependencyInjectionExtension.cs
++++ b/src/IdentityService.Infrastructure/DependencyInjectionExtension.cs
+@@ -4,6 +4,7 @@ using IdentityService.Contracts.Identities.Repositories.UsernameChangeActiveToke
+ using IdentityService.Contracts.RegexValidation.Repositories;
+ using IdentityService.Domain.Services.ContentManagement;
+ using IdentityService.Domain.Services.UserManagementPanel;
++using IdentityService.Domain.Authorization;
+ using IdentityService.Infrastructure.Contexts;
+ using IdentityService.Infrastructure.Repositories.ContentManagement;
+ using IdentityService.Infrastructure.Repositories.Identities.ActiveTokens;
+@@ -45,6 +46,10 @@ public static class DependencyInjectionExtension
+ 
+         services.AddScoped<IPanelAccessControlRepository, PanelAccessControlRepository>();
+ 
++        // توکن ← کاربر پنل با مجوزهای لحظه‌ای. PanelPermissionFilter بدون این، هر درخواست را
++        // رد می‌کند (جهت امن، ولی پنل کار نمی‌کند).
++        services.AddScoped<IPanelSessionResolver, PanelSessionResolver>();
++
+ 
+ 
+         services.AddScoped<IContentManagementRepository, ContentManagementRepository>();
+diff --git a/src/IdentityService.Infrastructure/Repositories/UserManagementPanel/PanelAccessControlRepository.cs b/src/IdentityService.Infrastructure/Repositories/UserManagementPanel/PanelAccessControlRepository.cs
+index 82d62d8..4fedf16 100644
+--- a/src/IdentityService.Infrastructure/Repositories/UserManagementPanel/PanelAccessControlRepository.cs
++++ b/src/IdentityService.Infrastructure/Repositories/UserManagementPanel/PanelAccessControlRepository.cs
+@@ -1,218 +1,435 @@
+-using IdentityService.Domain.Entity;
+-using IdentityService.Domain.Services.UserManagementPanel;
+-using IdentityService.Infrastructure.Contexts;
+-using Microsoft.EntityFrameworkCore;
+-
+-namespace IdentityService.Infrastructure.Repositories.UserManagementPanel;
+-
+-public sealed class PanelAccessControlRepository : IPanelAccessControlRepository
+-{
+-    private readonly ApplicationDBContext _db;
+-
+-    public PanelAccessControlRepository(ApplicationDBContext db)
+-    {
+-        _db = db;
+-    }
+-
+-    private static int NormalizePage(int page) => page <= 0 ? 1 : page;
+-    private static int NormalizePageSize(int pageSize) => pageSize is <= 0 or > 200 ? 20 : pageSize;
+-
+-    // ── تب ۱: مدیریت دسترسی‌ها ────────────────────────────────────────────────
+-    public async Task<(List<PanelMenuEntity> Items, int Total)> SearchAccessesAsync(
+-        string? term, int page, int pageSize, CancellationToken cancellationToken)
+-    {
+-        var query = _db.PanelMenu.AsNoTracking().AsQueryable();
+-
+-        if (!string.IsNullOrWhiteSpace(term))
+-            query = query.Where(m => m.Title.Contains(term));
+-
+-        var total = await query.CountAsync(cancellationToken);
+-        var items = await query
+-            .OrderByDescending(m => m.Id)
+-            .Skip((NormalizePage(page) - 1) * NormalizePageSize(pageSize))
+-            .Take(NormalizePageSize(pageSize))
+-            .ToListAsync(cancellationToken);
+-
+-        return (items, total);
+-    }
+-
+-    public Task<PanelMenuEntity?> GetAccessAsync(int id, CancellationToken cancellationToken)
+-        => _db.PanelMenu.AsNoTracking().FirstOrDefaultAsync(m => m.Id == id, cancellationToken);
+-
+-    public Task<bool> AccessTitleExistsAsync(string title, int? exceptId, CancellationToken cancellationToken)
+-        => _db.PanelMenu.AnyAsync(m => m.Title == title && (exceptId == null || m.Id != exceptId), cancellationToken);
+-
+-    public async Task<int> AddAccessAsync(PanelMenuEntity access, CancellationToken cancellationToken)
+-    {
+-        await _db.PanelMenu.AddAsync(access, cancellationToken);
+-        await _db.SaveChangesAsync(cancellationToken);
+-        return access.Id;
+-    }
+-
+-    public async Task<bool> UpdateAccessAsync(PanelMenuEntity access, CancellationToken cancellationToken)
+-    {
+-        var current = await _db.PanelMenu.FirstOrDefaultAsync(m => m.Id == access.Id, cancellationToken);
+-        if (current is null) return false;
+-
+-        current.Title = access.Title;
+-        current.EnTitle = access.EnTitle;
+-        current.Url = access.Url;
+-        current.IconName = access.IconName;
+-        current.ParentId = access.ParentId;
+-        current.Description = access.Description;
+-        current.IsActive = access.IsActive;
+-
+-        await _db.SaveChangesAsync(cancellationToken);
+-        return true;
+-    }
+-
+-    // ── تب ۲ و ۳: مجوزها (Kind=0) و گروه‌ها (Kind=1) ─────────────────────────
+-    public async Task<(List<RoleEntity> Items, int Total)> SearchRolesAsync(
+-        int kind, string? term, int page, int pageSize, CancellationToken cancellationToken)
+-    {
+-        var query = _db.Role.AsNoTracking().Where(r => r.Kind == kind);
+-
+-        if (!string.IsNullOrWhiteSpace(term))
+-            query = query.Where(r => r.PersianTitle.Contains(term) || r.Title.Contains(term));
+-
+-        var total = await query.CountAsync(cancellationToken);
+-        var items = await query
+-            .OrderByDescending(r => r.Id)
+-            .Skip((NormalizePage(page) - 1) * NormalizePageSize(pageSize))
+-            .Take(NormalizePageSize(pageSize))
+-            .ToListAsync(cancellationToken);
+-
+-        return (items, total);
+-    }
+-
+-    public Task<RoleEntity?> GetRoleAsync(int id, int kind, CancellationToken cancellationToken)
+-        => _db.Role.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id && r.Kind == kind, cancellationToken);
+-
+-    public Task<bool> RoleTitleExistsAsync(int kind, string title, int? exceptId, CancellationToken cancellationToken)
+-        => _db.Role.AnyAsync(
+-            r => r.Kind == kind && r.PersianTitle == title && (exceptId == null || r.Id != exceptId),
+-            cancellationToken);
+-
+-    public async Task<int> AddRoleAsync(RoleEntity role, List<int> menuIds, List<int> panelUserIds, CancellationToken cancellationToken)
+-    {
+-        await using var transaction = await _db.Database.BeginTransactionAsync(cancellationToken);
+-
+-        await _db.Role.AddAsync(role, cancellationToken);
+-        await _db.SaveChangesAsync(cancellationToken);
+-
+-        await ReplaceRoleLinksAsync(role.Id, menuIds, panelUserIds, cancellationToken);
+-        await transaction.CommitAsync(cancellationToken);
+-
+-        return role.Id;
+-    }
+-
+-    public async Task<bool> UpdateRoleAsync(RoleEntity role, List<int> menuIds, List<int> panelUserIds, CancellationToken cancellationToken)
+-    {
+-        var current = await _db.Role.FirstOrDefaultAsync(r => r.Id == role.Id && r.Kind == role.Kind, cancellationToken);
+-        if (current is null) return false;
+-
+-        await using var transaction = await _db.Database.BeginTransactionAsync(cancellationToken);
+-
+-        current.PersianTitle = role.PersianTitle;
+-        current.Title = role.Title;
+-        current.Description = role.Description;
+-        current.IsActive = role.IsActive;
+-        await _db.SaveChangesAsync(cancellationToken);
+-
+-        await ReplaceRoleLinksAsync(current.Id, menuIds, panelUserIds, cancellationToken);
+-        await transaction.CommitAsync(cancellationToken);
+-
+-        return true;
+-    }
+-
+-    /// <summary>
+-    /// جایگزینی کامل دسترسی‌ها و کاربرانِ یک نقش/گروه.
+-    /// فرم طرح، فهرست کامل را می‌فرستد نه تغییرات جزئی — پس حذف‌وثبت دوباره،
+-    /// هم ساده‌تر است هم با آنچه کاربر در صفحه می‌بیند یکی می‌ماند.
+-    /// </summary>
+-    private async Task ReplaceRoleLinksAsync(int roleId, List<int> menuIds, List<int> panelUserIds, CancellationToken cancellationToken)
+-    {
+-        var currentMenus = await _db.RolePanelMenu.Where(x => x.RoleId == roleId).ToListAsync(cancellationToken);
+-        _db.RolePanelMenu.RemoveRange(currentMenus);
+-
+-        var currentUsers = await _db.PanelUserRole.Where(x => x.RoleId == roleId).ToListAsync(cancellationToken);
+-        _db.PanelUserRole.RemoveRange(currentUsers);
+-
+-        await _db.SaveChangesAsync(cancellationToken);
+-
+-        if (menuIds.Count > 0)
+-        {
+-            var validMenuIds = await _db.PanelMenu
+-                .Where(m => menuIds.Contains(m.Id))
+-                .Select(m => m.Id)
+-                .ToListAsync(cancellationToken);
+-
+-            await _db.RolePanelMenu.AddRangeAsync(
+-                validMenuIds.Distinct().Select(id => new RolePanelMenuEntity { RoleId = roleId, PanelMenuId = id }),
+-                cancellationToken);
+-        }
+-
+-        if (panelUserIds.Count > 0)
+-        {
+-            var validUserIds = await _db.PanelUser
+-                .Where(u => panelUserIds.Contains(u.Id))
+-                .Select(u => u.Id)
+-                .ToListAsync(cancellationToken);
+-
+-            await _db.PanelUserRole.AddRangeAsync(
+-                validUserIds.Distinct().Select(id => new PanelUserRoleEntity { RoleId = roleId, PanelUserId = id }),
+-                cancellationToken);
+-        }
+-
+-        await _db.SaveChangesAsync(cancellationToken);
+-    }
+-
+-    public Task<List<int>> GetRoleMenuIdsAsync(int roleId, CancellationToken cancellationToken)
+-        => _db.RolePanelMenu.AsNoTracking()
+-            .Where(x => x.RoleId == roleId)
+-            .Select(x => x.PanelMenuId)
+-            .ToListAsync(cancellationToken);
+-
+-    public Task<List<PanelUserEntity>> GetRoleUsersAsync(int roleId, CancellationToken cancellationToken)
+-        => _db.PanelUserRole.AsNoTracking()
+-            .Where(x => x.RoleId == roleId)
+-            .Select(x => x.PanelUser)
+-            .ToListAsync(cancellationToken);
+-
+-    public Task<List<PanelUserEntity>> GetPanelUsersByUserNamesAsync(List<string> userNames, CancellationToken cancellationToken)
+-        => _db.PanelUser.AsNoTracking()
+-            .Where(u => userNames.Contains(u.UserName))
+-            .ToListAsync(cancellationToken);
+-
+-    // ── تب ۴: کاربران پنل ────────────────────────────────────────────────────
+-    public async Task<(List<PanelUserEntity> Items, int Total)> SearchPanelUsersAsync(
+-        string? term, int page, int pageSize, CancellationToken cancellationToken)
+-    {
+-        var query = _db.PanelUser.AsNoTracking().AsQueryable();
+-
+-        if (!string.IsNullOrWhiteSpace(term))
+-            query = query.Where(u => u.UserName.Contains(term) || u.Email.Contains(term));
+-
+-        var total = await query.CountAsync(cancellationToken);
+-        var items = await query
+-            .OrderByDescending(u => u.Id)
+-            .Skip((NormalizePage(page) - 1) * NormalizePageSize(pageSize))
+-            .Take(NormalizePageSize(pageSize))
+-            .ToListAsync(cancellationToken);
+-
+-        return (items, total);
+-    }
+-
+-    public Task<PanelUserEntity?> GetPanelUserAsync(int id, CancellationToken cancellationToken)
+-        => _db.PanelUser.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+-
+-    public async Task<bool> SetPanelUserActiveAsync(int id, bool isActive, CancellationToken cancellationToken)
+-    {
+-        var user = await _db.PanelUser.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+-        if (user is null) return false;
+-
+-        user.IsActive = isActive;
+-        await _db.SaveChangesAsync(cancellationToken);
+-        return true;
+-    }
+-}
++using IdentityService.Domain.Authorization;
++using IdentityService.Domain.Entity;
++using IdentityService.Domain.Services.UserManagementPanel;
++using IdentityService.Infrastructure.Contexts;
++using Microsoft.EntityFrameworkCore;
++
++namespace IdentityService.Infrastructure.Repositories.UserManagementPanel;
++
++public sealed class PanelAccessControlRepository : IPanelAccessControlRepository
++{
++    private readonly ApplicationDBContext _db;
++    private readonly IPanelSessionResolver? _sessions;
++
++    /// <param name="sessions">
++    /// اختیاری تا این رپازیتوری در تست‌ها و اسکریپت‌ها بدون چرخهٔ وابستگی ساخته شود.
++    /// وقتی هست، تغییر دسترسی کش نشست را فوراً دور می‌اندازد.
++    /// </param>
++    public PanelAccessControlRepository(ApplicationDBContext db, IPanelSessionResolver? sessions = null)
++    {
++        _db = db;
++        _sessions = sessions;
++    }
++
++    private static int NormalizePage(int page) => page <= 0 ? 1 : page;
++    private static int NormalizePageSize(int pageSize) => pageSize is <= 0 or > 200 ? 20 : pageSize;
++
++    // ── تب ۱: مدیریت دسترسی‌ها ────────────────────────────────────────────────
++    public async Task<(List<PanelMenuEntity> Items, int Total)> SearchAccessesAsync(
++        string? term, int page, int pageSize, CancellationToken cancellationToken)
++    {
++        var query = _db.PanelMenu.AsNoTracking().AsQueryable();
++
++        if (!string.IsNullOrWhiteSpace(term))
++            query = query.Where(m => m.Title.Contains(term));
++
++        var total = await query.CountAsync(cancellationToken);
++        var items = await query
++            .OrderByDescending(m => m.Id)
++            .Skip((NormalizePage(page) - 1) * NormalizePageSize(pageSize))
++            .Take(NormalizePageSize(pageSize))
++            .ToListAsync(cancellationToken);
++
++        return (items, total);
++    }
++
++    public Task<PanelMenuEntity?> GetAccessAsync(int id, CancellationToken cancellationToken)
++        => _db.PanelMenu.AsNoTracking().FirstOrDefaultAsync(m => m.Id == id, cancellationToken);
++
++    public Task<bool> AccessTitleExistsAsync(string title, int? exceptId, CancellationToken cancellationToken)
++        => _db.PanelMenu.AnyAsync(m => m.Title == title && (exceptId == null || m.Id != exceptId), cancellationToken);
++
++    public async Task<int> AddAccessAsync(PanelMenuEntity access, CancellationToken cancellationToken)
++    {
++        await _db.PanelMenu.AddAsync(access, cancellationToken);
++        await _db.SaveChangesAsync(cancellationToken);
++        return access.Id;
++    }
++
++    public async Task<bool> UpdateAccessAsync(PanelMenuEntity access, CancellationToken cancellationToken)
++    {
++        var current = await _db.PanelMenu.FirstOrDefaultAsync(m => m.Id == access.Id, cancellationToken);
++        if (current is null) return false;
++
++        current.Title = access.Title;
++        current.EnTitle = access.EnTitle;
++        current.Url = access.Url;
++        current.IconName = access.IconName;
++        current.ParentId = access.ParentId;
++        current.Description = access.Description;
++        current.IsActive = access.IsActive;
++
++        await _db.SaveChangesAsync(cancellationToken);
++        return true;
++    }
++
++    // ── تب ۲ و ۳: مجوزها (Kind=0) و گروه‌ها (Kind=1) ─────────────────────────
++    public async Task<(List<RoleEntity> Items, int Total)> SearchRolesAsync(
++        int kind, string? term, int page, int pageSize, CancellationToken cancellationToken)
++    {
++        var query = _db.Role.AsNoTracking().Where(r => r.Kind == kind);
++
++        if (!string.IsNullOrWhiteSpace(term))
++            query = query.Where(r => r.PersianTitle.Contains(term) || r.Title.Contains(term));
++
++        var total = await query.CountAsync(cancellationToken);
++        var items = await query
++            .OrderByDescending(r => r.Id)
++            .Skip((NormalizePage(page) - 1) * NormalizePageSize(pageSize))
++            .Take(NormalizePageSize(pageSize))
++            .ToListAsync(cancellationToken);
++
++        return (items, total);
++    }
++
++    public Task<RoleEntity?> GetRoleAsync(int id, int kind, CancellationToken cancellationToken)
++        => _db.Role.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id && r.Kind == kind, cancellationToken);
++
++    public Task<bool> RoleTitleExistsAsync(int kind, string title, int? exceptId, CancellationToken cancellationToken)
++        => _db.Role.AnyAsync(
++            r => r.Kind == kind && r.PersianTitle == title && (exceptId == null || r.Id != exceptId),
++            cancellationToken);
++
++    public async Task<int> AddRoleAsync(RoleEntity role, List<int> menuIds, List<int> panelUserIds, CancellationToken cancellationToken)
++    {
++        await using var transaction = await _db.Database.BeginTransactionAsync(cancellationToken);
++
++        await _db.Role.AddAsync(role, cancellationToken);
++        await _db.SaveChangesAsync(cancellationToken);
++
++        await ReplaceRoleLinksAsync(role.Id, menuIds, panelUserIds, cancellationToken);
++        await transaction.CommitAsync(cancellationToken);
++
++        return role.Id;
++    }
++
++    public async Task<bool> UpdateRoleAsync(RoleEntity role, List<int> menuIds, List<int> panelUserIds, CancellationToken cancellationToken)
++    {
++        var current = await _db.Role.FirstOrDefaultAsync(r => r.Id == role.Id && r.Kind == role.Kind, cancellationToken);
++        if (current is null) return false;
++
++        await using var transaction = await _db.Database.BeginTransactionAsync(cancellationToken);
++
++        current.PersianTitle = role.PersianTitle;
++        current.Title = role.Title;
++        current.Description = role.Description;
++        current.IsActive = role.IsActive;
++        await _db.SaveChangesAsync(cancellationToken);
++
++        await ReplaceRoleLinksAsync(current.Id, menuIds, panelUserIds, cancellationToken);
++        await transaction.CommitAsync(cancellationToken);
++
++        return true;
++    }
++
++    /// <summary>
++    /// جایگزینی کامل دسترسی‌ها و کاربرانِ یک نقش/گروه.
++    /// فرم طرح، فهرست کامل را می‌فرستد نه تغییرات جزئی — پس حذف‌وثبت دوباره،
++    /// هم ساده‌تر است هم با آنچه کاربر در صفحه می‌بیند یکی می‌ماند.
++    /// </summary>
++    private async Task ReplaceRoleLinksAsync(int roleId, List<int> menuIds, List<int> panelUserIds, CancellationToken cancellationToken)
++    {
++        var currentMenus = await _db.RolePanelMenu.Where(x => x.RoleId == roleId).ToListAsync(cancellationToken);
++        _db.RolePanelMenu.RemoveRange(currentMenus);
++
++        var currentUsers = await _db.PanelUserRole.Where(x => x.RoleId == roleId).ToListAsync(cancellationToken);
++        var previousScopes = currentUsers
++            .GroupBy(x => x.PanelUserId)
++            .ToDictionary(g => g.Key, g => g.First());
++        _db.PanelUserRole.RemoveRange(currentUsers);
++
++        await _db.SaveChangesAsync(cancellationToken);
++
++        if (menuIds.Count > 0)
++        {
++            var validMenuIds = await _db.PanelMenu
++                .Where(m => menuIds.Contains(m.Id))
++                .Select(m => m.Id)
++                .ToListAsync(cancellationToken);
++
++            await _db.RolePanelMenu.AddRangeAsync(
++                validMenuIds.Distinct().Select(id => new RolePanelMenuEntity { RoleId = roleId, PanelMenuId = id }),
++                cancellationToken);
++        }
++
++        if (panelUserIds.Count > 0)
++        {
++            var validUsers = await _db.PanelUser
++                .Where(u => panelUserIds.Contains(u.Id))
++                .Select(u => new { u.Id, u.BranchCode })
++                .ToListAsync(cancellationToken);
++
++            // دامنه روی انتساب است، و این متد انتساب‌ها را پاک و بازسازی می‌کند. بدون این،
++            // هر ویرایش نقش از تب مجوزها دامنهٔ همهٔ کاربرانش را صفر می‌کرد و کاربر شعبه
++            // یک‌شبه سراسری می‌شد. پس دامنهٔ قبلی را برمی‌گردانیم و برای انتساب جدید،
++            // پیش‌فرض را از کد شعبهٔ خود کاربر برمی‌داریم.
++            await _db.PanelUserRole.AddRangeAsync(
++                validUsers.DistinctBy(u => u.Id).Select(u =>
++                {
++                    var previous = previousScopes.GetValueOrDefault(u.Id);
++                    var scopeType = previous?.ScopeType
++                        ?? (string.IsNullOrWhiteSpace(u.BranchCode) ? AccessScopeType.Global : AccessScopeType.Branch);
++                    var scopeId = previous is not null ? previous.ScopeId : u.BranchCode;
++
++                    return new PanelUserRoleEntity
++                    {
++                        RoleId = roleId,
++                        PanelUserId = u.Id,
++                        ScopeType = scopeType,
++                        ScopeId = scopeType == AccessScopeType.Global ? null : scopeId,
++                        CreatedAt = DateTime.UtcNow,
++                    };
++                }),
++                cancellationToken);
++        }
++
++        await _db.SaveChangesAsync(cancellationToken);
++
++        // معیار پذیرش ۶: دسترسی که عوض شد، باید کاربر را از سامانه بیندازد بیرون.
++        // این‌جا تنها جایی است که مجوزهای یک نقش یا فهرست کاربرانش تغییر می‌کند، پس
++        // bump همین‌جا است و نه در Handlerها — وگرنه یک Handler جدید می‌تواند فراموشش کند.
++        // هم کاربران قبلی (که نقش را از دست دادند) و هم کاربران جدید باید دوباره وارد شوند.
++        var affected = previousScopes.Keys.Concat(panelUserIds).Distinct().ToList();
++        await BumpPermissionVersionAsync(affected, cancellationToken);
++    }
++
++    public Task<List<int>> GetRoleMenuIdsAsync(int roleId, CancellationToken cancellationToken)
++        => _db.RolePanelMenu.AsNoTracking()
++            .Where(x => x.RoleId == roleId)
++            .Select(x => x.PanelMenuId)
++            .ToListAsync(cancellationToken);
++
++    public Task<List<PanelUserEntity>> GetRoleUsersAsync(int roleId, CancellationToken cancellationToken)
++        => _db.PanelUserRole.AsNoTracking()
++            .Where(x => x.RoleId == roleId)
++            .Select(x => x.PanelUser)
++            .ToListAsync(cancellationToken);
++
++    public Task<List<PanelUserEntity>> GetPanelUsersByUserNamesAsync(List<string> userNames, CancellationToken cancellationToken)
++        => _db.PanelUser.AsNoTracking()
++            .Where(u => userNames.Contains(u.UserName))
++            .ToListAsync(cancellationToken);
++
++    // ── تب ۴: کاربران پنل ────────────────────────────────────────────────────
++    public async Task<(List<PanelUserEntity> Items, int Total)> SearchPanelUsersAsync(
++        string? term, int page, int pageSize, CancellationToken cancellationToken)
++    {
++        var query = _db.PanelUser.AsNoTracking().AsQueryable();
++
++        if (!string.IsNullOrWhiteSpace(term))
++            query = query.Where(u => u.UserName.Contains(term) || u.Email.Contains(term));
++
++        var total = await query.CountAsync(cancellationToken);
++        var items = await query
++            .OrderByDescending(u => u.Id)
++            .Skip((NormalizePage(page) - 1) * NormalizePageSize(pageSize))
++            .Take(NormalizePageSize(pageSize))
++            .ToListAsync(cancellationToken);
++
++        return (items, total);
++    }
++
++    public Task<PanelUserEntity?> GetPanelUserAsync(int id, CancellationToken cancellationToken)
++        => _db.PanelUser.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
++
++    public async Task<bool> SetPanelUserActiveAsync(int id, bool isActive, CancellationToken cancellationToken)
++    {
++        var user = await _db.PanelUser.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
++        if (user is null) return false;
++
++        user.IsActive = isActive;
++        await _db.SaveChangesAsync(cancellationToken);
++
++        // غیرفعال‌شدن هم تغییر دسترسی است: کاربر باید همین حالا بیرون بیفتد، نه در ورود بعدی.
++        await BumpPermissionVersionAsync([id], cancellationToken);
++        return true;
++    }
++
++    // ── مجوزهای مؤثر و ابطال نشست ─────────────────────────────────────────────
++
++    /// <summary>
++    /// کاربر با هر چه EffectivePermissions لازم دارد. AsNoTracking چون فقط خوانده می‌شود
++    /// و AsSplitQuery چون سه سطح Include روی یک کوئری، سطرها را در هم ضرب می‌کند.
++    /// </summary>
++    public Task<PanelUserEntity?> GetPanelUserWithPermissionsAsync(int panelUserId, CancellationToken cancellationToken)
++        => _db.PanelUser
++            .AsNoTracking()
++            .AsSplitQuery()
++            .Include(u => u.PanelUserRoles)
++                .ThenInclude(a => a.Role)
++                    .ThenInclude(r => r.RolePanelMenus)
++                        .ThenInclude(rm => rm.PanelMenu)
++            .FirstOrDefaultAsync(u => u.Id == panelUserId, cancellationToken);
++
++    /// <summary>
++    /// معیار پذیرش ۶. نسخه را بالا می‌برد تا توکن‌های صادرشده با نسخهٔ قدیمی باطل شوند،
++    /// و کش نشست همان کاربران را هم دور می‌اندازد تا تأخیر صفر شود.
++    /// </summary>
++    public async Task BumpPermissionVersionAsync(IReadOnlyCollection<int> panelUserIds, CancellationToken cancellationToken)
++    {
++        if (panelUserIds.Count == 0) return;
++
++        var users = await _db.PanelUser
++            .Where(u => panelUserIds.Contains(u.Id))
++            .ToListAsync(cancellationToken);
++
++        foreach (var user in users)
++        {
++            user.PermissionVersion += 1;
++            user.LastPermissionChangeAt = DateTime.UtcNow;
++        }
++
++        await _db.SaveChangesAsync(cancellationToken);
++
++        foreach (var user in users)
++            _sessions?.Invalidate(user.Id);
++    }
++
++    public async Task BumpPermissionVersionForRoleAsync(int roleId, CancellationToken cancellationToken)
++    {
++        var ids = await _db.PanelUserRole
++            .Where(x => x.RoleId == roleId)
++            .Select(x => x.PanelUserId)
++            .Distinct()
++            .ToListAsync(cancellationToken);
++
++        await BumpPermissionVersionAsync(ids, cancellationToken);
++    }
++
++    // ── لاگ امنیتی ────────────────────────────────────────────────────────────
++
++    public async Task WriteAuditAsync(PanelSecurityAuditLogEntity entry, CancellationToken cancellationToken)
++    {
++        entry.CreatedAt = DateTime.UtcNow;
++        await _db.PanelSecurityAuditLog.AddAsync(entry, cancellationToken);
++        await _db.SaveChangesAsync(cancellationToken);
++    }
++
++    public async Task<(List<PanelSecurityAuditLogEntity> Items, int Total)> SearchAuditAsync(
++        string? action, string? targetType, int page, int pageSize, CancellationToken cancellationToken)
++    {
++        var query = _db.PanelSecurityAuditLog.AsNoTracking().AsQueryable();
++
++        if (!string.IsNullOrWhiteSpace(action)) query = query.Where(x => x.Action == action);
++        if (!string.IsNullOrWhiteSpace(targetType)) query = query.Where(x => x.TargetType == targetType);
++
++        var total = await query.CountAsync(cancellationToken);
++        var items = await query
++            .OrderByDescending(x => x.Id)
++            .Skip((NormalizePage(page) - 1) * NormalizePageSize(pageSize))
++            .Take(NormalizePageSize(pageSize))
++            .ToListAsync(cancellationToken);
++
++        return (items, total);
++    }
++
++    // ── ساخت و ویرایش کاربر پنل ───────────────────────────────────────────────
++
++    public Task<bool> PanelUserNameExistsAsync(string userName, int? exceptId, CancellationToken cancellationToken)
++        => _db.PanelUser.AnyAsync(u => u.UserName == userName && (exceptId == null || u.Id != exceptId), cancellationToken);
++
++    public Task<bool> PanelUserCodeExistsAsync(string userCode, int? exceptId, CancellationToken cancellationToken)
++        => _db.PanelUser.AnyAsync(u => u.UserCode == userCode && (exceptId == null || u.Id != exceptId), cancellationToken);
++
++    public async Task<int> AddPanelUserAsync(
++        PanelUserEntity user,
++        IReadOnlyCollection<RoleAssignment> assignments,
++        CancellationToken cancellationToken)
++    {
++        await using var transaction = await _db.Database.BeginTransactionAsync(cancellationToken);
++
++        user.CreationTime = DateTime.UtcNow;
++        user.PermissionVersion = 1;
++        await _db.PanelUser.AddAsync(user, cancellationToken);
++        await _db.SaveChangesAsync(cancellationToken);
++
++        await ReplaceUserAssignmentsAsync(user.Id, assignments, cancellationToken);
++        await transaction.CommitAsync(cancellationToken);
++
++        return user.Id;
++    }
++
++    public async Task<bool> UpdatePanelUserAsync(
++        PanelUserEntity user,
++        IReadOnlyCollection<RoleAssignment>? assignments,
++        CancellationToken cancellationToken)
++    {
++        var current = await _db.PanelUser.FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
++        if (current is null) return false;
++
++        await using var transaction = await _db.Database.BeginTransactionAsync(cancellationToken);
++
++        current.UserName = user.UserName;
++        current.Email = user.Email;
++        current.FullName = user.FullName;
++        current.UserCode = user.UserCode;
++        current.BranchCode = user.BranchCode;
++        current.BranchName = user.BranchName;
++        current.IsActive = user.IsActive;
++
++        // رمز فقط وقتی عوض می‌شود که مقداری آمده باشد؛ هش‌کردن بیرون از این لایه است.
++        if (!string.IsNullOrWhiteSpace(user.PasswordHash))
++            current.PasswordHash = user.PasswordHash;
++
++        await _db.SaveChangesAsync(cancellationToken);
++
++        // null یعنی «نقش‌ها را دست نزن»؛ فهرست خالی یعنی «همه را بردار».
++        if (assignments is not null)
++            await ReplaceUserAssignmentsAsync(current.Id, assignments, cancellationToken);
++        else
++            await BumpPermissionVersionAsync([current.Id], cancellationToken);
++
++        await transaction.CommitAsync(cancellationToken);
++        return true;
++    }
++
++    /// <summary>
++    /// انتساب‌های یک کاربر را کامل جایگزین می‌کند. فرم سند فهرست کامل را می‌فرستد،
++    /// پس حذف‌وثبت دوباره با آنچه کاربر در صفحه می‌بیند یکی می‌ماند.
++    /// </summary>
++    private async Task ReplaceUserAssignmentsAsync(
++        int panelUserId, IReadOnlyCollection<RoleAssignment> assignments, CancellationToken cancellationToken)
++    {
++        var current = await _db.PanelUserRole.Where(x => x.PanelUserId == panelUserId).ToListAsync(cancellationToken);
++        _db.PanelUserRole.RemoveRange(current);
++        await _db.SaveChangesAsync(cancellationToken);
++
++        if (assignments.Count > 0)
++        {
++            // نقشی که وجود ندارد یا دامنه‌اش با AllowedScopeType نقش نمی‌خواند، بی‌صدا نمی‌افتد:
++            // Handler قبل از صدا زدن این متد اعتبارسنجی می‌کند. این‌جا فقط نقش‌های موجود می‌مانند.
++            var roles = await _db.Role
++                .Where(r => assignments.Select(a => a.RoleId).Contains(r.Id))
++                .Select(r => r.Id)
++                .ToListAsync(cancellationToken);
++
++            await _db.PanelUserRole.AddRangeAsync(
++                assignments
++                    .Where(a => roles.Contains(a.RoleId))
++                    .Select(a => new PanelUserRoleEntity
++                    {
++                        PanelUserId = panelUserId,
++                        RoleId = a.RoleId,
++                        ScopeType = a.ScopeType,
++                        ScopeId = a.ScopeType == AccessScopeType.Global ? null : a.ScopeId,
++                        CreatedAt = DateTime.UtcNow,
++                        CreatedByPanelUserId = a.CreatedByPanelUserId,
++                    }),
++                cancellationToken);
++
++            await _db.SaveChangesAsync(cancellationToken);
++        }
++
++        await BumpPermissionVersionAsync([panelUserId], cancellationToken);
++    }
++}
+diff --git a/src/IdentityService.Infrastructure/Repositories/UserManagementPanel/PanelSessionResolver.cs b/src/IdentityService.Infrastructure/Repositories/UserManagementPanel/PanelSessionResolver.cs
+new file mode 100644
+index 0000000..977b2ad
+--- /dev/null
++++ b/src/IdentityService.Infrastructure/Repositories/UserManagementPanel/PanelSessionResolver.cs
+@@ -0,0 +1,104 @@
++using IdentityService.Domain.Authorization;
++using IdentityService.Domain.Services.UserManagementPanel;
++using Microsoft.AspNetCore.Http;
++using OmidBank.Common.Cache;
++using OmidBank.Common.Cookie;
++using OmidBank.Common.JwtHelper;
++using static OmidBank.Common.Enums;
++
++namespace IdentityService.Infrastructure.Repositories.UserManagementPanel;
++
++/// <summary>
++/// توکن ← کاربر پنل با مجوزهای لحظه‌ای.
++///
++/// چهار چک، به ترتیب:
++///   ۱. توکن در کوکی (یا هدر Bearer) هست؟
++///   ۲. امضای توکن معتبر است؟
++///   ۳. نشست در Redis هنوز زنده است؟ (خروج، همان کلید را پاک می‌کند)
++///   ۴. کاربر فعال است و مجوز دارد؟
++///
++/// نتیجه برای مدت کوتاهی در حافظهٔ همین پروسه کش می‌شود تا هر درخواست یک کوئری با
++/// چند Include نزند. عمداً در Redis کش نمی‌شود: مجوزها باید با یک Invalidate فوری
++/// بروند و نگه‌داشتن snapshot در Redis یعنی همان چیزی که معیار ۶ از آن می‌گریزد.
++///
++/// تأخیر اعمال تغییر دسترسی = <see cref="CacheDuration"/>؛ و اگر تغییر از خود پنل
++/// آمده باشد، <see cref="Invalidate"/> آن را به صفر می‌رساند.
++/// </summary>
++public sealed class PanelSessionResolver : IPanelSessionResolver
++{
++    /// <summary>سقف تأخیر اعمال تغییر دسترسی وقتی تغییر از جای دیگری آمده باشد.</summary>
++    public static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(30);
++
++    private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, CacheEntry> Cache = new();
++
++    private readonly IHttpContextAccessor _httpContextAccessor;
++    private readonly IJwtService _jwtService;
++    private readonly IRedisCacheManager _redisCacheManager;
++    private readonly IPanelAccessControlRepository _repository;
++
++    public PanelSessionResolver(
++        IHttpContextAccessor httpContextAccessor,
++        IJwtService jwtService,
++        IRedisCacheManager redisCacheManager,
++        IPanelAccessControlRepository repository)
++    {
++        _httpContextAccessor = httpContextAccessor;
++        _jwtService = jwtService;
++        _redisCacheManager = redisCacheManager;
++        _repository = repository;
++    }
++
++    public async Task<PanelSession?> ResolveAsync(CancellationToken cancellationToken)
++    {
++        var http = _httpContextAccessor.HttpContext;
++        if (http is null) return null;
++
++        var token = ReadToken(http);
++        if (string.IsNullOrWhiteSpace(token)) return null;
++
++        var validation = _jwtService.ValidateToken(token);
++        if (!validation.Item1) return null;
++
++        if (!int.TryParse(validation.Item3?.UserId?.ToString(), out var panelUserId) || panelUserId <= 0)
++            return null;
++
++        // خروج، کلید نشست را از Redis پاک می‌کند؛ پس توکنی که امضایش درست است ولی
++        // نشستی ندارد، باطل است.
++        if (_redisCacheManager.Read(string.Format(CacheKey.TosanUserSessionId, token)) is null)
++            return null;
++
++        if (Cache.TryGetValue(panelUserId, out var cached) && cached.ExpiresAt > DateTime.UtcNow)
++            return cached.Session;
++
++        var user = await _repository.GetPanelUserWithPermissionsAsync(panelUserId, cancellationToken);
++
++        // کاربر حذف یا غیرفعال شده ← نشست باطل، نه «کاربر بدون مجوز».
++        if (user is null || !user.IsActive)
++        {
++            Cache.TryRemove(panelUserId, out _);
++            return null;
++        }
++
++        var session = new PanelSession(
++            user.Id, user.UserName, user.FullName, user.UserCode, user.BranchCode, user.BranchName,
++            EffectivePermissions.Build(user));
++
++        Cache[panelUserId] = new CacheEntry(session, DateTime.UtcNow.Add(CacheDuration));
++        return session;
++    }
++
++    public void Invalidate(int panelUserId) => Cache.TryRemove(panelUserId, out _);
++
++    private static string? ReadToken(HttpContext http)
++    {
++        if (http.Request.Cookies.TryGetValue(CookieKey.Token, out var fromCookie) && !string.IsNullOrWhiteSpace(fromCookie))
++            return fromCookie;
++
++        var header = http.Request.Headers.Authorization.ToString();
++        return header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
++            ? header["Bearer ".Length..].Trim()
++            : null;
++    }
++
++    private sealed record CacheEntry(PanelSession Session, DateTime ExpiresAt);
++}

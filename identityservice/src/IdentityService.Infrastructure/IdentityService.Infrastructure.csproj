@@ -1,0 +1,85 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>disable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Dapper" Version="2.0.78" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+		<PackageReference Include="MongoDB.Driver" Version="2.20.0" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\IdentityService.Contracts\IdentityService.Contracts.csproj" />
+		<ProjectReference Include="..\IdentityService.Services\IdentityService.Services.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!--نیم اسپیس زیر را به عنوان یوزینگ عمومی در کل پروژه ثبت میشود-->
+		<Using Include="Dapper;" />
+		<Using Include="IdentityService.Domain.IRepositories;" />
+		<Using Include="IdentityService.Domain.Models.User;" />
+		<Using Include="Microsoft.Extensions.Configuration;" />
+		<Using Include="Microsoft.Extensions.Logging;" />
+		<Using Include="System.Collections.Generic;" />
+		<Using Include="System.Data.SqlClient;" />
+		<Using Include="System.Threading.Tasks;" />
+		<Using Include="System.Linq;" />
+		<Using Include="System;" />
+		<Using Include="System.Reflection;" />
+		<Using Include="System.Text.Json;" />
+		<Using Include="OmidBank.Common.Extentions;" />
+		<Using Include="OmidBank.Common.Helper;" />
+		<Using Include="OmidBank.Common;" />
+		<Using Include="IdentityService.Domain.Models;" />
+		<Using Include="MongoDB.Driver;" />
+		<Using Include="OmidBank.Common.Mongo;" />
+		<Using Include="Microsoft.Extensions.Options;" />
+		<Using Include="System.Threading;" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Seed\" />
+	  <Folder Include="Services\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Migrations\20250120103823_UpdateSPUpdateProfile.cs">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="Migrations\20250419095726_GetPersonDataWithInvitedCode.cs">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="Migrations\20250817054133_UpdateUserProfile.cs">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="Migrations\20250818061406_UpdateUserProfileDto.cs">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Compile>
+	  <Compile Update="Migrations\20250825122910_updateBranchInfoCustomer.cs">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Migrations\20250120103823_UpdateSPUpdateProfile.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Migrations\20250419095726_GetPersonDataWithInvitedCode.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Migrations\20251207065817_Change_Sp_GetUserByMobileNumber.sql">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
+</Project>

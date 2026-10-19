@@ -1,0 +1,233 @@
+# Admin.Api staging env — from Admin.Api/appsettings.Staging.json
+# Namespace admin-panel only; does not touch talos-prod/omidbank.
+app:
+  version: 1.0.6-admin-panel-staging
+  port: 50013
+  protocol: TCP
+
+replicaCount: 1
+
+image:
+  repository: harbor.abromid.ir/omidbank/admin-panel-stg/identity-service-api
+  # Always: admin-panel tags are reused; IfNotPresent + sync-before-build race keeps a broken layer
+  pullPolicy: Always
+  command: ""
+  args: ""
+
+env:
+  fromConfigmap:
+    enabled: true
+    data:
+      AccessTokenExpierTime: ***
+      AllowedHosts: '*'
+      ApiKeyExternal: ***
+      ApiKeyInternal: ***
+      ApiKeyOmidSystem: ***
+      ApiKeyOmidTech: ***
+      ApplicationUrl: 'https://dev.bankomid.ir/gateway/identity'
+      ApplicationVersionV2: '2'
+      AradPushNotificationXAPIKEY: ***
+      AttempPerProviderPostal: '2'
+      AttempPerProviderSabtahval: '2'
+      AttempPerProviderShahkar: '2'
+      AvatarFileServerUrl: 'https://pwa.omidbnk.ir/gateway/Identity/Profile/GetAvatar'
+      AvatarPathStorage: 'D:/IIS/Service.StaticFiles/wwwroot/avatars'
+      BasUrlDrApi: 'https://drapi.ir'
+      BaseAddressAteye: 'https://payamsms.com'
+      BaseOmidTechUrl: 'https://sandbox.omidtech.co'
+      BaseUrlApiOmidSystem: 'http://100.64.0.1:8085'
+      BaseUrlAradPushNotification: 'http://10.30.34.10'
+      BaseUrlMetaBoom: 'https://api.metaboom.co'
+      BytesLimitationUploadAvatar: '1048576'
+      ChangePasswordWalletIsActive: ***
+      CheckNationalCodeTryCount: '100'
+      ConnectionStrings__ApiManagerConnection: ***
+      ConnectionStrings__IdentityConnection: ***
+      ConnectionStrings__TransactionConnection: ***
+      ConnectionStrings__WalletConnection: ***
+      DefaultEnglishName: 'OmidBNK'
+      ElasticSetting__IndexFormat: 'omidbank-Development-IdentityService-{0:yyyy-MM}'
+      ElasticSetting__NumberOfReplicas: '1'
+      ElasticSetting__NumberOfShards: '2'
+      ElasticSetting__Password: ***
+      ElasticSetting__Uri: 'http://elasticsearch-svc.omidbank.svc.cluster.local:9200'
+      ElasticSetting__Username: ***
+      EnableCreateCustomer: 'true'
+      ExpierMinutesRegisterToken: ***
+      ExpirationTimePublicToken: ***
+      ExpirationTimeUserToken: ***
+      ExtraDataServiceUrl: 'http://10.10.10.103:20001'
+      FileServiceUrl: 'https://pwa.omidbnk.ir/gateway/staticfile/avatars'
+      IdentityServiceUrl: 'http://identity-service-api:50013'
+      IpRateLimiting__ClientIdHeader: 'X-ClientId'
+      IpRateLimiting__EnableEndpointRateLimiting: 'true'
+      IpRateLimiting__GeneralRules__0__Endpoint: '*:/v1/Identity/test'
+      IpRateLimiting__GeneralRules__0__Limit: '3'
+      IpRateLimiting__GeneralRules__0__Period: '60s'
+      IpRateLimiting__GeneralRules__10__Endpoint: '*:/v2/Identity/VerifyOtpCode'
+      IpRateLimiting__GeneralRules__10__Limit: '3'
+      IpRateLimiting__GeneralRules__10__Period: '60s'
+      IpRateLimiting__GeneralRules__11__Endpoint: '*:/v1/V2Identity/ResendOtpCode'
+      IpRateLimiting__GeneralRules__11__Limit: '3'
+      IpRateLimiting__GeneralRules__11__Period: '60s'
+      IpRateLimiting__GeneralRules__12__Endpoint: '*:/v2/Identity/ResendOtpCode'
+      IpRateLimiting__GeneralRules__12__Limit: '3'
+      IpRateLimiting__GeneralRules__12__Period: '60s'
+      IpRateLimiting__GeneralRules__13__Endpoint: '*:/v2/Identity/test'
+      IpRateLimiting__GeneralRules__13__Limit: '3'
+      IpRateLimiting__GeneralRules__13__Period: '60s'
+      IpRateLimiting__GeneralRules__14__Endpoint: '*:/v1/V2Identity/HealthCheck/test'
+      IpRateLimiting__GeneralRules__14__Limit: '3'
+      IpRateLimiting__GeneralRules__14__Period: '60s'
+      IpRateLimiting__GeneralRules__1__Endpoint: '*:/v1/Identity/LoginOrRegisterStepOne'
+      IpRateLimiting__GeneralRules__1__Limit: '3'
+      IpRateLimiting__GeneralRules__1__Period: '60s'
+      IpRateLimiting__GeneralRules__2__Endpoint: '*:/v1/Identity/LoginOrRegisterStepTwo'
+      IpRateLimiting__GeneralRules__2__Limit: '3'
+      IpRateLimiting__GeneralRules__2__Period: '60s'
+      IpRateLimiting__GeneralRules__3__Endpoint: '*:/v1/V2Identity/Register'
+      IpRateLimiting__GeneralRules__3__Limit: '3'
+      IpRateLimiting__GeneralRules__3__Period: '60s'
+      IpRateLimiting__GeneralRules__4__Endpoint: '*:/v2/Identity/Register'
+      IpRateLimiting__GeneralRules__4__Limit: '3'
+      IpRateLimiting__GeneralRules__4__Period: '60s'
+      IpRateLimiting__GeneralRules__5__Endpoint: '*:/v1/V2Identity/VerifyMobileNumber'
+      IpRateLimiting__GeneralRules__5__Limit: '3'
+      IpRateLimiting__GeneralRules__5__Period: '60s'
+      IpRateLimiting__GeneralRules__6__Endpoint: '*:/v2/Identity/VerifyMobileNumber'
+      IpRateLimiting__GeneralRules__6__Limit: '3'
+      IpRateLimiting__GeneralRules__6__Period: '60s'
+      IpRateLimiting__GeneralRules__7__Endpoint: '*:/v1/V2Identity/Login'
+      IpRateLimiting__GeneralRules__7__Limit: '3'
+      IpRateLimiting__GeneralRules__7__Period: '60s'
+      IpRateLimiting__GeneralRules__8__Endpoint: '*:/v2/Identity/Login'
+      IpRateLimiting__GeneralRules__8__Limit: '3'
+      IpRateLimiting__GeneralRules__8__Period: '60s'
+      IpRateLimiting__GeneralRules__9__Endpoint: '*:/v1/V2Identity/VerifyOtpCode'
+      IpRateLimiting__GeneralRules__9__Limit: '3'
+      IpRateLimiting__GeneralRules__9__Period: '60s'
+      IpRateLimiting__HttpStatusCode: '429'
+      IpRateLimiting__QuotaExceededResponse__Content: '{{ "message": "Internal server error!"}}'
+      IpRateLimiting__RealIPHeader: 'X-Forwarded-For'
+      IpRateLimiting__StackBlockedRequests: 'false'
+      IplimitationCount: '100'
+      IsDevelopTosan: 'True'
+      IsDevelopment: 'True'
+      IsPrivate: 'False'
+      IsSmsTest: 'True'
+      JwtSettings__Audience: 'OmidBank'
+      JwtSettings__ExpirationMinutes: '60'
+      JwtSettings__Issuer: 'Admin_Api'
+      JwtSettings__JwtSecretKey: ***
+      JwtTokenEncryptorKey: ***
+      LogServiceUrl: 'http://log-service-api.omidbank.svc.cluster.local:50014'
+      Logging__LogLevel__Default: 'Trace'
+      Logging__LogLevel__Microsoft: 'Warning'
+      Logging__LogLevel__Microsoft.Hosting.Lifetime: 'Information'
+      MMSServiceUrl: 'http://mms-service-api.omidbank.svc.cluster.local:50016'
+      MediaCenterServerSettings__IsMediaCenterServer: 'true'
+      MediaCenterServerSettings__MediaCenterBaseFolderPath: 'C:/MediaFiles/Files'
+      MediaCenterServerSettings__MediaCenterServerAddress: 'ftp://xxx.xxx.xxx.xxx/mediacenter/files/'
+      MediaCenterServerSettings__MediaCenterServerPassword: ***
+      MediaCenterServerSettings__MediaCenterServerUserName: ***
+      MediaCenterServerSettings__OnlineMediaCenterAdress: 'https://neo.omidboom.ir/gateway/mediafiles/'
+      MessageServiceUrl: 'http://message-service-api.omidbank.svc.cluster.local:50015'
+      Metaboom__BaseUrl: 'https://api.metaboom.co'
+      Metaboom__Client: 'OmidBank'
+      Metaboom__Nid: '9999999999'
+      Metaboom__Scopes: 'OmidBank'
+      Metaboom__Signature: ***
+      MobileLimitationCount: '100'
+      MongoIdentityServiceSettings__Connection: ***
+      MongoIdentityServiceSettings__DatabaseName: 'OmidBank_dentityDb'
+      MongoLogServiceSettings__Connection: ***
+      MongoLogServiceSettings__DatabaseName: 'OmidBank_logDB'
+      NationalCardPath: 'C:/Publish/OmidBank/OmidBank.Services/StaticFileService/wwwroot/nationalCard'
+      OmidTechAuthService__Omid__ApiKey: ***
+      OmidTechAuthService__Omid__BaseAddress: 'http://10.43.1.62'
+      OtpValidTimeSeconds: '120'
+      PasswordAradPushNotification: ***
+      PasswordAteye: ***
+      PasswordNoavaran: ***
+      PublicTokenKey: ***
+      PushNotificationPort: ':8883'
+      RedisCacheExpireTimeForLoginTemporary: '120'
+      RedisSetting__ConnectRetry: '5'
+      RedisSetting__ConnectTimeout: '5000'
+      RedisSetting__Host: '172.19.29.10'
+      RedisSetting__Password: ***
+      RedisSetting__Port: '8379'
+      RefreshTokenExpierTime: ***
+      ShahkarServiceType: '1'
+      SignPath: 'C:/Publish/OmidBank/OmidBank.Services/StaticFileService/wwwroot/signPath'
+      SmsMessage: 'امید بانک سپه 
+ این پیام محرمانه و شخصی است . از افشای آن به دیگران خودداری نمایبد. 
+ کد فعالسازی / کد‌تایید : '
+      SmsServiceType: '3'
+      SmsServiceUrl: 'http://message-service-api.omidbank.svc.cluster.local:50015'
+      SourceAddressAteye: '98200020'
+      SourceAddressOmidSystem: '986715240'
+      SwaggerServerUrl__0: 'https://dev.omidbnk.ir/gateway/identity/'
+      TestFileServiceUrl: 'http://172.19.29.2:1002/gateway/staticfile'
+      ThirdPartyServiceUrl: 'http://thirdparty-service-api.omidbank.svc.cluster.local:50025'
+      TimeoutAradServices: '5'
+      TokenDevelopment: ***
+      TokenValidTimeSeconds: ***
+      TosanSetting__BaseUrl: 'http://10.47.142.114:30107'
+      TosanSetting__Password: ***
+      TosanSetting__Username: ***
+      UMMobileCallBackUrl: 'Insert Url'
+      UMOWPCallBackUrl: 'Insert Url'
+      UMPWACallBackUrl: 'Insert Url'
+      UidAuthBaseServiceUrl: 'https://internal-auth-api.uid.ir/'
+      UidBaseServiceUrl: 'https://json-api.uid.ir/api'
+      UidBusinessId: '4028c082854878d001854dee66c80000'
+      UidBusinessToken: ***
+      UserNameAradPushNotification: ***
+      UserNameAteye: ***
+      UsernameNoavaran: ***
+      WalletChangePasswordExpireDay: ***
+      WalletServiceUrl: 'http://wallet-service-api.omidbank.svc.cluster.local:50024'
+  fromSecret:
+    ***
+    data: {}
+
+restartPolicy: Always
+
+imagePullSecrets:
+  ***
+
+nameOverride: "identity-service-api"
+fullnameOverride: "identity-service-api"
+
+serviceMonitor:
+  enabled: false
+
+readinessProbe:
+  enabled: false
+livenessProbe:
+  enabled: false
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 50013
+
+resources: {}
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

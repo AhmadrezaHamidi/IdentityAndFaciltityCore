@@ -1,0 +1,101 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- فقط برای کامپایل این ریپو؛ در پروژهٔ اصلی Facility کپی نشود. -->
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><RootNamespace>FacilityService.Application</RootNamespace></PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
+    <!-- فقط برای فایل xls قدیمی (باینری) در بارگذاری پرسنل؛ xlsx و csv بدون کتابخانه خوانده می‌شوند -->
+    <PackageReference Include="ExcelDataReader" Version="3.7.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../FacilityService.Domain/FacilityService.Domain.csproj" />
+    <ProjectReference Include="../FacilityService.Contracts/FacilityService.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="FacilityService.Domain.Entity.BasicInfo" />
+    <Using Include="FacilityService.Domain.Entity.ChangeLogs" />
+    <Using Include="FacilityService.Domain.Entity.Common" />
+    <Using Include="FacilityService.Domain.Entity.Companies" />
+    <Using Include="FacilityService.Domain.Entity.Employees" />
+    <Using Include="FacilityService.Domain.Entity.Loans" />
+    <Using Include="FacilityService.Domain.Enums" />
+    <Using Include="FacilityService.Domain.Exceptions" />
+    <Using Include="FacilityService.Domain.Helpers" />
+    <Using Include="FacilityService.Domain.Rules" />
+    <Using Include="FacilityService.Contracts.Approvals.CommandResponses" />
+    <Using Include="FacilityService.Contracts.Approvals.ReadModels" />
+    <Using Include="FacilityService.Contracts.BasicInfo.ReadModels" />
+    <Using Include="FacilityService.Contracts.ChangeLogs.CommandResponses" />
+    <Using Include="FacilityService.Contracts.Common" />
+    <Using Include="FacilityService.Contracts.Companies.ReadModels" />
+    <Using Include="FacilityService.Contracts.Dashboard.ReadModels" />
+    <Using Include="FacilityService.Contracts.Employees.ReadModels" />
+    <Using Include="FacilityService.Contracts.Loans.CommandResponses" />
+    <Using Include="FacilityService.Contracts.Loans.ReadModels" />
+    <Using Include="FacilityService.Contracts.Persistence" />
+    <Using Include="FacilityService.Application.Handler.Approvals.Commands.DecideLoanRequests" />
+    <Using Include="FacilityService.Application.Handler.Approvals.Commands.SetPostApprovalStage" />
+    <Using Include="FacilityService.Application.Handler.Approvals.Queries.GetApprovalQueue" />
+    <Using Include="FacilityService.Application.Handler.Approvals.Queries.GetPendingCounts" />
+    <Using Include="FacilityService.Application.Handler.BasicInfo.Commands.CreateReason" />
+    <Using Include="FacilityService.Application.Handler.BasicInfo.Commands.DeleteReason" />
+    <Using Include="FacilityService.Application.Handler.BasicInfo.Commands.UpdateBasicInfo" />
+    <Using Include="FacilityService.Application.Handler.BasicInfo.Commands.UpdateReason" />
+    <Using Include="FacilityService.Application.Handler.BasicInfo.Queries.GetBasicInfo" />
+    <Using Include="FacilityService.Application.Handler.BasicInfo.Queries.GetPlans" />
+    <Using Include="FacilityService.Application.Handler.BasicInfo.Queries.GetReasons" />
+    <Using Include="FacilityService.Application.Handler.BasicInfo.Queries.GetSchemes" />
+    <Using Include="FacilityService.Application.Handler.ChangeLogs.Commands.RestoreChange" />
+    <Using Include="FacilityService.Application.Handler.ChangeLogs.Queries.ExportChangeLogs" />
+    <Using Include="FacilityService.Application.Handler.ChangeLogs.Queries.SearchChangeLogs" />
+    <Using Include="FacilityService.Application.Handler.Companies.Commands.CancelCompanyContract" />
+    <Using Include="FacilityService.Application.Handler.Companies.Commands.CreateCompany" />
+    <Using Include="FacilityService.Application.Handler.Companies.Commands.DeleteBalanceDocument" />
+    <Using Include="FacilityService.Application.Handler.Companies.Commands.DeleteCompany" />
+    <Using Include="FacilityService.Application.Handler.Companies.Commands.UpdateCompany" />
+    <Using Include="FacilityService.Application.Handler.Companies.Commands.UpdateCompanyBalances" />
+    <Using Include="FacilityService.Application.Handler.Companies.Commands.UploadBalanceDocuments" />
+    <Using Include="FacilityService.Application.Handler.Companies.Queries.DownloadAgreementFile" />
+    <Using Include="FacilityService.Application.Handler.Companies.Queries.DownloadBalanceDocument" />
+    <Using Include="FacilityService.Application.Handler.Companies.Queries.GetBalanceDocuments" />
+    <Using Include="FacilityService.Application.Handler.Companies.Queries.GetCompany" />
+    <Using Include="FacilityService.Application.Handler.Companies.Queries.GetCompanyBalances" />
+    <Using Include="FacilityService.Application.Handler.Companies.Queries.GetCompanyLookup" />
+    <Using Include="FacilityService.Application.Handler.Companies.Queries.SearchCompanies" />
+    <Using Include="FacilityService.Application.Handler.Dashboard.Queries.ExportDashboard" />
+    <Using Include="FacilityService.Application.Handler.Dashboard.Queries.GetCompanyRanking" />
+    <Using Include="FacilityService.Application.Handler.Dashboard.Queries.GetDashboard" />
+    <Using Include="FacilityService.Application.Handler.Employees.Commands.CreatePersonnel" />
+    <Using Include="FacilityService.Application.Handler.Employees.Commands.DecidePersonnel" />
+    <Using Include="FacilityService.Application.Handler.Employees.Commands.DeletePersonnel" />
+    <Using Include="FacilityService.Application.Handler.Employees.Commands.ImportPersonnel" />
+    <Using Include="FacilityService.Application.Handler.Employees.Commands.UpdatePersonnel" />
+    <Using Include="FacilityService.Application.Handler.Employees.Queries.GetPersonnel" />
+    <Using Include="FacilityService.Application.Handler.Employees.Queries.GetPersonnelImport" />
+    <Using Include="FacilityService.Application.Handler.Employees.Queries.GetPersonnelImportTemplate" />
+    <Using Include="FacilityService.Application.Handler.Employees.Queries.SearchPersonnel" />
+    <Using Include="FacilityService.Application.Handler.Internal.Queries.InternalCompanyLookup" />
+    <Using Include="FacilityService.Application.Handler.Loans.Commands.AddLoanBatchMember" />
+    <Using Include="FacilityService.Application.Handler.Loans.Commands.CancelLoanRequest" />
+    <Using Include="FacilityService.Application.Handler.Loans.Commands.CreateLoanRequests" />
+    <Using Include="FacilityService.Application.Handler.Loans.Commands.RemoveLoanBatchMember" />
+    <Using Include="FacilityService.Application.Handler.Loans.Queries.GetCompanyCredit" />
+    <Using Include="FacilityService.Application.Handler.Loans.Queries.GetLoanRequest" />
+    <Using Include="FacilityService.Application.Handler.Loans.Queries.PreviewLoanRequest" />
+    <Using Include="FacilityService.Application.Handler.Loans.Queries.SearchLoanRequests" />
+    <Using Include="FacilityService.Application.Handler.Lookups.Queries.GetEnumCatalog" />
+    <Using Include="FacilityService.Application.Handler.Loans.Queries.DownloadLoanDocument" />
+    <Using Include="FacilityService.Application.Handler.Dashboard.Queries.GetDashboardMonths" />
+    <Using Include="FacilityService.Application.Handler.ChangeLogs.Queries.GetChangeLogUsers" />
+    <Using Include="FacilityService.Application.Handler.Approvals.Shared" />
+    <Using Include="FacilityService.Application.Handler.ChangeLogs.Shared" />
+    <Using Include="FacilityService.Application.Handler.Companies.Shared" />
+    <Using Include="FacilityService.Application.Handler.Dashboard.Shared" />
+    <Using Include="FacilityService.Application.Handler.Employees.Shared" />
+    <Using Include="FacilityService.Application.Handler.Loans.Shared" />
+    <Using Include="FacilityService.Application.Handler.Shared" />
+  </ItemGroup>
+</Project>

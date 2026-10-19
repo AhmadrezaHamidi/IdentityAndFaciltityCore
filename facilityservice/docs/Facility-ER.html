@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>نقشهٔ داده پنل نگین میثاق</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: سند فنی راست‌به‌چپ؛ نمودار کامل بالا، کارت هر جدول به تفکیک بخش، بعد فهرست کلیدهای خارجی */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --ink:#18222e; --soft:#5b6878; --line:#dfe3ea; --code:#eef1f6;
+  --navy:#1c4a73; --gold:#a87a14;
+  --g-base:#1c4a73; --g-company:#2f7d62; --g-personnel:#8a5a12; --g-loan:#9a3f3f; --g-common:#5d5a8c;
+  --font-body:"Vazirmatn",Tahoma,sans-serif; --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f151c; --surface:#16202b; --ink:#e6ebf1; --soft:#9aa7b6; --line:#2a3644; --code:#1d2936;
+  --navy:#8cb7e0; --gold:#e0b65a;
+  --g-base:#7fb0e0; --g-company:#6cc4a2; --g-personnel:#e0b15e; --g-loan:#e88d8d; --g-common:#aaa6e6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f151c; --surface:#16202b; --ink:#e6ebf1; --soft:#9aa7b6; --line:#2a3644; --code:#1d2936;
+  --navy:#8cb7e0; --gold:#e0b65a;
+  --g-base:#7fb0e0; --g-company:#6cc4a2; --g-personnel:#e0b15e; --g-loan:#e88d8d; --g-common:#aaa6e6; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.75}
+.wrap{direction:rtl;max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:28px 64px}
+h1{font-size:clamp(24px,4vw,34px);font-weight:800;margin:0;color:var(--navy);text-wrap:balance}
+h2{font-size:21px;margin:0;display:flex;align-items:center;gap:10px;text-wrap:balance}
+h3{margin:0;font-family:var(--font-mono);font-size:16px;font-weight:600}
+code{font-family:var(--font-mono);font-size:12.5px;background:var(--code);padding:1px 5px;border-radius:4px;direction:ltr;unicode-bidi:isolate}
+a{color:var(--navy)}
+.head{display:grid;gap:10px;border-bottom:2px solid var(--navy);padding-bottom:18px}
+.eyebrow{font-size:12px;letter-spacing:.06em;color:var(--gold);font-weight:700}
+.lede{color:var(--soft);margin:0;max-width:70ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:14px;color:var(--soft)}
+.stats b{color:var(--ink);font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--soft)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:11px;height:11px;border-radius:3px;display:inline-block;background:var(--c)}
+.g-base{--c:var(--g-base)}.g-company{--c:var(--g-company)}.g-personnel{--c:var(--g-personnel)}.g-loan{--c:var(--g-loan)}.g-common{--c:var(--g-common)}
+section{margin-top:40px;display:grid;gap:14px}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:80vh;padding:12px}
+.diagram pre{direction:ltr;margin:0;min-width:1400px}
+.nav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:12px;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-inline-start:4px solid var(--c);padding:2px 9px;border-radius:6px;background:var(--surface);direction:ltr}
+.chip:hover,.chip:focus-visible{border-color:var(--c);outline:none}
+.cards{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0;scroll-margin-top:16px}
+.card header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.card .fa{color:var(--soft);font-weight:500}
+.card .desc{margin:4px 0 10px;color:var(--soft);font-size:14px}
+.group h2 .dot{width:14px;height:14px}
+.group .card{border-top:3px solid var(--c)}
+#grp-base .card{--c:var(--g-base)}#grp-company .card{--c:var(--g-company)}#grp-personnel .card{--c:var(--g-personnel)}#grp-loan .card{--c:var(--g-loan)}#grp-common .card{--c:var(--g-common)}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{font-size:12px;letter-spacing:.03em;color:var(--soft);font-weight:700;text-align:start;border-bottom:1px solid var(--line);padding:6px 8px;white-space:nowrap}
+td{border-bottom:1px solid var(--line);padding:6px 8px;vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.f,td.t,td.k{white-space:nowrap}
+td.n,td.c{text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+.key{font-family:var(--font-mono);font-size:11px;font-weight:600;padding:0 6px;border-radius:4px;margin-inline-end:4px;border:1px solid var(--line);direction:ltr;display:inline-block}
+.key.pk{color:var(--gold);border-color:var(--gold)}
+.key.fk{color:var(--navy);border-color:var(--navy)}
+.rel{margin:10px 0 0;font-size:13.5px;color:var(--soft)}
+.rel b{color:var(--ink)}
+.del{font-family:var(--font-mono);font-size:12px;padding:0 6px;border-radius:4px;border:1px solid var(--line)}
+.del.cascade{color:var(--g-loan);border-color:var(--g-loan)}
+.del.restrict{color:var(--soft)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
+ul.rules{margin:0;padding-inline-start:20px;display:grid;gap:4px}
+.note{font-size:13px;color:var(--soft)}
+@media (max-width:640px){.diagram{max-height:none}}
+body{margin:0}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="head">
+    <div class="eyebrow">FacilityService · اسکیمای panel · مایگریشن InitialFacilityPanel</div>
+    <h1>نقشهٔ دادهٔ پنل نگین میثاق</h1>
+    <p class="lede">همهٔ جدول‌های سرویس Facility با فیلدها، نوع ستون در SQL Server، کلیدها و رابطه‌ها؛ برگرفته از مدل EF و Migration همین ریپو.</p>
+    <div class="stats"><span><b>18</b> جدول</span><span><b>159</b> فیلد</span><span><b>28</b> کلید خارجی</span></div>
+    <div class="legend">
+      <span><i class="dot g-base"></i>اطلاعات پایه</span><span><i class="dot g-company"></i>شرکت</span><span><i class="dot g-personnel"></i>پرسنل</span><span><i class="dot g-loan"></i>وام</span><span><i class="dot g-common"></i>مشترک</span>
+      <span><span class="key pk">PK</span>کلید اصلی</span><span><span class="key fk">FK</span>کلید خارجی</span><span><span class="key">UK</span>ترکیب یکتا</span><span><span class="key">IX</span>ایندکس</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="er">
+    <h2 id="er">نمودار کامل (ER)</h2>
+    <p class="note">نمودار را افقی و عمودی بکشید. علامت‌ها: <code>||</code> دقیقاً یک، <code>o|</code> صفر یا یک، <code>o{</code> صفر یا چند، <code>|{</code> یک یا چند. برچسب هر خط، ستون کلید خارجی است.</p>
+    <div class="diagram"><pre class="mermaid">erDiagram
+  Schemes ||--o| SchemeSettings : &quot;SchemeId&quot;
+  SchemeSettings ||--o{ SchemePlans : &quot;SchemeId&quot;
+  Files |o--o{ Companies : &quot;AgreementFileId&quot;
+  Schemes ||--o{ Companies : &quot;SchemeId&quot;
+  Companies ||--o{ CompanyPlans : &quot;CompanyId&quot;
+  SchemePlans ||--o{ CompanyPlans : &quot;PlanId&quot;
+  Companies ||--o{ MonthlyBalances : &quot;CompanyId&quot;
+  Companies ||--o| CompanyCancellations : &quot;CompanyId&quot;
+  Files ||--o{ CompanyCancellations : &quot;LetterFileId&quot;
+  Reasons ||--o{ CompanyCancellations : &quot;ReasonId&quot;
+  Companies ||--o{ BalanceDocuments : &quot;CompanyId&quot;
+  Reasons ||--o{ BalanceDocuments : &quot;DocumentTypeId&quot;
+  Files ||--o{ BalanceDocuments : &quot;FileId&quot;
+  Companies ||--o{ Personnel : &quot;CompanyId&quot;
+  Files |o--o{ Personnel : &quot;DeleteFileId&quot;
+  PersonnelImports |o--o{ Personnel : &quot;ImportBatchId&quot;
+  Personnel ||--o{ PersonnelHistory : &quot;PersonnelId&quot;
+  Companies ||--o{ PersonnelImports : &quot;CompanyId&quot;
+  Companies ||--o{ LoanBatches : &quot;CompanyId&quot;
+  SchemePlans ||--o{ LoanBatches : &quot;PlanId&quot;
+  LoanBatches ||--o{ LoanRequests : &quot;BatchId&quot;
+  Companies ||--o{ LoanRequests : &quot;CompanyId&quot;
+  Personnel ||--o{ LoanRequests : &quot;PersonnelId&quot;
+  SchemePlans ||--o{ LoanRequests : &quot;PlanId&quot;
+  LoanRequests ||--o{ LoanRequestHistory : &quot;RequestId&quot;
+  Files ||--o{ LoanRequestDocuments : &quot;FileId&quot;
+  LoanRequests ||--o{ LoanRequestDocuments : &quot;RequestId&quot;
+  Companies |o--o{ ChangeLogs : &quot;CompanyId&quot;
+  Schemes {
+    int Id PK &quot;شناسهٔ طرح (Identity)&quot;
+    string Code UK &quot;کد یکتا؛ مثلاً NEGIN&quot;
+    string Title &quot;نام طرح&quot;
+    bool IsActive &quot;فعال/غیرفعال&quot;
+  }
+  SchemeSettings {
+    int SchemeId PK,FK &quot;شناسهٔ طرح (۱ به ۱ با Schemes)&quot;
+    string ContractTypes &quot;انواع عقد مجاز، JSON: [1,2]&quot;
+    decimal QardHasanRate &quot;نرخ قرض‌الحسنه (درصد) — bQarz؛ روی همهٔ طرح‌ها…&quot;
+    string MurabahaRates &quot;نرخ‌های مرابحه، JSON: [5,10,15,20,23]&quot;
+    string RepaymentTermsMonths &quot;مدت‌های بازپرداخت (ماه)، JSON&quot;
+    decimal SalaryFromSepahMultiplierYes &quot;ضریب دریافت حقوق از سپه — بله (۱٫۱)&quot;
+    decimal SalaryFromSepahMultiplierNo &quot;ضریب دریافت حقوق از سپه — خیر (۱)&quot;
+    int ContractDurationMonths &quot;مدت قرارداد (ماه، ۱ تا ۱۲۰)&quot;
+    int GraceMonthsAfterExpiry &quot;مهلت استفاده از مانده پس از انقضا (ماه)&quot;
+    int MaxPlansPerCompany &quot;حداکثر طرح قابل انتخاب برای هر شرکت (۱ تا ۱۰)&quot;
+    int PersonnelIntroductionDelayMonths &quot;مهلت مجاز شدن معرفی پرسنل پس از انعقاد (ماه)&quot;
+    int WaitingPeriodDays &quot;دورهٔ انتظار معرفی به بانک (روز)&quot;
+    bool DigitalApprovalEnabled &quot;مرحلهٔ تأیید شعبهٔ دیجیتال فعال است؟&quot;
+    int Version &quot;نسخهٔ همزمانی؛ با هر تغییر +۱ (در API: rowVers…&quot;
+  }
+  SchemePlans {
+    int Id PK &quot;شناسهٔ طرح؛ بعد از ویرایش اطلاعات پایه ثابت می…&quot;
+    int SchemeId FK,UK &quot;طرح کلان&quot;
+    byte ContractType UK &quot;۱ قرض‌الحسنه، ۲ مرابحه&quot;
+    decimal Rate UK &quot;نرخ (درصد)&quot;
+    int TermMonths UK &quot;مدت بازپرداخت (ماه)&quot;
+    decimal UsablePercent &quot;درصد قابل استفاده از مجموع میانگین&quot;
+    bool IsActive &quot;ردیف حذف‌شده از جدول غیرفعال می‌شود، نه پاک&quot;
+  }
+  Companies {
+    long Id PK &quot;شناسهٔ شرکت (در Identity = ScopeId دامنهٔ شرکت)&quot;
+    int SchemeId FK &quot;طرح کلان&quot;
+    string Name &quot;نام شرکت (فارسی، ۳ تا ۱۰۰)&quot;
+    string NationalId &quot;شناسهٔ ملی ۱۱ رقمی؛ بین شرکت‌های حذف‌نشده یکتا&quot;
+    string AgreementNumber &quot;شمارهٔ تفاهم‌نامه&quot;
+    string AccountNumber &quot;شمارهٔ حساب جاری (۸ تا ۲۴ رقم)&quot;
+    date ContractDate &quot;تاریخ انعقاد قرارداد&quot;
+    date AccountOpeningDate &quot;افتتاح حساب سپرده؛ روزِ ماهش = روز مجاز انتقال…&quot;
+    bool SalaryFromSepah &quot;حقوق پرسنل از بانک سپه؟&quot;
+    string BranchCode &quot;شعبهٔ شرکت (دامنهٔ کاربر شعبه)&quot;
+    byte Status &quot;۱ فعال، ۲ لغو قرارداد، ۳ منقضی، ۴ حذف‌شده&quot;
+    string Registrar &quot;عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، ن…&quot;
+    datetime CreatedAt &quot;زمان ثبت&quot;
+    long AgreementFileId FK &quot;فایل تفاهم‌نامه&quot;
+    datetime DeletedAt &quot;زمان حذف نرم&quot;
+    string DeleteDescription &quot;توضیح حذف&quot;
+    int BalancesVersion &quot;نسخهٔ جدای جدول میانگین‌ها&quot;
+    int Version &quot;نسخهٔ همزمانی؛ با هر تغییر +۱ (در API: rowVers…&quot;
+  }
+  CompanyPlans {
+    long CompanyId PK,FK &quot;شرکت&quot;
+    int PlanId PK,FK &quot;طرح&quot;
+  }
+  MonthlyBalances {
+    long CompanyId PK,FK &quot;شرکت&quot;
+    string Month PK &quot;ماه شمسی، مثل 1405/07&quot;
+    long Amount &quot;میانگین موجودی (ریال)&quot;
+    string EditedBy &quot;عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، ن…&quot;
+    datetime EditedAt &quot;زمان ثبت/ویرایش&quot;
+  }
+  CompanyCancellations {
+    long CompanyId PK,FK &quot;شرکت (۱ به ۰..۱)&quot;
+    date CancelDate &quot;تاریخ لغو (۱۴۰۵/۰۱/۰۱ تا امروز)&quot;
+    int ReasonId FK &quot;دلیل از فهرست (نوع ۱)&quot;
+    string ReasonTitle &quot;عنوان دلیل در لحظهٔ لغو&quot;
+    string Description &quot;توضیح (۵ تا ۱۰۰۰)&quot;
+    long LetterFileId FK &quot;فایل نامهٔ لغو (الزامی)&quot;
+    string CancelledBy &quot;عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، ن…&quot;
+    datetime CancelledAt &quot;زمان ثبت لغو&quot;
+  }
+  BalanceDocuments {
+    long Id PK &quot;شناسه&quot;
+    long CompanyId FK &quot;شرکت&quot;
+    string Month &quot;ماه مربوط (اختیاری)&quot;
+    int DocumentTypeId FK &quot;نوع مستند (دلیل نوع ۶: بنکو، نامه، …)&quot;
+    string Description &quot;توضیح&quot;
+    long FileId FK &quot;فایل&quot;
+  }
+  Personnel {
+    long Id PK &quot;شناسه&quot;
+    long CompanyId FK &quot;شرکت&quot;
+    int Priority &quot;اولویت تخصیص (۱ تا ۹۹۹)&quot;
+    string FullName &quot;نام و نام خانوادگی&quot;
+    string NationalCode &quot;کد ملی؛ در هر شرکت یکتا&quot;
+    string Mobile &quot;موبایل (۰۹…)&quot;
+    string PersonnelCode &quot;کد پرسنلی&quot;
+    date HireDate &quot;تاریخ استخدام (آینده ممنوع)&quot;
+    byte Status &quot;۱ در انتظار مدیر، ۲ تأییدشده، ۳ ردشده، ۴ حذف‌شده&quot;
+    string RejectReason &quot;علت رد&quot;
+    datetime CreatedAt &quot;زمان معرفی&quot;
+    datetime DecidedAt &quot;زمان تصمیم مدیر&quot;
+    string Registrar &quot;عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، ن…&quot;
+    long ImportBatchId FK &quot;اگر از فایل اکسل آمده&quot;
+    string DeleteDescription &quot;توضیح حذف&quot;
+    long DeleteFileId FK &quot;فایل مستند حذف&quot;
+    int Version &quot;نسخهٔ همزمانی؛ با هر تغییر +۱ (در API: rowVers…&quot;
+  }
+  PersonnelHistory {
+    long Id PK &quot;شناسه&quot;
+    long PersonnelId FK &quot;پرسنل&quot;
+    byte From &quot;وضعیت قبلی&quot;
+    byte To &quot;وضعیت جدید&quot;
+    string Reason &quot;دلیل&quot;
+    string Description &quot;توضیح&quot;
+    string By &quot;عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، ن…&quot;
+    datetime At &quot;زمان&quot;
+  }
+  PersonnelImports {
+    long Id PK &quot;شناسه&quot;
+    long CompanyId FK &quot;شرکت&quot;
+    string FileName &quot;نام فایل&quot;
+    int TotalRows &quot;تعداد ردیف&quot;
+    int Accepted &quot;ثبت‌شده&quot;
+    int Rejected &quot;ردشده&quot;
+    string ErrorsJson &quot;خطای هر ردیف: [{row, column, message}]&quot;
+    string Registrar &quot;عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، ن…&quot;
+    datetime CreatedAt &quot;زمان&quot;
+  }
+  LoanBatches {
+    long Id PK &quot;شناسهٔ ثبت&quot;
+    long CompanyId FK &quot;شرکت&quot;
+    int PlanId FK &quot;طرح&quot;
+    byte Mode &quot;۱ مبلغ یکسان، ۲ مبلغ جدا برای هر نفر&quot;
+    date BaseDate &quot;تاریخ مبنا (فقط یک ماه گذشته)&quot;
+    string Description &quot;توضیح&quot;
+    string Registrar &quot;عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، ن…&quot;
+    datetime CreatedAt &quot;زمان ثبت&quot;
+    string BranchCode &quot;کپی شعبهٔ شرکت&quot;
+  }
+  LoanRequests {
+    long Id PK &quot;شناسهٔ درخواست&quot;
+    long BatchId FK &quot;ثبت&quot;
+    long CompanyId FK &quot;شرکت (کپی از ثبت)&quot;
+    string BranchCode &quot;کپی شعبهٔ شرکت، برای فیلتر دامنه بدون Join&quot;
+    long PersonnelId FK &quot;پرسنل&quot;
+    int PlanId FK &quot;طرح (کپی از ثبت)&quot;
+    long Amount &quot;مبلغ (۱۰ میلیون تا ۴ میلیارد ریال)&quot;
+    int PaymentOrder &quot;ترتیب پرداخت (پیش‌فرض اولویت پرسنل)&quot;
+    datetime CreatedAt &quot;زمان ثبت&quot;
+    datetime DecidedAt &quot;زمان آخرین تصمیم&quot;
+    byte Status &quot;۱ انتظار مدیر، ۲ رد مدیر، ۳ انتظار اعتبارات، ۴…&quot;
+    byte PostStage &quot;پس از تأیید: ۱ تشکیل پرونده، ۲ دریافت از امید …&quot;
+    string Description &quot;دلیل و توضیح رد/لغو&quot;
+    string Registrar &quot;عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، ن…&quot;
+    int Version &quot;نسخهٔ همزمانی؛ با هر تغییر +۱ (در API: rowVers…&quot;
+  }
+  LoanRequestHistory {
+    long Id PK &quot;شناسه&quot;
+    long RequestId FK &quot;درخواست&quot;
+    byte From &quot;وضعیت قبلی&quot;
+    byte To &quot;وضعیت جدید&quot;
+    byte Stage &quot;مرحلهٔ پس از تأیید (اگر تغییر مرحله بوده)&quot;
+    string Reason &quot;دلیل&quot;
+    string Description &quot;توضیح&quot;
+    string By &quot;عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، ن…&quot;
+    datetime At &quot;زمان&quot;
+  }
+  LoanRequestDocuments {
+    long RequestId PK,FK &quot;درخواست&quot;
+    long FileId PK,FK &quot;فایل (یک فایل می‌تواند پیوست چند درخواست گروهی…&quot;
+  }
+  Reasons {
+    int Id PK &quot;شناسه&quot;
+    byte Type &quot;۱ لغو قرارداد، ۲ رد وام، ۳ عدم اعطای غیرحضوری،…&quot;
+    string Title &quot;عنوان&quot;
+    bool IsActive &quot;فعال&quot;
+    int SortOrder &quot;ترتیب نمایش&quot;
+  }
+  Files {
+    long Id PK &quot;شناسه&quot;
+    string FileName &quot;نام اصلی&quot;
+    string ContentType &quot;نوع فایل&quot;
+    long Size &quot;حجم (بایت)&quot;
+    string StorageKey &quot;کلید Minio: facility-panel/yyyy/MM/…&quot;
+    datetime UploadedAt &quot;زمان بارگذاری&quot;
+    string UploadedBy &quot;بارگذارکننده&quot;
+  }
+  ChangeLogs {
+    long Id PK &quot;شناسه&quot;
+    datetime At &quot;زمان&quot;
+    int UserId &quot;کاربر پنل در Identity (بدون FK؛ سرویس دیگر)&quot;
+    string User &quot;عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، ن…&quot;
+    byte Category &quot;۱ شرکت، ۲ پرسنل، ۳ وام، ۴ کاربر&quot;
+    string Action &quot;عملیات&quot;
+    string Details &quot;جزئیات&quot;
+    string Before &quot;مقدار قبلی (JSON)&quot;
+    string After &quot;مقدار جدید (JSON)&quot;
+    long CompanyId FK &quot;شرکت؛ null = تغییر اطلاعات پایه&quot;
+    string BranchCode &quot;شعبهٔ شرکت (فیلتر دامنه)&quot;
+    string RestoreKind &quot;balances یا personnel-delete&quot;
+    string RestorePayload &quot;دادهٔ لازم برای بازگردانی&quot;
+    datetime RestoredAt &quot;زمان بازگردانی&quot;
+  }</pre></div>
+    <nav class="nav" aria-label="پرش به جدول"><a href="#Schemes" class="chip g-base">Schemes</a><a href="#SchemeSettings" class="chip g-base">SchemeSettings</a><a href="#SchemePlans" class="chip g-base">SchemePlans</a><a href="#Companies" class="chip g-company">Companies</a><a href="#CompanyPlans" class="chip g-company">CompanyPlans</a><a href="#MonthlyBalances" class="chip g-company">MonthlyBalances</a><a href="#CompanyCancellations" class="chip g-company">CompanyCancellations</a><a href="#BalanceDocuments" class="chip g-company">BalanceDocuments</a><a href="#Personnel" class="chip g-personnel">Personnel</a><a href="#PersonnelHistory" class="chip g-personnel">PersonnelHistory</a><a href="#PersonnelImports" class="chip g-personnel">PersonnelImports</a><a href="#LoanBatches" class="chip g-loan">LoanBatches</a><a href="#LoanRequests" class="chip g-loan">LoanRequests</a><a href="#LoanRequestHistory" class="chip g-loan">LoanRequestHistory</a><a href="#LoanRequestDocuments" class="chip g-loan">LoanRequestDocuments</a><a href="#Reasons" class="chip g-common">Reasons</a><a href="#Files" class="chip g-common">Files</a><a href="#ChangeLogs" class="chip g-common">ChangeLogs</a></nav>
+  </section>
+
+  <section class="group" id="grp-base"><h2><span class="dot g-base"></span>اطلاعات پایه</h2><p class="lede">صفحهٔ اول نمونهٔ پنل</p><div class="cards"><article class="card" id="Schemes"><header><h3 dir="ltr">Schemes</h3><span class="fa">طرح کلان</span></header><p class="desc">نگین میثاق، شجره طیبه، هم‌پیمان، …</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>Id</code></td><td class="t"><code>int</code></td><td class="k"><span class="key pk">PK</span></td><td class="n"></td><td class="d">شناسهٔ طرح (Identity)</td></tr><tr><td class="f"><code>Code</code></td><td class="t"><code>nvarchar(30)</code></td><td class="k"><span class="key uk">UK</span></td><td class="n"></td><td class="d">کد یکتا؛ مثلاً NEGIN</td></tr><tr><td class="f"><code>Title</code></td><td class="t"><code>nvarchar(100)</code></td><td class="k"></td><td class="n"></td><td class="d">نام طرح</td></tr><tr><td class="f"><code>IsActive</code></td><td class="t"><code>bit</code></td><td class="k"></td><td class="n"></td><td class="d">فعال/غیرفعال</td></tr></tbody></table></div><p class="rel"><b>ارجاع‌دهنده:</b> <a href="#SchemeSettings">SchemeSettings</a>، <a href="#Companies">Companies</a></p></article><article class="card" id="SchemeSettings"><header><h3 dir="ltr">SchemeSettings</h3><span class="fa">اطلاعات پایهٔ طرح</span></header><p class="desc">همان فرم صفحهٔ اول نمونه (دکمهٔ &#171;ذخیره تنظیمات پایه&#187;)</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>SchemeId</code></td><td class="t"><code>int</code></td><td class="k"><span class="key pk">PK</span><span class="key fk">FK</span></td><td class="n"></td><td class="d">شناسهٔ طرح (۱ به ۱ با Schemes)</td></tr><tr><td class="f"><code>ContractTypes</code></td><td class="t"><code>varchar(50)</code></td><td class="k"></td><td class="n"></td><td class="d">انواع عقد مجاز، JSON: [1,2]</td></tr><tr><td class="f"><code>QardHasanRate</code></td><td class="t"><code>decimal(5,2)</code></td><td class="k"></td><td class="n"></td><td class="d">نرخ قرض‌الحسنه (درصد) — bQarz؛ روی همهٔ طرح‌های قرض‌الحسنه</td></tr><tr><td class="f"><code>MurabahaRates</code></td><td class="t"><code>varchar(200)</code></td><td class="k"></td><td class="n"></td><td class="d">نرخ‌های مرابحه، JSON: [5,10,15,20,23]</td></tr><tr><td class="f"><code>RepaymentTermsMonths</code></td><td class="t"><code>varchar(200)</code></td><td class="k"></td><td class="n"></td><td class="d">مدت‌های بازپرداخت (ماه)، JSON</td></tr><tr><td class="f"><code>SalaryFromSepahMultiplierYes</code></td><td class="t"><code>decimal(5,2)</code></td><td class="k"></td><td class="n"></td><td class="d">ضریب دریافت حقوق از سپه — بله (۱٫۱)</td></tr><tr><td class="f"><code>SalaryFromSepahMultiplierNo</code></td><td class="t"><code>decimal(5,2)</code></td><td class="k"></td><td class="n"></td><td class="d">ضریب دریافت حقوق از سپه — خیر (۱)</td></tr><tr><td class="f"><code>ContractDurationMonths</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">مدت قرارداد (ماه، ۱ تا ۱۲۰)</td></tr><tr><td class="f"><code>GraceMonthsAfterExpiry</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">مهلت استفاده از مانده پس از انقضا (ماه)</td></tr><tr><td class="f"><code>MaxPlansPerCompany</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">حداکثر طرح قابل انتخاب برای هر شرکت (۱ تا ۱۰)</td></tr><tr><td class="f"><code>PersonnelIntroductionDelayMonths</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">مهلت مجاز شدن معرفی پرسنل پس از انعقاد (ماه)</td></tr><tr><td class="f"><code>WaitingPeriodDays</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">دورهٔ انتظار معرفی به بانک (روز)</td></tr><tr><td class="f"><code>DigitalApprovalEnabled</code></td><td class="t"><code>bit</code></td><td class="k"></td><td class="n"></td><td class="d">مرحلهٔ تأیید شعبهٔ دیجیتال فعال است؟</td></tr><tr><td class="f"><code>Version</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">نسخهٔ همزمانی؛ با هر تغییر +۱ (در API: rowVersion)</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>SchemeId</code> → <a href="#Schemes">Schemes</a></p><p class="rel"><b>ارجاع‌دهنده:</b> <a href="#SchemePlans">SchemePlans</a></p></article><article class="card" id="SchemePlans"><header><h3 dir="ltr">SchemePlans</h3><span class="fa">طرح قابل انتخاب</span></header><p class="desc">هر ردیف &#171;جدول درصد قابل استفاده&#187;؛ ۳۰ طرح در نمونه</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>Id</code></td><td class="t"><code>int</code></td><td class="k"><span class="key pk">PK</span></td><td class="n"></td><td class="d">شناسهٔ طرح؛ بعد از ویرایش اطلاعات پایه ثابت می‌ماند</td></tr><tr><td class="f"><code>SchemeId</code></td><td class="t"><code>int</code></td><td class="k"><span class="key fk">FK</span><span class="key uk">UK</span></td><td class="n"></td><td class="d">طرح کلان</td></tr><tr><td class="f"><code>ContractType</code></td><td class="t"><code>tinyint</code></td><td class="k"><span class="key uk">UK</span></td><td class="n"></td><td class="d">۱ قرض‌الحسنه، ۲ مرابحه</td></tr><tr><td class="f"><code>Rate</code></td><td class="t"><code>decimal(5,2)</code></td><td class="k"><span class="key uk">UK</span></td><td class="n"></td><td class="d">نرخ (درصد)</td></tr><tr><td class="f"><code>TermMonths</code></td><td class="t"><code>int</code></td><td class="k"><span class="key uk">UK</span></td><td class="n"></td><td class="d">مدت بازپرداخت (ماه)</td></tr><tr><td class="f"><code>UsablePercent</code></td><td class="t"><code>decimal(5,2)</code></td><td class="k"></td><td class="n"></td><td class="d">درصد قابل استفاده از مجموع میانگین</td></tr><tr><td class="f"><code>IsActive</code></td><td class="t"><code>bit</code></td><td class="k"></td><td class="n"></td><td class="d">ردیف حذف‌شده از جدول غیرفعال می‌شود، نه پاک</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>SchemeId</code> → <a href="#SchemeSettings">SchemeSettings</a></p><p class="rel"><b>ارجاع‌دهنده:</b> <a href="#CompanyPlans">CompanyPlans</a>، <a href="#LoanBatches">LoanBatches</a>، <a href="#LoanRequests">LoanRequests</a></p></article></div></section><section class="group" id="grp-company"><h2><span class="dot g-company"></span>شرکت</h2><p class="lede">تب مدیریت شرکت‌ها</p><div class="cards"><article class="card" id="Companies"><header><h3 dir="ltr">Companies</h3><span class="fa">شرکت</span></header><p class="desc">شرکت طرف تفاهم‌نامه؛ حذف نرم</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>Id</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span></td><td class="n"></td><td class="d">شناسهٔ شرکت (در Identity = ScopeId دامنهٔ شرکت)</td></tr><tr><td class="f"><code>SchemeId</code></td><td class="t"><code>int</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">طرح کلان</td></tr><tr><td class="f"><code>Name</code></td><td class="t"><code>nvarchar(100)</code></td><td class="k"></td><td class="n"></td><td class="d">نام شرکت (فارسی، ۳ تا ۱۰۰)</td></tr><tr><td class="f"><code>NationalId</code></td><td class="t"><code>varchar(11)</code></td><td class="k"><span class="key ix">IX</span></td><td class="n"></td><td class="d">شناسهٔ ملی ۱۱ رقمی؛ بین شرکت‌های حذف‌نشده یکتا</td></tr><tr><td class="f"><code>AgreementNumber</code></td><td class="t"><code>nvarchar(50)</code></td><td class="k"></td><td class="n"></td><td class="d">شمارهٔ تفاهم‌نامه</td></tr><tr><td class="f"><code>AccountNumber</code></td><td class="t"><code>varchar(24)</code></td><td class="k"></td><td class="n"></td><td class="d">شمارهٔ حساب جاری (۸ تا ۲۴ رقم)</td></tr><tr><td class="f"><code>ContractDate</code></td><td class="t"><code>date</code></td><td class="k"></td><td class="n"></td><td class="d">تاریخ انعقاد قرارداد</td></tr><tr><td class="f"><code>AccountOpeningDate</code></td><td class="t"><code>date</code></td><td class="k"></td><td class="n"></td><td class="d">افتتاح حساب سپرده؛ روزِ ماهش = روز مجاز انتقال اعتبار</td></tr><tr><td class="f"><code>SalaryFromSepah</code></td><td class="t"><code>bit</code></td><td class="k"></td><td class="n"></td><td class="d">حقوق پرسنل از بانک سپه؟</td></tr><tr><td class="f"><code>BranchCode</code></td><td class="t"><code>varchar(50)</code></td><td class="k"><span class="key ix">IX</span></td><td class="n"></td><td class="d">شعبهٔ شرکت (دامنهٔ کاربر شعبه)</td></tr><tr><td class="f"><code>Status</code></td><td class="t"><code>tinyint</code></td><td class="k"></td><td class="n"></td><td class="d">۱ فعال، ۲ لغو قرارداد، ۳ منقضی، ۴ حذف‌شده</td></tr><tr><td class="f"><code>Registrar</code></td><td class="t"><code>nvarchar(400)</code></td><td class="k"></td><td class="n"></td><td class="d">عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، نام و کد شعبه</td></tr><tr><td class="f"><code>CreatedAt</code></td><td class="t"><code>datetime2</code></td><td class="k"></td><td class="n"></td><td class="d">زمان ثبت</td></tr><tr><td class="f"><code>AgreementFileId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n">✓</td><td class="d">فایل تفاهم‌نامه</td></tr><tr><td class="f"><code>DeletedAt</code></td><td class="t"><code>datetime2</code></td><td class="k"></td><td class="n">✓</td><td class="d">زمان حذف نرم</td></tr><tr><td class="f"><code>DeleteDescription</code></td><td class="t"><code>nvarchar(500)</code></td><td class="k"></td><td class="n">✓</td><td class="d">توضیح حذف</td></tr><tr><td class="f"><code>BalancesVersion</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">نسخهٔ جدای جدول میانگین‌ها</td></tr><tr><td class="f"><code>Version</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">نسخهٔ همزمانی؛ با هر تغییر +۱ (در API: rowVersion)</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>AgreementFileId</code> → <a href="#Files">Files</a>، <code>SchemeId</code> → <a href="#Schemes">Schemes</a></p><p class="rel"><b>ارجاع‌دهنده:</b> <a href="#CompanyPlans">CompanyPlans</a>، <a href="#MonthlyBalances">MonthlyBalances</a>، <a href="#CompanyCancellations">CompanyCancellations</a>، <a href="#BalanceDocuments">BalanceDocuments</a>، <a href="#Personnel">Personnel</a>، <a href="#PersonnelImports">PersonnelImports</a>، <a href="#LoanBatches">LoanBatches</a>، <a href="#LoanRequests">LoanRequests</a>، <a href="#ChangeLogs">ChangeLogs</a></p></article><article class="card" id="CompanyPlans"><header><h3 dir="ltr">CompanyPlans</h3><span class="fa">طرح‌های تفاهم‌نامه</span></header><p class="desc">جدول واسط شرکت ↔ طرح (چند به چند)</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>CompanyId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span><span class="key fk">FK</span></td><td class="n"></td><td class="d">شرکت</td></tr><tr><td class="f"><code>PlanId</code></td><td class="t"><code>int</code></td><td class="k"><span class="key pk">PK</span><span class="key fk">FK</span></td><td class="n"></td><td class="d">طرح</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>CompanyId</code> → <a href="#Companies">Companies</a>، <code>PlanId</code> → <a href="#SchemePlans">SchemePlans</a></p></article><article class="card" id="MonthlyBalances"><header><h3 dir="ltr">MonthlyBalances</h3><span class="fa">میانگین موجودی ماهانه</span></header><p class="desc">۱۲ ماه سال جاری قرارداد (US-B4)</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>CompanyId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span><span class="key fk">FK</span></td><td class="n"></td><td class="d">شرکت</td></tr><tr><td class="f"><code>Month</code></td><td class="t"><code>varchar(7)</code></td><td class="k"><span class="key pk">PK</span></td><td class="n"></td><td class="d">ماه شمسی، مثل 1405/07</td></tr><tr><td class="f"><code>Amount</code></td><td class="t"><code>bigint</code></td><td class="k"></td><td class="n"></td><td class="d">میانگین موجودی (ریال)</td></tr><tr><td class="f"><code>EditedBy</code></td><td class="t"><code>nvarchar(400)</code></td><td class="k"></td><td class="n"></td><td class="d">عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، نام و کد شعبه</td></tr><tr><td class="f"><code>EditedAt</code></td><td class="t"><code>datetime2</code></td><td class="k"></td><td class="n"></td><td class="d">زمان ثبت/ویرایش</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>CompanyId</code> → <a href="#Companies">Companies</a></p></article><article class="card" id="CompanyCancellations"><header><h3 dir="ltr">CompanyCancellations</h3><span class="fa">لغو قرارداد</span></header><p class="desc">مدال لغو (US-B6)؛ حداکثر یکی برای هر شرکت</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>CompanyId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span><span class="key fk">FK</span></td><td class="n"></td><td class="d">شرکت (۱ به ۰..۱)</td></tr><tr><td class="f"><code>CancelDate</code></td><td class="t"><code>date</code></td><td class="k"></td><td class="n"></td><td class="d">تاریخ لغو (۱۴۰۵/۰۱/۰۱ تا امروز)</td></tr><tr><td class="f"><code>ReasonId</code></td><td class="t"><code>int</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">دلیل از فهرست (نوع ۱)</td></tr><tr><td class="f"><code>ReasonTitle</code></td><td class="t"><code>nvarchar(100)</code></td><td class="k"></td><td class="n"></td><td class="d">عنوان دلیل در لحظهٔ لغو</td></tr><tr><td class="f"><code>Description</code></td><td class="t"><code>nvarchar(1000)</code></td><td class="k"></td><td class="n"></td><td class="d">توضیح (۵ تا ۱۰۰۰)</td></tr><tr><td class="f"><code>LetterFileId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">فایل نامهٔ لغو (الزامی)</td></tr><tr><td class="f"><code>CancelledBy</code></td><td class="t"><code>nvarchar(400)</code></td><td class="k"></td><td class="n"></td><td class="d">عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، نام و کد شعبه</td></tr><tr><td class="f"><code>CancelledAt</code></td><td class="t"><code>datetime2</code></td><td class="k"></td><td class="n"></td><td class="d">زمان ثبت لغو</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>CompanyId</code> → <a href="#Companies">Companies</a>، <code>LetterFileId</code> → <a href="#Files">Files</a>، <code>ReasonId</code> → <a href="#Reasons">Reasons</a></p></article><article class="card" id="BalanceDocuments"><header><h3 dir="ltr">BalanceDocuments</h3><span class="fa">مستند میانگین موجودی</span></header><p class="desc">US-B5؛ حذف فقط ادمین</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>Id</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span></td><td class="n"></td><td class="d">شناسه</td></tr><tr><td class="f"><code>CompanyId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">شرکت</td></tr><tr><td class="f"><code>Month</code></td><td class="t"><code>varchar(7)</code></td><td class="k"><span class="key ix">IX</span></td><td class="n">✓</td><td class="d">ماه مربوط (اختیاری)</td></tr><tr><td class="f"><code>DocumentTypeId</code></td><td class="t"><code>int</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">نوع مستند (دلیل نوع ۶: بنکو، نامه، …)</td></tr><tr><td class="f"><code>Description</code></td><td class="t"><code>nvarchar(500)</code></td><td class="k"></td><td class="n">✓</td><td class="d">توضیح</td></tr><tr><td class="f"><code>FileId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">فایل</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>CompanyId</code> → <a href="#Companies">Companies</a>، <code>DocumentTypeId</code> → <a href="#Reasons">Reasons</a>، <code>FileId</code> → <a href="#Files">Files</a></p></article></div></section><section class="group" id="grp-personnel"><h2><span class="dot g-personnel"></span>پرسنل</h2><p class="lede">تب پرسنل شرکت</p><div class="cards"><article class="card" id="Personnel"><header><h3 dir="ltr">Personnel</h3><span class="fa">پرسنل</span></header><p class="desc">افراد معرفی‌شدهٔ شرکت؛ قفل پس از استفاده در وام</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>Id</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span></td><td class="n"></td><td class="d">شناسه</td></tr><tr><td class="f"><code>CompanyId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">شرکت</td></tr><tr><td class="f"><code>Priority</code></td><td class="t"><code>int</code></td><td class="k"><span class="key ix">IX</span></td><td class="n"></td><td class="d">اولویت تخصیص (۱ تا ۹۹۹)</td></tr><tr><td class="f"><code>FullName</code></td><td class="t"><code>nvarchar(60)</code></td><td class="k"></td><td class="n"></td><td class="d">نام و نام خانوادگی</td></tr><tr><td class="f"><code>NationalCode</code></td><td class="t"><code>varchar(10)</code></td><td class="k"><span class="key ix">IX</span></td><td class="n"></td><td class="d">کد ملی؛ در هر شرکت یکتا</td></tr><tr><td class="f"><code>Mobile</code></td><td class="t"><code>varchar(11)</code></td><td class="k"></td><td class="n"></td><td class="d">موبایل (۰۹…)</td></tr><tr><td class="f"><code>PersonnelCode</code></td><td class="t"><code>varchar(20)</code></td><td class="k"></td><td class="n"></td><td class="d">کد پرسنلی</td></tr><tr><td class="f"><code>HireDate</code></td><td class="t"><code>date</code></td><td class="k"></td><td class="n"></td><td class="d">تاریخ استخدام (آینده ممنوع)</td></tr><tr><td class="f"><code>Status</code></td><td class="t"><code>tinyint</code></td><td class="k"><span class="key ix">IX</span></td><td class="n"></td><td class="d">۱ در انتظار مدیر، ۲ تأییدشده، ۳ ردشده، ۴ حذف‌شده</td></tr><tr><td class="f"><code>RejectReason</code></td><td class="t"><code>nvarchar(200)</code></td><td class="k"></td><td class="n">✓</td><td class="d">علت رد</td></tr><tr><td class="f"><code>CreatedAt</code></td><td class="t"><code>datetime2</code></td><td class="k"></td><td class="n"></td><td class="d">زمان معرفی</td></tr><tr><td class="f"><code>DecidedAt</code></td><td class="t"><code>datetime2</code></td><td class="k"></td><td class="n">✓</td><td class="d">زمان تصمیم مدیر</td></tr><tr><td class="f"><code>Registrar</code></td><td class="t"><code>nvarchar(400)</code></td><td class="k"></td><td class="n"></td><td class="d">عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، نام و کد شعبه</td></tr><tr><td class="f"><code>ImportBatchId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n">✓</td><td class="d">اگر از فایل اکسل آمده</td></tr><tr><td class="f"><code>DeleteDescription</code></td><td class="t"><code>nvarchar(500)</code></td><td class="k"></td><td class="n">✓</td><td class="d">توضیح حذف</td></tr><tr><td class="f"><code>DeleteFileId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n">✓</td><td class="d">فایل مستند حذف</td></tr><tr><td class="f"><code>Version</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">نسخهٔ همزمانی؛ با هر تغییر +۱ (در API: rowVersion)</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>CompanyId</code> → <a href="#Companies">Companies</a>، <code>DeleteFileId</code> → <a href="#Files">Files</a>، <code>ImportBatchId</code> → <a href="#PersonnelImports">PersonnelImports</a></p><p class="rel"><b>ارجاع‌دهنده:</b> <a href="#PersonnelHistory">PersonnelHistory</a>، <a href="#LoanRequests">LoanRequests</a></p></article><article class="card" id="PersonnelHistory"><header><h3 dir="ltr">PersonnelHistory</h3><span class="fa">تاریخچهٔ وضعیت پرسنل</span></header><p class="desc">US-E3: وضعیت‌ها با تاریخ و ساعت</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>Id</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span></td><td class="n"></td><td class="d">شناسه</td></tr><tr><td class="f"><code>PersonnelId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">پرسنل</td></tr><tr><td class="f"><code>From</code></td><td class="t"><code>tinyint</code></td><td class="k"></td><td class="n">✓</td><td class="d">وضعیت قبلی</td></tr><tr><td class="f"><code>To</code></td><td class="t"><code>tinyint</code></td><td class="k"></td><td class="n"></td><td class="d">وضعیت جدید</td></tr><tr><td class="f"><code>Reason</code></td><td class="t"><code>nvarchar(200)</code></td><td class="k"></td><td class="n">✓</td><td class="d">دلیل</td></tr><tr><td class="f"><code>Description</code></td><td class="t"><code>nvarchar(1000)</code></td><td class="k"></td><td class="n">✓</td><td class="d">توضیح</td></tr><tr><td class="f"><code>By</code></td><td class="t"><code>nvarchar(400)</code></td><td class="k"></td><td class="n"></td><td class="d">عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، نام و کد شعبه</td></tr><tr><td class="f"><code>At</code></td><td class="t"><code>datetime2</code></td><td class="k"></td><td class="n"></td><td class="d">زمان</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>PersonnelId</code> → <a href="#Personnel">Personnel</a></p></article><article class="card" id="PersonnelImports"><header><h3 dir="ltr">PersonnelImports</h3><span class="fa">بارگذاری گروهی پرسنل</span></header><p class="desc">نتیجهٔ هر فایل اکسل/CSV (US-E2)</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>Id</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span></td><td class="n"></td><td class="d">شناسه</td></tr><tr><td class="f"><code>CompanyId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">شرکت</td></tr><tr><td class="f"><code>FileName</code></td><td class="t"><code>nvarchar(260)</code></td><td class="k"></td><td class="n"></td><td class="d">نام فایل</td></tr><tr><td class="f"><code>TotalRows</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">تعداد ردیف</td></tr><tr><td class="f"><code>Accepted</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">ثبت‌شده</td></tr><tr><td class="f"><code>Rejected</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">ردشده</td></tr><tr><td class="f"><code>ErrorsJson</code></td><td class="t"><code>nvarchar(max)</code></td><td class="k"></td><td class="n"></td><td class="d">خطای هر ردیف: [{row, column, message}]</td></tr><tr><td class="f"><code>Registrar</code></td><td class="t"><code>nvarchar(400)</code></td><td class="k"></td><td class="n"></td><td class="d">عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، نام و کد شعبه</td></tr><tr><td class="f"><code>CreatedAt</code></td><td class="t"><code>datetime2</code></td><td class="k"></td><td class="n"></td><td class="d">زمان</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>CompanyId</code> → <a href="#Companies">Companies</a></p><p class="rel"><b>ارجاع‌دهنده:</b> <a href="#Personnel">Personnel</a></p></article></div></section><section class="group" id="grp-loan"><h2><span class="dot g-loan"></span>وام</h2><p class="lede">تخصیص وام و تأییدها</p><div class="cards"><article class="card" id="LoanBatches"><header><h3 dir="ltr">LoanBatches</h3><span class="fa">ثبت تخصیص وام</span></header><p class="desc">چند درخواست هم‌طرح که با هم ثبت شدند (US-D3)</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>Id</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span></td><td class="n"></td><td class="d">شناسهٔ ثبت</td></tr><tr><td class="f"><code>CompanyId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">شرکت</td></tr><tr><td class="f"><code>PlanId</code></td><td class="t"><code>int</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">طرح</td></tr><tr><td class="f"><code>Mode</code></td><td class="t"><code>tinyint</code></td><td class="k"></td><td class="n"></td><td class="d">۱ مبلغ یکسان، ۲ مبلغ جدا برای هر نفر</td></tr><tr><td class="f"><code>BaseDate</code></td><td class="t"><code>date</code></td><td class="k"></td><td class="n"></td><td class="d">تاریخ مبنا (فقط یک ماه گذشته)</td></tr><tr><td class="f"><code>Description</code></td><td class="t"><code>nvarchar(1000)</code></td><td class="k"></td><td class="n">✓</td><td class="d">توضیح</td></tr><tr><td class="f"><code>Registrar</code></td><td class="t"><code>nvarchar(400)</code></td><td class="k"></td><td class="n"></td><td class="d">عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، نام و کد شعبه</td></tr><tr><td class="f"><code>CreatedAt</code></td><td class="t"><code>datetime2</code></td><td class="k"></td><td class="n"></td><td class="d">زمان ثبت</td></tr><tr><td class="f"><code>BranchCode</code></td><td class="t"><code>varchar(50)</code></td><td class="k"></td><td class="n"></td><td class="d">کپی شعبهٔ شرکت</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>CompanyId</code> → <a href="#Companies">Companies</a>، <code>PlanId</code> → <a href="#SchemePlans">SchemePlans</a></p><p class="rel"><b>ارجاع‌دهنده:</b> <a href="#LoanRequests">LoanRequests</a></p></article><article class="card" id="LoanRequests"><header><h3 dir="ltr">LoanRequests</h3><span class="fa">درخواست وام</span></header><p class="desc">درخواست یک نفر؛ جریان تأیید چندمرحله‌ای</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>Id</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span></td><td class="n"></td><td class="d">شناسهٔ درخواست</td></tr><tr><td class="f"><code>BatchId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">ثبت</td></tr><tr><td class="f"><code>CompanyId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">شرکت (کپی از ثبت)</td></tr><tr><td class="f"><code>BranchCode</code></td><td class="t"><code>varchar(50)</code></td><td class="k"><span class="key ix">IX</span></td><td class="n"></td><td class="d">کپی شعبهٔ شرکت، برای فیلتر دامنه بدون Join</td></tr><tr><td class="f"><code>PersonnelId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">پرسنل</td></tr><tr><td class="f"><code>PlanId</code></td><td class="t"><code>int</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">طرح (کپی از ثبت)</td></tr><tr><td class="f"><code>Amount</code></td><td class="t"><code>bigint</code></td><td class="k"></td><td class="n"></td><td class="d">مبلغ (۱۰ میلیون تا ۴ میلیارد ریال)</td></tr><tr><td class="f"><code>PaymentOrder</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">ترتیب پرداخت (پیش‌فرض اولویت پرسنل)</td></tr><tr><td class="f"><code>CreatedAt</code></td><td class="t"><code>datetime2</code></td><td class="k"></td><td class="n"></td><td class="d">زمان ثبت</td></tr><tr><td class="f"><code>DecidedAt</code></td><td class="t"><code>datetime2</code></td><td class="k"></td><td class="n">✓</td><td class="d">زمان آخرین تصمیم</td></tr><tr><td class="f"><code>Status</code></td><td class="t"><code>tinyint</code></td><td class="k"><span class="key ix">IX</span></td><td class="n"></td><td class="d">۱ انتظار مدیر، ۲ رد مدیر، ۳ انتظار اعتبارات، ۴ رد اعتبارات، ۵ انتظار دیجیتال، ۶ رد دیجیتال، ۷ تأییدشده، ۸ لغوشده</td></tr><tr><td class="f"><code>PostStage</code></td><td class="t"><code>tinyint</code></td><td class="k"></td><td class="n">✓</td><td class="d">پس از تأیید: ۱ تشکیل پرونده، ۲ دریافت از امید بانک، ۳ دریافت در شعبه، ۴ عدم اعطای غیرحضوری</td></tr><tr><td class="f"><code>Description</code></td><td class="t"><code>nvarchar(1200)</code></td><td class="k"></td><td class="n">✓</td><td class="d">دلیل و توضیح رد/لغو</td></tr><tr><td class="f"><code>Registrar</code></td><td class="t"><code>nvarchar(400)</code></td><td class="k"></td><td class="n"></td><td class="d">عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، نام و کد شعبه</td></tr><tr><td class="f"><code>Version</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">نسخهٔ همزمانی؛ با هر تغییر +۱ (در API: rowVersion)</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>BatchId</code> → <a href="#LoanBatches">LoanBatches</a>، <code>CompanyId</code> → <a href="#Companies">Companies</a>، <code>PersonnelId</code> → <a href="#Personnel">Personnel</a>، <code>PlanId</code> → <a href="#SchemePlans">SchemePlans</a></p><p class="rel"><b>ارجاع‌دهنده:</b> <a href="#LoanRequestHistory">LoanRequestHistory</a>، <a href="#LoanRequestDocuments">LoanRequestDocuments</a></p></article><article class="card" id="LoanRequestHistory"><header><h3 dir="ltr">LoanRequestHistory</h3><span class="fa">تاریخچهٔ تصمیم‌ها</span></header><p class="desc">قاعدهٔ ۵: تاریخ، تصمیم‌گیرنده، وضعیت قبلی و جدید</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>Id</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span></td><td class="n"></td><td class="d">شناسه</td></tr><tr><td class="f"><code>RequestId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n"></td><td class="d">درخواست</td></tr><tr><td class="f"><code>From</code></td><td class="t"><code>tinyint</code></td><td class="k"></td><td class="n">✓</td><td class="d">وضعیت قبلی</td></tr><tr><td class="f"><code>To</code></td><td class="t"><code>tinyint</code></td><td class="k"></td><td class="n"></td><td class="d">وضعیت جدید</td></tr><tr><td class="f"><code>Stage</code></td><td class="t"><code>tinyint</code></td><td class="k"></td><td class="n">✓</td><td class="d">مرحلهٔ پس از تأیید (اگر تغییر مرحله بوده)</td></tr><tr><td class="f"><code>Reason</code></td><td class="t"><code>nvarchar(200)</code></td><td class="k"></td><td class="n">✓</td><td class="d">دلیل</td></tr><tr><td class="f"><code>Description</code></td><td class="t"><code>nvarchar(1000)</code></td><td class="k"></td><td class="n">✓</td><td class="d">توضیح</td></tr><tr><td class="f"><code>By</code></td><td class="t"><code>nvarchar(400)</code></td><td class="k"></td><td class="n"></td><td class="d">عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، نام و کد شعبه</td></tr><tr><td class="f"><code>At</code></td><td class="t"><code>datetime2</code></td><td class="k"></td><td class="n"></td><td class="d">زمان</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>RequestId</code> → <a href="#LoanRequests">LoanRequests</a></p></article><article class="card" id="LoanRequestDocuments"><header><h3 dir="ltr">LoanRequestDocuments</h3><span class="fa">پیوست تصمیم</span></header><p class="desc">مصوبه/سند پیوست تصمیم اعتبارات</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>RequestId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span><span class="key fk">FK</span></td><td class="n"></td><td class="d">درخواست</td></tr><tr><td class="f"><code>FileId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span><span class="key fk">FK</span></td><td class="n"></td><td class="d">فایل (یک فایل می‌تواند پیوست چند درخواست گروهی باشد)</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>FileId</code> → <a href="#Files">Files</a>، <code>RequestId</code> → <a href="#LoanRequests">LoanRequests</a></p></article></div></section><section class="group" id="grp-common"><h2><span class="dot g-common"></span>مشترک</h2><p class="lede">فایل‌ها، دلایل و گزارش تغییرات</p><div class="cards"><article class="card" id="Reasons"><header><h3 dir="ltr">Reasons</h3><span class="fa">فهرست‌های داینامیک</span></header><p class="desc">دلایل و انواع مستند؛ حذف نرم</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>Id</code></td><td class="t"><code>int</code></td><td class="k"><span class="key pk">PK</span></td><td class="n"></td><td class="d">شناسه</td></tr><tr><td class="f"><code>Type</code></td><td class="t"><code>tinyint</code></td><td class="k"><span class="key ix">IX</span></td><td class="n"></td><td class="d">۱ لغو قرارداد، ۲ رد وام، ۳ عدم اعطای غیرحضوری، ۴ لغو درخواست، ۵ رد پرسنل، ۶ نوع مستند</td></tr><tr><td class="f"><code>Title</code></td><td class="t"><code>nvarchar(100)</code></td><td class="k"></td><td class="n"></td><td class="d">عنوان</td></tr><tr><td class="f"><code>IsActive</code></td><td class="t"><code>bit</code></td><td class="k"><span class="key ix">IX</span></td><td class="n"></td><td class="d">فعال</td></tr><tr><td class="f"><code>SortOrder</code></td><td class="t"><code>int</code></td><td class="k"><span class="key ix">IX</span></td><td class="n"></td><td class="d">ترتیب نمایش</td></tr></tbody></table></div><p class="rel"><b>ارجاع‌دهنده:</b> <a href="#CompanyCancellations">CompanyCancellations</a>، <a href="#BalanceDocuments">BalanceDocuments</a></p></article><article class="card" id="Files"><header><h3 dir="ltr">Files</h3><span class="fa">فایل</span></header><p class="desc">متادیتای فایل؛ محتوا در Minio</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>Id</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span></td><td class="n"></td><td class="d">شناسه</td></tr><tr><td class="f"><code>FileName</code></td><td class="t"><code>nvarchar(260)</code></td><td class="k"></td><td class="n"></td><td class="d">نام اصلی</td></tr><tr><td class="f"><code>ContentType</code></td><td class="t"><code>nvarchar(150)</code></td><td class="k"></td><td class="n"></td><td class="d">نوع فایل</td></tr><tr><td class="f"><code>Size</code></td><td class="t"><code>bigint</code></td><td class="k"></td><td class="n"></td><td class="d">حجم (بایت)</td></tr><tr><td class="f"><code>StorageKey</code></td><td class="t"><code>nvarchar(300)</code></td><td class="k"></td><td class="n"></td><td class="d">کلید Minio: facility-panel/yyyy/MM/…</td></tr><tr><td class="f"><code>UploadedAt</code></td><td class="t"><code>datetime2</code></td><td class="k"></td><td class="n"></td><td class="d">زمان بارگذاری</td></tr><tr><td class="f"><code>UploadedBy</code></td><td class="t"><code>nvarchar(150)</code></td><td class="k"></td><td class="n"></td><td class="d">بارگذارکننده</td></tr></tbody></table></div><p class="rel"><b>ارجاع‌دهنده:</b> <a href="#Companies">Companies</a>، <a href="#CompanyCancellations">CompanyCancellations</a>، <a href="#BalanceDocuments">BalanceDocuments</a>، <a href="#Personnel">Personnel</a>، <a href="#LoanRequestDocuments">LoanRequestDocuments</a></p></article><article class="card" id="ChangeLogs"><header><h3 dir="ltr">ChangeLogs</h3><span class="fa">گزارش تغییرات</span></header><p class="desc">US-A4: هر ثبت، ویرایش، لغو، حذف و تصمیم</p><div class="tw"><table><thead><tr><th>فیلد</th><th>نوع SQL</th><th>کلید</th><th>Null</th><th>توضیح</th></tr></thead><tbody><tr><td class="f"><code>Id</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key pk">PK</span></td><td class="n"></td><td class="d">شناسه</td></tr><tr><td class="f"><code>At</code></td><td class="t"><code>datetime2</code></td><td class="k"><span class="key ix">IX</span></td><td class="n"></td><td class="d">زمان</td></tr><tr><td class="f"><code>UserId</code></td><td class="t"><code>int</code></td><td class="k"></td><td class="n"></td><td class="d">کاربر پنل در Identity (بدون FK؛ سرویس دیگر)</td></tr><tr><td class="f"><code>User</code></td><td class="t"><code>nvarchar(400)</code></td><td class="k"></td><td class="n"></td><td class="d">عکس فوری کاربر (JSON): شناسه، نام، کد کاربر، نام و کد شعبه</td></tr><tr><td class="f"><code>Category</code></td><td class="t"><code>tinyint</code></td><td class="k"></td><td class="n"></td><td class="d">۱ شرکت، ۲ پرسنل، ۳ وام، ۴ کاربر</td></tr><tr><td class="f"><code>Action</code></td><td class="t"><code>nvarchar(100)</code></td><td class="k"></td><td class="n"></td><td class="d">عملیات</td></tr><tr><td class="f"><code>Details</code></td><td class="t"><code>nvarchar(2000)</code></td><td class="k"></td><td class="n"></td><td class="d">جزئیات</td></tr><tr><td class="f"><code>Before</code></td><td class="t"><code>nvarchar(max)</code></td><td class="k"></td><td class="n">✓</td><td class="d">مقدار قبلی (JSON)</td></tr><tr><td class="f"><code>After</code></td><td class="t"><code>nvarchar(max)</code></td><td class="k"></td><td class="n">✓</td><td class="d">مقدار جدید (JSON)</td></tr><tr><td class="f"><code>CompanyId</code></td><td class="t"><code>bigint</code></td><td class="k"><span class="key fk">FK</span></td><td class="n">✓</td><td class="d">شرکت؛ null = تغییر اطلاعات پایه</td></tr><tr><td class="f"><code>BranchCode</code></td><td class="t"><code>varchar(50)</code></td><td class="k"><span class="key ix">IX</span></td><td class="n">✓</td><td class="d">شعبهٔ شرکت (فیلتر دامنه)</td></tr><tr><td class="f"><code>RestoreKind</code></td><td class="t"><code>varchar(50)</code></td><td class="k"></td><td class="n">✓</td><td class="d">balances یا personnel-delete</td></tr><tr><td class="f"><code>RestorePayload</code></td><td class="t"><code>nvarchar(max)</code></td><td class="k"></td><td class="n">✓</td><td class="d">دادهٔ لازم برای بازگردانی</td></tr><tr><td class="f"><code>RestoredAt</code></td><td class="t"><code>datetime2</code></td><td class="k"></td><td class="n">✓</td><td class="d">زمان بازگردانی</td></tr></tbody></table></div><p class="rel"><b>مرجع:</b> <code>CompanyId</code> → <a href="#Companies">Companies</a></p></article></div></section>
+
+  <section aria-labelledby="fk">
+    <h2 id="fk">همهٔ کلیدهای خارجی</h2>
+    <p class="lede"><b>Cascade</b>: فرزند فقط به والد تعلق دارد و با آن حذف می‌شود. <b>Restrict</b>: والد تا فرزند دارد حذف نمی‌شود؛ شرکت و پرسنل در عمل حذف نرم می‌شوند.</p>
+    <div class="panel tw"><table><thead><tr><th>ستون فرزند</th><th>جدول والد</th><th>نسبت</th><th>اجباری</th><th>حذف</th><th>معنی</th></tr></thead><tbody><tr><td><a href="#SchemeSettings">SchemeSettings</a>.<code>SchemeId</code></td><td><a href="#Schemes">Schemes</a></td><td class="c">۱ : ۰..۱</td><td class="c">✓</td><td><span class="del cascade">Cascade</span></td><td>هر طرح یک فرم اطلاعات پایه</td></tr><tr><td><a href="#SchemePlans">SchemePlans</a>.<code>SchemeId</code></td><td><a href="#SchemeSettings">SchemeSettings</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del cascade">Cascade</span></td><td>طرح‌های جدول درصد قابل استفاده</td></tr><tr><td><a href="#Companies">Companies</a>.<code>AgreementFileId</code></td><td><a href="#Files">Files</a></td><td class="c">۰..۱ : N</td><td class="c">—</td><td><span class="del restrict">Restrict</span></td><td>فایل تفاهم‌نامه</td></tr><tr><td><a href="#Companies">Companies</a>.<code>SchemeId</code></td><td><a href="#Schemes">Schemes</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>شرکت عضو یک طرح کلان است</td></tr><tr><td><a href="#CompanyPlans">CompanyPlans</a>.<code>CompanyId</code></td><td><a href="#Companies">Companies</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del cascade">Cascade</span></td><td>طرح‌های تفاهم‌نامهٔ شرکت (۱ تا سقف)</td></tr><tr><td><a href="#CompanyPlans">CompanyPlans</a>.<code>PlanId</code></td><td><a href="#SchemePlans">SchemePlans</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>شرکت ↔ طرح: چند به چند</td></tr><tr><td><a href="#MonthlyBalances">MonthlyBalances</a>.<code>CompanyId</code></td><td><a href="#Companies">Companies</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del cascade">Cascade</span></td><td>یک ردیف برای هر ماه</td></tr><tr><td><a href="#CompanyCancellations">CompanyCancellations</a>.<code>CompanyId</code></td><td><a href="#Companies">Companies</a></td><td class="c">۱ : ۰..۱</td><td class="c">✓</td><td><span class="del cascade">Cascade</span></td><td>لغو قرارداد</td></tr><tr><td><a href="#CompanyCancellations">CompanyCancellations</a>.<code>LetterFileId</code></td><td><a href="#Files">Files</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>نامهٔ لغو</td></tr><tr><td><a href="#CompanyCancellations">CompanyCancellations</a>.<code>ReasonId</code></td><td><a href="#Reasons">Reasons</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>دلیل لغو (نوع ۱)</td></tr><tr><td><a href="#BalanceDocuments">BalanceDocuments</a>.<code>CompanyId</code></td><td><a href="#Companies">Companies</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>مستندات میانگین</td></tr><tr><td><a href="#BalanceDocuments">BalanceDocuments</a>.<code>DocumentTypeId</code></td><td><a href="#Reasons">Reasons</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>نوع مستند (نوع ۶)</td></tr><tr><td><a href="#BalanceDocuments">BalanceDocuments</a>.<code>FileId</code></td><td><a href="#Files">Files</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>فایل مستند</td></tr><tr><td><a href="#Personnel">Personnel</a>.<code>CompanyId</code></td><td><a href="#Companies">Companies</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>پرسنل شرکت</td></tr><tr><td><a href="#Personnel">Personnel</a>.<code>DeleteFileId</code></td><td><a href="#Files">Files</a></td><td class="c">۰..۱ : N</td><td class="c">—</td><td><span class="del restrict">Restrict</span></td><td>فایل مستند حذف</td></tr><tr><td><a href="#Personnel">Personnel</a>.<code>ImportBatchId</code></td><td><a href="#PersonnelImports">PersonnelImports</a></td><td class="c">۰..۱ : N</td><td class="c">—</td><td><span class="del restrict">Restrict</span></td><td>فردی که از فایل اکسل آمده</td></tr><tr><td><a href="#PersonnelHistory">PersonnelHistory</a>.<code>PersonnelId</code></td><td><a href="#Personnel">Personnel</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del cascade">Cascade</span></td><td>تاریخچهٔ وضعیت</td></tr><tr><td><a href="#PersonnelImports">PersonnelImports</a>.<code>CompanyId</code></td><td><a href="#Companies">Companies</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>بارگذاری‌های گروهی</td></tr><tr><td><a href="#LoanBatches">LoanBatches</a>.<code>CompanyId</code></td><td><a href="#Companies">Companies</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>ثبت‌های تخصیص شرکت</td></tr><tr><td><a href="#LoanBatches">LoanBatches</a>.<code>PlanId</code></td><td><a href="#SchemePlans">SchemePlans</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>هر ثبت یک طرح</td></tr><tr><td><a href="#LoanRequests">LoanRequests</a>.<code>BatchId</code></td><td><a href="#LoanBatches">LoanBatches</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del cascade">Cascade</span></td><td>یک درخواست برای هر نفر</td></tr><tr><td><a href="#LoanRequests">LoanRequests</a>.<code>CompanyId</code></td><td><a href="#Companies">Companies</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>کپی شرکت ثبت</td></tr><tr><td><a href="#LoanRequests">LoanRequests</a>.<code>PersonnelId</code></td><td><a href="#Personnel">Personnel</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>وام‌های یک نفر (حداکثر یک درخواست باز)</td></tr><tr><td><a href="#LoanRequests">LoanRequests</a>.<code>PlanId</code></td><td><a href="#SchemePlans">SchemePlans</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>کپی طرح ثبت</td></tr><tr><td><a href="#LoanRequestHistory">LoanRequestHistory</a>.<code>RequestId</code></td><td><a href="#LoanRequests">LoanRequests</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del cascade">Cascade</span></td><td>تاریخچهٔ تصمیم‌ها</td></tr><tr><td><a href="#LoanRequestDocuments">LoanRequestDocuments</a>.<code>FileId</code></td><td><a href="#Files">Files</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del restrict">Restrict</span></td><td>یک فایل برای چند درخواست گروهی</td></tr><tr><td><a href="#LoanRequestDocuments">LoanRequestDocuments</a>.<code>RequestId</code></td><td><a href="#LoanRequests">LoanRequests</a></td><td class="c">۱ : N</td><td class="c">✓</td><td><span class="del cascade">Cascade</span></td><td>پیوست‌های تصمیم</td></tr><tr><td><a href="#ChangeLogs">ChangeLogs</a>.<code>CompanyId</code></td><td><a href="#Companies">Companies</a></td><td class="c">۰..۱ : N</td><td class="c">—</td><td><span class="del restrict">Restrict</span></td><td>گزارش تغییرات شرکت</td></tr></tbody></table></div>
+  </section>
+
+  <section aria-labelledby="logic">
+    <h2 id="logic">رابطه‌های بدون کلید خارجی</h2>
+    <div class="panel tw"><table><thead><tr><th>ستون</th><th>به</th><th>چرا</th></tr></thead><tbody><tr><td><code>LoanRequests.BranchCode / ChangeLogs.BranchCode</code></td><td><code>Companies.BranchCode</code></td><td>کپی عمدی؛ شعبهٔ شرکت عوض نمی‌شود و فیلتر دامنهٔ شعبه بدون Join اعمال می‌شود.</td></tr><tr><td><code>LoanRequests.CompanyId / PlanId</code></td><td><code>LoanBatches.CompanyId / PlanId</code></td><td>کپی از ثبت.</td></tr><tr><td><code>ChangeLogs.UserId و همهٔ Registrar / By / EditedBy</code></td><td><code>PanelUser در Identity</code></td><td>سرویس دیگر؛ FK ندارد. کاربر به‌صورت عکس فوری در لحظهٔ عملیات ذخیره می‌شود.</td></tr><tr><td><code>ScopeId دامنهٔ &#171;شرکت&#187; در Identity</code></td><td><code>Companies.Id</code></td><td>نقش‌های مدیر شرکت و منابع انسانی به همین شناسه محدود می‌شوند.</td></tr><tr><td><code>ScopeId دامنهٔ &#171;شعبه&#187; در Identity</code></td><td><code>Companies.BranchCode</code></td><td>کاربر شعبه فقط شرکت‌های همین کد شعبه را می‌بیند.</td></tr><tr><td><code>CompanyCancellations.ReasonTitle، PersonnelHistory.Reason، LoanRequestHistory.Reason</code></td><td><code>Reasons.Title</code></td><td>عنوان دلیل در لحظهٔ عملیات کپی می‌شود؛ دلیل‌ها فقط غیرفعال می‌شوند، پس سوابق قدیمی سالم می‌مانند.</td></tr></tbody></table></div>
+  </section>
+
+  <section aria-labelledby="rules">
+    <h2 id="rules">قواعدی که در Domain کنترل می‌شوند</h2>
+    <div class="panel"><ul class="rules"><li>هر نفر حداکثر یک درخواست باز دارد (وضعیت ۱، ۳ یا ۵).</li><li>فردی که در درخواست وامِ لغونشده آمده، قابل ویرایش و حذف نیست.</li><li>طرحی که درخواست فعال دارد، از تفاهم‌نامهٔ شرکت حذف نمی‌شود.</li><li>شرکتی که درخواست تأییدشده دارد، حذف نمی‌شود.</li><li>&#171;اعتبار ایجادشده&#187; و &#171;مانده&#187; ذخیره نمی‌شوند؛ هر بار از میانگین‌ها، طرح‌ها و درخواست‌های ردنشده محاسبه می‌شوند (CreditRules).</li><li>تعداد طرح‌های هر شرکت بین ۱ و MaxPlansPerCompany است.</li></ul></div>
+    <p class="note">قراردادها: مبلغ‌ها ریال؛ تاریخ‌ها میلادی ذخیره و شمسی نمایش؛ نرخ و درصد به درصد (۴ یعنی ۴٪). ستون‌های Registrar / By / EditedBy عکس فوری کاربر در لحظهٔ عملیات‌اند (JSON).</p>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true, theme: matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "default"});</script>
+</body>
+</html>

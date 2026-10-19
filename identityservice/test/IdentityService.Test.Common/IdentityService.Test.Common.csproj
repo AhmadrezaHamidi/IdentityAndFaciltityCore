@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="OmidBank.Common" Version="14.4.4" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <DefineConstants>$(DefineConstants);REPEAT_UNTIL_FAIL</DefineConstants>
+    </PropertyGroup>
+
+</Project>

@@ -1,0 +1,109 @@
+<title>نقشهٔ داده پنل نگین میثاق</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: سند فنی راست‌به‌چپ؛ نمودار کامل بالا، کارت هر جدول به تفکیک بخش، بعد فهرست کلیدهای خارجی */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --ink:#18222e; --soft:#5b6878; --line:#dfe3ea; --code:#eef1f6;
+  --navy:#1c4a73; --gold:#a87a14;
+  --g-base:#1c4a73; --g-company:#2f7d62; --g-personnel:#8a5a12; --g-loan:#9a3f3f; --g-common:#5d5a8c;
+  --font-body:"Vazirmatn",Tahoma,sans-serif; --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f151c; --surface:#16202b; --ink:#e6ebf1; --soft:#9aa7b6; --line:#2a3644; --code:#1d2936;
+  --navy:#8cb7e0; --gold:#e0b65a;
+  --g-base:#7fb0e0; --g-company:#6cc4a2; --g-personnel:#e0b15e; --g-loan:#e88d8d; --g-common:#aaa6e6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f151c; --surface:#16202b; --ink:#e6ebf1; --soft:#9aa7b6; --line:#2a3644; --code:#1d2936;
+  --navy:#8cb7e0; --gold:#e0b65a;
+  --g-base:#7fb0e0; --g-company:#6cc4a2; --g-personnel:#e0b15e; --g-loan:#e88d8d; --g-common:#aaa6e6; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.75}
+.wrap{direction:rtl;max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:28px 64px}
+h1{font-size:clamp(24px,4vw,34px);font-weight:800;margin:0;color:var(--navy);text-wrap:balance}
+h2{font-size:21px;margin:0;display:flex;align-items:center;gap:10px;text-wrap:balance}
+h3{margin:0;font-family:var(--font-mono);font-size:16px;font-weight:600}
+code{font-family:var(--font-mono);font-size:12.5px;background:var(--code);padding:1px 5px;border-radius:4px;direction:ltr;unicode-bidi:isolate}
+a{color:var(--navy)}
+.head{display:grid;gap:10px;border-bottom:2px solid var(--navy);padding-bottom:18px}
+.eyebrow{font-size:12px;letter-spacing:.06em;color:var(--gold);font-weight:700}
+.lede{color:var(--soft);margin:0;max-width:70ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:14px;color:var(--soft)}
+.stats b{color:var(--ink);font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--soft)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:11px;height:11px;border-radius:3px;display:inline-block;background:var(--c)}
+.g-base{--c:var(--g-base)}.g-company{--c:var(--g-company)}.g-personnel{--c:var(--g-personnel)}.g-loan{--c:var(--g-loan)}.g-common{--c:var(--g-common)}
+section{margin-top:40px;display:grid;gap:14px}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:80vh;padding:12px}
+.diagram pre{direction:ltr;margin:0;min-width:1400px}
+.nav{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:12px;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-inline-start:4px solid var(--c);padding:2px 9px;border-radius:6px;background:var(--surface);direction:ltr}
+.chip:hover,.chip:focus-visible{border-color:var(--c);outline:none}
+.cards{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0;scroll-margin-top:16px}
+.card header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.card .fa{color:var(--soft);font-weight:500}
+.card .desc{margin:4px 0 10px;color:var(--soft);font-size:14px}
+.group h2 .dot{width:14px;height:14px}
+.group .card{border-top:3px solid var(--c)}
+#grp-base .card{--c:var(--g-base)}#grp-company .card{--c:var(--g-company)}#grp-personnel .card{--c:var(--g-personnel)}#grp-loan .card{--c:var(--g-loan)}#grp-common .card{--c:var(--g-common)}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{font-size:12px;letter-spacing:.03em;color:var(--soft);font-weight:700;text-align:start;border-bottom:1px solid var(--line);padding:6px 8px;white-space:nowrap}
+td{border-bottom:1px solid var(--line);padding:6px 8px;vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.f,td.t,td.k{white-space:nowrap}
+td.n,td.c{text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+.key{font-family:var(--font-mono);font-size:11px;font-weight:600;padding:0 6px;border-radius:4px;margin-inline-end:4px;border:1px solid var(--line);direction:ltr;display:inline-block}
+.key.pk{color:var(--gold);border-color:var(--gold)}
+.key.fk{color:var(--navy);border-color:var(--navy)}
+.rel{margin:10px 0 0;font-size:13.5px;color:var(--soft)}
+.rel b{color:var(--ink)}
+.del{font-family:var(--font-mono);font-size:12px;padding:0 6px;border-radius:4px;border:1px solid var(--line)}
+.del.cascade{color:var(--g-loan);border-color:var(--g-loan)}
+.del.restrict{color:var(--soft)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
+ul.rules{margin:0;padding-inline-start:20px;display:grid;gap:4px}
+.note{font-size:13px;color:var(--soft)}
+@media (max-width:640px){.diagram{max-height:none}}
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <div class="eyebrow">FacilityService · اسکیمای panel · مایگریشن InitialFacilityPanel</div>
+    <h1>نقشهٔ دادهٔ پنل نگین میثاق</h1>
+    <p class="lede">همهٔ جدول‌های سرویس Facility با فیلدها، نوع ستون در SQL Server، کلیدها و رابطه‌ها؛ برگرفته از مدل EF و Migration همین ریپو.</p>
+    <div class="stats"><span><b>{{NT}}</b> جدول</span><span><b>{{NC}}</b> فیلد</span><span><b>{{NR}}</b> کلید خارجی</span></div>
+    <div class="legend">
+      <span><i class="dot g-base"></i>اطلاعات پایه</span><span><i class="dot g-company"></i>شرکت</span><span><i class="dot g-personnel"></i>پرسنل</span><span><i class="dot g-loan"></i>وام</span><span><i class="dot g-common"></i>مشترک</span>
+      <span><span class="key pk">PK</span>کلید اصلی</span><span><span class="key fk">FK</span>کلید خارجی</span><span><span class="key">UK</span>ترکیب یکتا</span><span><span class="key">IX</span>ایندکس</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="er">
+    <h2 id="er">نمودار کامل (ER)</h2>
+    <p class="note">نمودار را افقی و عمودی بکشید. علامت‌ها: <code>||</code> دقیقاً یک، <code>o|</code> صفر یا یک، <code>o{</code> صفر یا چند، <code>|{</code> یک یا چند. برچسب هر خط، ستون کلید خارجی است.</p>
+    <div class="diagram"><pre class="mermaid">{{MERMAID}}</pre></div>
+    <nav class="nav" aria-label="پرش به جدول">{{NAV}}</nav>
+  </section>
+
+  {{CARDS}}
+
+  <section aria-labelledby="fk">
+    <h2 id="fk">همهٔ کلیدهای خارجی</h2>
+    <p class="lede"><b>Cascade</b>: فرزند فقط به والد تعلق دارد و با آن حذف می‌شود. <b>Restrict</b>: والد تا فرزند دارد حذف نمی‌شود؛ شرکت و پرسنل در عمل حذف نرم می‌شوند.</p>
+    <div class="panel tw"><table><thead><tr><th>ستون فرزند</th><th>جدول والد</th><th>نسبت</th><th>اجباری</th><th>حذف</th><th>معنی</th></tr></thead><tbody>{{FK}}</tbody></table></div>
+  </section>
+
+  <section aria-labelledby="logic">
+    <h2 id="logic">رابطه‌های بدون کلید خارجی</h2>
+    <div class="panel tw"><table><thead><tr><th>ستون</th><th>به</th><th>چرا</th></tr></thead><tbody>{{LOGICAL}}</tbody></table></div>
+  </section>
+
+  <section aria-labelledby="rules">
+    <h2 id="rules">قواعدی که در Domain کنترل می‌شوند</h2>
+    <div class="panel"><ul class="rules">{{RULES}}</ul></div>
+    <p class="note">قراردادها: مبلغ‌ها ریال؛ تاریخ‌ها میلادی ذخیره و شمسی نمایش؛ نرخ و درصد به درصد (۴ یعنی ۴٪). ستون‌های Registrar / By / EditedBy عکس فوری کاربر در لحظهٔ عملیات‌اند (JSON).</p>
+  </section>
+</div>

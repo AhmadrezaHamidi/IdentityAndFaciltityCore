@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ثبت وابستگی‌ها؛ مثل IdentityService.IoC -->
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><RootNamespace>FacilityService.IoC</RootNamespace></PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="MediatR" Version="12.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../FacilityService.Application/FacilityService.Application.csproj" />
+    <ProjectReference Include="../FacilityService.Infrastructure/FacilityService.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="FacilityService.Application.Handler.Shared" />
+  </ItemGroup>
+</Project>
